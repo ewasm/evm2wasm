@@ -1,5 +1,5 @@
 // Virtual machine bytecode instructions.
-enum instruction {
+typedef enum Instruction {
   STOP = 0x00,      // halts execution
   ADD,              // addition operation
   MUL,              // mulitplication operation
@@ -140,7 +140,7 @@ enum instruction {
   RETURN,           // halt execution returning output data
   DELEGATECALL,     // like CALLCODE but keeps caller's value and sender
   SUICIDE = 0xff    // halt execution and register account for later deletion
-};
+} Instuction;
 
 struct instr_info {
   const char* name;
