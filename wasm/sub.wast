@@ -23,17 +23,14 @@
     (set_local $carry (call $checkoverflow ($a2 $a1 $a)))
 
     ;; b
-    (set_local $carry (i64.eqz (get_local $b)))
     (set_local $b2 (call $sub64 ($b1 $b $carry)))
     (set_local $carry (call $checkoverflow ($b2 $b1 $b)))
 
     ;; c
-    (set_local $carry (i64.eqz (get_local $c)))
     (set_local $c2 (call $sub64 ($c1 $c $carry)))
     (set_local $carry (call $checkoverflow ($c2 $c1 $c)))
 
     ;; d
-    (set_local $carry (i64.eqz (get_local $d)))
     (set_local $d2 (call $add64 ($d1 $d $carry)))
     (set_local $carry (call $checkoverflow ($d2 $d1 $d)))
   )

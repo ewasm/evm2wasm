@@ -19,7 +19,7 @@
     (result $64)
 
     ;; a
-    (set_local $a2 (call $add64 ($a1 $a $carry)))
+    (set_local $a2 (call $add64 ($a1 $a (i64.const))))
     (set_local $carry (call $checkoverflow ($a2 $a1 $a)))
 
     ;; b

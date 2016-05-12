@@ -1,144 +1,199 @@
 (module
   (func $div
+    ;; dividend
     (param $a i64)
-    (local $b i64)
+    (param $b i64)
     (param $c i64)
-    (local $d i64)
-    (param $e i64)
-    (local $f i64)
-    (param $g i64)
-    (local $h i64)
+    (param $d i64)
 
-    (param $i i64)
-    (local $j i64)
-    (param $k i64)
-    (local $l i64)
-    (param $m i64)
-    (local $n i64)
-    (param $o i64)
-    (local $p i64)
+    ;; divisor
+    (param $a1 i64)
+    (param $b1 i64)
+    (param $c1 i64)
+    (param $d1 i64)
 
-    (local $r0 i64)
-    (local $r1 i64)
-    (local $r2 i64)
-    (local $r3 i64)
-    (local $r4 i64)
-    (local $r5 i64)
-    (local $r6 i64)
-    (local $r7 i64)
+    ;; qutiant
+    (param $a2 i64)
+    (param $b2 i64)
+    (param $c2 i64)
+    (param $d2 i64)
 
-    ;; split the ops
-    (set_local $a (i64.and (get_local $a) (i64.const 4294967295)))
-    (set_local $b (i64.shl (get_local $a) (i64.const 32))) 
-    (set_local $c (i64.and (get_local $c) (i64.const 4294967295)))
-    (set_local $d (i64.shl (get_local $c) (i64.const 32))) 
-    (set_local $e (i64.and (get_local $e) (i64.const 4294967295)))
-    (set_local $f (i64.shl (get_local $e) (i64.const 32)))
-    (set_local $g (i64.and (get_local $g) (i64.const 4294967295)))
-    (set_local $h (i64.shl (get_local $g) (i64.const 32)))
+    (local $numToShift)
+    (local $mask)
 
-    (set_local $i (i64.and (get_local $i) (i64.const 4294967295)))
-    (set_local $j (i64.shl (get_local $i) (i64.const 32))) 
-    (set_local $k (i64.and (get_local $k) (i64.const 4294967295)))
-    (set_local $l (i64.shl (get_local $k) (i64.const 32))) 
-    (set_local $m (i64.and (get_local $m) (i64.const 4294967295)))
-    (set_local $n (i64.shl (get_local $m) (i64.const 32)))
-    (set_local $o (i64.and (get_local $o) (i64.const 4294967295)))
-    (set_local $p (i64.shl (get_local $o) (i64.const 32)))
+    ;; check div by 0
+    (if (i64.and (i64.and (i64.and (get_local $a1) (get_local $b1)) (get_local $c1)) (get_local $d1))    
+      ;; br
+    )
 
-    ;; first row multiplication 
-    ;; p * h
-    (set_local $r7 (i64.mul (get_local $p) (get_local $h)))
-    ;; p * g + carry
-    (set_local $r6  (i64.add (i64.mul (get_local $p) (get_local $g)) (i64.shl (get_local $r7) (i64.const 32))))
-    ;; p * f + carry
-    (set_local $r5  (i64.add (i64.mul (get_local $p) (get_local $f)) (i64.shl (get_local $r6) (i64.const 32))))
-    ;; p * e + carry
-    (set_local $r4  (i64.add (i64.mul (get_local $p) (get_local $e)) (i64.shl (get_local $r5) (i64.const 32))))
-    ;; p * d + carry
-    (set_local $r3  (i64.add (i64.mul (get_local $p) (get_local $d)) (i64.shl (get_local $r4) (i64.const 32))))
-    ;; p * c + carry
-    (set_local $r2  (i64.add (i64.mul (get_local $p) (get_local $c)) (i64.shl (get_local $r3) (i64.const 32))))
-    ;; p * b + carry
-    (set_local $r1  (i64.add (i64.mul (get_local $p) (get_local $b)) (i64.shl (get_local $r2) (i64.const 32))))
-    ;; p * a + carry
-    (set_local $r0  (i64.add (i64.mul (get_local $p) (get_local $a)) (i64.shl (get_local $r1) (i64.const 32))))
+    ;; check if the divsor is larger then the dividend
+    (if (i64.lt_u (get_local $a) (get_local $a1) )
+      (then
+        ;; break
+      )  
+      (else
+        (if (i64.eqz(get_local $a)) 
+          (then
+            (if (i64.lt_u (get_local $b) (get_local $b1))
+              (then
+                ;; break
+              ) 
+              (else 
+                (if (i64.eqz(get_local $b)) 
+                  (then
+                    (if (i64.lt_u (get_local $c) (get_local $c1))
+                      (then
+                        ;; break 
+                      ) 
+                      (else 
+                        (if (i64.eqz(get_local $c)) 
+                          (then
+                            (if (i64.lt_u (get_local $d) (get_local $d1))
+                              (then
+                                ;; break
+                              )
+                              (else
+                                ;; return result
+                                (i64.div (get_local $d) (get_local $d1))
+                              )
+                            )
+                          ) 
+                        )       
+                      )
+                    )
+                  ) 
+                )       
+              )
+            )
+          ) 
+        )
+      )
+    )
 
-    ;; second row
-    ;; o * h + $r6 (pg)
-    (set_local $r6 (i64.add (i64.mul (get_local $o) (get_local $h)) (i64.and (get_local $r6) (i64.const 4294967295))))
-    ;; o * g + $r5 (pf) + carry
-    (set_local $r5 (i64.add (i64.add (i64.mul (get_local $o) (get_local $g)) (i64.and (get_local $r5) (i64.const 4294967295))) (i64.shl (get_local $r6) (i64.const 32))))
-    ;; o * f + $r4 (pe) + carry
-    (set_local $r4 (i64.add (i64.add (i64.mul (get_local $o) (get_local $f)) (i64.and (get_local $r4) (i64.const 4294967295))) (i64.shl (get_local $r5) (i64.const 32))))
-    ;; o * e + $r3 (pd) + carry
-    (set_local $r3 (i64.add (i64.add (i64.mul (get_local $o) (get_local $e)) (i64.and (get_local $r3) (i64.const 4294967295))) (i64.shl (get_local $r4) (i64.const 32))))
-    ;; o * d + $r2 (pc) + carry
-    (set_local $r3 (i64.add (i64.add (i64.mul (get_local $o) (get_local $d)) (i64.and (get_local $r2) (i64.const 4294967295))) (i64.shl (get_local $r3) (i64.const 32))))
-    ;; o * c + $r1 (pb) + carry
-    (set_local $r2 (i64.add (i64.add (i64.mul (get_local $o) (get_local $c)) (i64.and (get_local $r1) (i64.const 4294967295))) (i64.shl (get_local $r2) (i64.const 32))))
-    ;; o * b + $r0 (pa) + carry
-    (set_local $r1 (i64.add (i64.add (i64.mul (get_local $o) (get_local $b)) (i64.and (get_local $r0) (i64.const 4294967295))) (i64.shl (get_local $r1) (i64.const 32))))
+    ;; --- 4 block ---
+    ;; divisor takes 4 regersters
+    ;; shift regerister of divisor as leading empty regesters
+    (if (i64.eqz(get_local $a1))
+      (then 
+        (set_local $numToShift (i64.const 64))
+        (if (i64.eqz (get_local $b1))
+          (then 
+            (set_local $numToShift (i64.add (i64.const 64) (get_local $numToShift)))
+            (if (i64.eqz (get_local $c1))
+              (then 
+                (set_local $numToShift (i64.add (i64.const 64) (get_local $numToShift)))
+                ;; TODO return
+                (i64.div (get_local $d1) (get_local $d))
+              )
+              ;; shift two register
+              (else
+                ;; TODO jump 2 args
+              )
+            )
+          )
+          ;; shift one regester 
+          ;; b->a, c->b, d->c, null->d
+          (else
+            (set_local $a (get_local $b1))
+            (set_local $b (get_local $c1))
+            (set_local $c (get_local $d1))
+            (set_local $d (i64.const 0))
+          )
+        )
+      ) 
+    )
 
-    ;; third row - n
-    ;; n * h + $r5 (og)
-    (set_local $r5 (i64.add (i64.mul (get_local $n) (get_local $h)) (i64.and (get_local $r5) (i64.const 4294967295))))
-    ;; n * g + $r4 (of) + carry
-    (set_local $r4 (i64.add (i64.add (i64.mul (get_local $n) (get_local $g)) (i64.and (get_local $r4) (i64.const 4294967295))) (i64.shl (get_local $r5) (i64.const 32))))
-    ;; n * f + $r3 (oe) + carry
-    (set_local $r3 (i64.add (i64.add (i64.mul (get_local $n) (get_local $f)) (i64.and (get_local $r3) (i64.const 4294967295))) (i64.shl (get_local $r4) (i64.const 32))))
-    ;; n * e + $r2 (od) + carry
-    (set_local $r2 (i64.add (i64.add (i64.mul (get_local $o) (get_local $e)) (i64.and (get_local $r2) (i64.const 4294967295))) (i64.shl (get_local $r3) (i64.const 32))))
-    ;; n * d + $r1 (oc) + carry
-    (set_local $r1 (i64.add (i64.add (i64.mul (get_local $o) (get_local $d)) (i64.and (get_local $r1) (i64.const 4294967295))) (i64.shl (get_local $r2) (i64.const 32))))
-    ;; n * c + $r0 (ob) + carry
-    (set_local $r0 (i64.add (i64.add (i64.mul (get_local $o) (get_local $c)) (i64.and (get_local $r0) (i64.const 4294967295))) (i64.shl (get_local $r1) (i64.const 32))))
+    ;; shift regesters
+    (set_local $numToShift (i64.sub (i64.clz $a) (i64.clz $a1)))
+    (if (i64.lt_s (get_local $numToShift) (i64.const 0))
+      ;; the divors is bigger than the dividend
+      (then 
+        ;;exit
+      )
+      (else
+        ;; shift
+        (set_local $a1 (i64.shl (get_local $a1) (get_local $numToShift)))
+        (set_local $b1 (i64.shl (get_local $b1) (get_local $numToShift)))
+        (set_local $c1 (i64.shl (get_local $c1) (get_local $numToShift)))
+        (set_local $d1 (i64.shl (get_local $d1) (get_local $numToShift)))
+      )
+    )
 
-    ;; forth row ---- TODO
-    ;; m * h + $r4 (ng)
-    (set_local $r4 (i64.add (i64.mul (get_local $o) (get_local $h)) (i64.and (get_local $r4) (i64.const 4294967295))))
-    ;; m * g + $r3 (nf) + carry
-    (set_local $r3 (i64.add (i64.add (i64.mul (get_local $o) (get_local $g)) (i64.and (get_local $r3) (i64.const 4294967295))) (i64.shl (get_local $r4) (i64.const 32))))
-    ;; m * f + $r2 (oe) + carry
-    (set_local $r2 (i64.add (i64.add (i64.mul (get_local $o) (get_local $f)) (i64.and (get_local $r2) (i64.const 4294967295))) (i64.shl (get_local $r3) (i64.const 32))))
-    ;; m * e + $r1 (od) + carry
-    (set_local $r1 (i64.add (i64.add (i64.mul (get_local $o) (get_local $e)) (i64.and (get_local $r1) (i64.const 4294967295))) (i64.shl (get_local $r2) (i64.const 32))))
-    ;; m * d + $r0 (oc) + carry
-    (set_local $r0 (i64.add (i64.add (i64.mul (get_local $o) (get_local $d)) (i64.and (get_local $r0) (i64.const 4294967295))) (i64.shl (get_local $r1) (i64.const 32))))
+    ;; run on 4 registers 
+    (loop $exit $loop
+      (if (i64.eqz (get_local $a))
+        (then
+          ;; break to 3
+        )
+      )
+      (if (i64.lte_u (get_local $a1) (get_local $a))
+        (then
+          ;; subtract remain = reamin - part1
+          ;; a
+          (set_local $a2 (call $sub64 ($a1 $a $carry)))
+          (set_local $carry (call $checkoverflow ($a2 $a1 $a)))
 
-    ;; fith row ---- TODO
-    ;; l * h + $r3 (ng)
-    (set_local $r3 (i64.add (i64.mul (get_local $o) (get_local $h)) (i64.and (get_local $r3) (i64.const 4294967295))))
-    ;; l * g + $r2 (nf) + carry
-    (set_local $r2 (i64.add (i64.add (i64.mul (get_local $o) (get_local $g)) (i64.and (get_local $r2) (i64.const 4294967295))) (i64.shl (get_local $r3) (i64.const 32))))
-    ;; l * f + $r1 (oe) + carry
-    (set_local $r1 (i64.add (i64.add (i64.mul (get_local $o) (get_local $f)) (i64.and (get_local $r1) (i64.const 4294967295))) (i64.shl (get_local $r2) (i64.const 32))))
-    ;; l * e + $r0 (od) + carry
-    (set_local $r0 (i64.add (i64.add (i64.mul (get_local $o) (get_local $e)) (i64.and (get_local $r0) (i64.const 4294967295))) (i64.shl (get_local $r1) (i64.const 32))))
+          ;; b
+          (set_local $b2 (call $sub64 ($b1 $b $carry)))
+          (set_local $carry (call $checkoverflow ($b2 $b1 $b)))
 
-    ;; sixth row ---- TODO
-    ;; k * h + $r2 (ng)
-    (set_local $r2 (i64.add (i64.mul (get_local $o) (get_local $h)) (i64.and (get_local $r2) (i64.const 4294967295))))
-    ;; k * g + $r1 (nf) + carry
-    (set_local $r1 (i64.add (i64.add (i64.mul (get_local $o) (get_local $g)) (i64.and (get_local $r1) (i64.const 4294967295))) (i64.shl (get_local $r2) (i64.const 32))))
-    ;; k * f + $r0 (oe) + carry
-    (set_local $r0 (i64.add (i64.add (i64.mul (get_local $o) (get_local $f)) (i64.and (get_local $r0) (i64.const 4294967295))) (i64.shl (get_local $r1) (i64.const 32))))
+          ;; c
+          (set_local $c2 (call $sub64 ($c1 $c $carry)))
+          (set_local $carry (call $checkoverflow ($c2 $c1 $c)))
 
-    ;; seventh row ---- TODO
-    ;; j * h + $r1 (ng)
-    (set_local $r1 (i64.add (i64.mul (get_local $o) (get_local $h)) (i64.and (get_local $r1) (i64.const 4294967295))))
-    ;; j * g + $r0 (nf) + carry
-    (set_local $r0 (i64.add (i64.add (i64.mul (get_local $o) (get_local $g)) (i64.and (get_local $r0) (i64.const 4294967295))) (i64.shl (get_local $r1) (i64.const 32))))
+          ;; d
+          (set_local $d2 (call $add64 ($d1 $d $carry)))
+          (set_local $carry (call $checkoverflow ($d2 $d1 $d)))
 
-    ;; eigth row ---- TODO
-    ;; i * h + $r0 (jg)
-    (set_local $r0 (i64.add (i64.mul (get_local $j) (get_local $h)) (i64.and (get_local $r0) (i64.const 4294967295))))
+          ;; add the mask result = mask + result 
+          (set_local $resultA (call $add64 ($resultA $maskA (i64.const 0))))
+          (set_local $carry (call $checkoverflow ($a2 $a1 $a)))
 
-    ;; combine terms
-    (set_local $r0 (i64.and (i64.shl (get_local $r0) (i64.const 32) (i64.and (get_local $r1) (i64.const 4294967295)))))
-    (set_local $r1 (i64.and (i64.shl (get_local $r2) (i64.const 32) (i64.and (get_local $r3) (i64.const 4294967295)))))
-    (set_local $r2 (i64.and (i64.shl (get_local $r4) (i64.const 32) (i64.and (get_local $r5) (i64.const 4294967295)))))
-    (set_local $r3 (i64.and (i64.shl (get_local $r6) (i64.const 32) (i64.and (get_local $r7) (i64.const 4294967295)))))
+          ;; b
+          (set_local $resultB (call $add64 ($resultB $maskB $carry)))
+          (set_local $carry (call $checkoverflow ($b2 $b1 $b)))
+
+          ;; c
+          (set_local $resultC (call $add64 ($resultC $maskC $carry)))
+          (set_local $carry (call $checkoverflow ($c2 $c1 $c)))
+
+          ;; d
+          (set_local $resultD (call $add64 ($resultD $maskD $carry)))
+        )
+      )
+      
+      ;; part1 = part1 >> 1
+      (set_local $a1 (i64.shl (get_local $a1) (i64.const 1)))
+      (set_local $b1 (i64.shl (get_local $b1) (i64.const 1)))
+      (set_local $c1 (i64.shl (get_local $c1) (i64.const 1)))
+      (set_local $d1 (i64.shl (get_local $d1) (i64.const 1)))
+
+      ;; mask = mask >> 1
+      (set_local $a1 (i64.shl (get_local $a1) (i64.const 1)))
+      (set_local $b1 (i64.shl (get_local $b1) (i64.const 1)))
+      (set_local $c1 (i64.shl (get_local $c1) (i64.const 1)))
+      (set_local $d1 (i64.shl (get_local $d1) (i64.const 1)))
+    )
+  )
+
+  ;; check the add result for overflow
+  (func $checkOverflow 
+    (param $subtrahend i64)
+    (param $a i64)
+    (param $b i64)
+    (result i64)
+    (if 
+      ;; subtrahend<=a and subtrahend<=b
+      (i64.or
+        (i64.lt_u (get_local $b) (get_local $subtrahend))
+        (i64.lt_u (get_local $a) (get_local $subtrahend)))
+      (then 
+        (return i64.const 1)
+      )
+      (else
+        (return i64.const 0)
+      )
+    )
   )
   (export $mul)
 )

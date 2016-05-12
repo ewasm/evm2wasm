@@ -94,7 +94,7 @@
     ;; n * c + $r0 (ob) + carry
     (set_local $r0 (i64.add (i64.add (i64.mul (get_local $o) (get_local $c)) (i64.and (get_local $r0) (i64.const 4294967295))) (i64.shl (get_local $r1) (i64.const 32))))
 
-    ;; forth row ---- TODO
+    ;; forth row 
     ;; m * h + $r4 (ng)
     (set_local $r4 (i64.add (i64.mul (get_local $o) (get_local $h)) (i64.and (get_local $r4) (i64.const 4294967295))))
     ;; m * g + $r3 (nf) + carry
@@ -106,7 +106,7 @@
     ;; m * d + $r0 (oc) + carry
     (set_local $r0 (i64.add (i64.add (i64.mul (get_local $o) (get_local $d)) (i64.and (get_local $r0) (i64.const 4294967295))) (i64.shl (get_local $r1) (i64.const 32))))
 
-    ;; fith row ---- TODO
+    ;; fith row
     ;; l * h + $r3 (ng)
     (set_local $r3 (i64.add (i64.mul (get_local $o) (get_local $h)) (i64.and (get_local $r3) (i64.const 4294967295))))
     ;; l * g + $r2 (nf) + carry
@@ -116,7 +116,7 @@
     ;; l * e + $r0 (od) + carry
     (set_local $r0 (i64.add (i64.add (i64.mul (get_local $o) (get_local $e)) (i64.and (get_local $r0) (i64.const 4294967295))) (i64.shl (get_local $r1) (i64.const 32))))
 
-    ;; sixth row ---- TODO
+    ;; sixth row 
     ;; k * h + $r2 (ng)
     (set_local $r2 (i64.add (i64.mul (get_local $o) (get_local $h)) (i64.and (get_local $r2) (i64.const 4294967295))))
     ;; k * g + $r1 (nf) + carry
@@ -124,13 +124,13 @@
     ;; k * f + $r0 (oe) + carry
     (set_local $r0 (i64.add (i64.add (i64.mul (get_local $o) (get_local $f)) (i64.and (get_local $r0) (i64.const 4294967295))) (i64.shl (get_local $r1) (i64.const 32))))
 
-    ;; seventh row ---- TODO
+    ;; seventh row
     ;; j * h + $r1 (ng)
     (set_local $r1 (i64.add (i64.mul (get_local $o) (get_local $h)) (i64.and (get_local $r1) (i64.const 4294967295))))
     ;; j * g + $r0 (nf) + carry
     (set_local $r0 (i64.add (i64.add (i64.mul (get_local $o) (get_local $g)) (i64.and (get_local $r0) (i64.const 4294967295))) (i64.shl (get_local $r1) (i64.const 32))))
 
-    ;; eigth row ---- TODO
+    ;; eigth row
     ;; i * h + $r0 (jg)
     (set_local $r0 (i64.add (i64.mul (get_local $j) (get_local $h)) (i64.and (get_local $r0) (i64.const 4294967295))))
 
