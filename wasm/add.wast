@@ -1,4 +1,5 @@
 (module
+  (memory 1 1)
   (func $add
     (param $a i64)
     (param $b i64)
@@ -10,59 +11,66 @@
     (param $c1 i64)
     (param $d1 i64)
 
-    (param $a2 i64)
-    (param $b2 i64)
-    (param $c2 i64)
-    (param $d2 i64)
+    (param $memIndex i32)
+    (result i64)
 
-    (param $carry i32)
-    (result $64)
+    (local $a2 i64)
+    (local $b2 i64)
+    (local $c2 i64)
+    (local $d2 i64)
+    (local $temp i64)
+    (local $carry i32)
 
     ;; a
-    (set_local $a2 (call $add64 ($a1 $a (i64.const))))
-    (set_local $carry (call $checkoverflow ($a2 $a1 $a)))
+    (set_local $a (i64.add (get_local $a1) (get_local $a)))
+    (set_local $carry (i64.lt_u (get_local $a) (get_local $a1)))
 
     ;; b
-    (set_local $b2 (call $add64 ($b1 $b $carry)))
-    (set_local $carry (call $checkoverflow ($b2 $b1 $b)))
+    ;; add carry
+    (set_local $temp (i64.add (get_local $b) (i64.extend_u/i32 (get_local $carry))))
+    ;; check for overflow
+    (set_local $carry (i64.lt_u (get_local $temp) (get_local $b)))
+    (set_local $b (i64.add (get_local $b1) (get_local $temp)))
+    (set_local $carry (i32.or (i64.lt_u (get_local $b) (get_local $b1)) (get_local $carry)))
 
     ;; c
-    (set_local $c2 (call $add64 ($c1 $c $carry)))
-    (set_local $carry (call $checkoverflow ($c2 $c1 $c)))
+    ;; add carry
+    (set_local $temp (i64.add (get_local $c) (i64.extend_u/i32 (get_local $carry))))
+    ;; check for overflow
+    (set_local $carry (i64.lt_u (get_local $temp) (get_local $c)))
+    (set_local $c2 (i64.add (get_local $c1) (get_local $temp)))
+    (set_local $carry (i32.or (i64.lt_u (get_local $c2) (get_local $c1)) (get_local $carry)))
 
     ;; d
-    (set_local $d2 (call $add64 ($d1 $d $carry)))
-  )
+    ;; check for overflow
+    (set_local $d2 (i64.add (get_local $d1) (i64.add (get_local $d) (i64.extend_u/i32 (get_local $carry)))))
 
-  ;; check the add result for overflow
-  (func $checkOverflow 
-    (param $sum i64)
-    (param $a i64)
-    (param $b i64)
-    (result i64)
-    (if 
-      ;; sum>=a and sum>=b
-      ;; need to check both since we are add a carry bit as well
-      (i64.or 
-        (i64.lt_u (get_local $sum) (get_local $b))
-        (i64.lt_u (get_local $sum) (get_local $a)))
-      (then 
-        (return i64.const 1)
-      )
-      (else
-        (return i64.const 0))))
+    ;; add section done
+    (i64.store (i32.const 0) (get_local $a))
+    (i64.store (i32.const 8) (get_local $b))
+    (i64.store (i32.const 16) (get_local $c2))
+    (i64.store (i32.const 24) (get_local $d2))
+    (i64.load  (get_local $memIndex))
+  )
 
   (func $add64
-    (param $a)
-    (param $b)
-    (param $carry)
+    (param $a i64)
+    (param $b i64)
+    (param $carry i64)
     (result i64)
-    (return (i64.add (get_local $a) (i64.add (get_local $b) (get_local $carry))))
-  )
-  (export $add)
+    (i64.add (get_local $a) (i64.add (get_local $b) (get_local $carry))))
+
+  (export "add256" $add)
 )
 
-(assert_test $add((i64.const 1) (i64.const 2) (i64.const 3) (i64.const 4) (i32.const 0)))
-(assert_test $add((i64.const 1) (i64.const 2) (i64.const 3) (i64.const 4) (i32.const 1)))
-(assert_test $add((i64.const 1) (i64.const 2) (i64.const 3) (i64.const 4) (i32.const 2)))
-(assert_test $add((i64.const 1) (i64.const 2) (i64.const 3) (i64.const 4) (i32.const 3)))
+;; test adding max intergers
+(assert_return (invoke "add256" (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i32.const 0)) (i64.const -2))
+(assert_return (invoke "add256" (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i32.const 8)) (i64.const -1))
+(assert_return (invoke "add256" (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i32.const 16)) (i64.const -1))
+(assert_return (invoke "add256" (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i32.const 24)) (i64.const -1))
+
+;; test adding up to the max interger
+(assert_return (invoke "add256" (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const 0) (i64.const 0) (i64.const 0) (i64.const 0) (i32.const 0)) (i64.const -1))
+(assert_return (invoke "add256" (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const 0) (i64.const 0) (i64.const 0) (i64.const 0) (i32.const 8)) (i64.const -1))
+(assert_return (invoke "add256" (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const 0) (i64.const 0) (i64.const 0) (i64.const 0) (i32.const 16)) (i64.const -1))
+(assert_return (invoke "add256" (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const 0) (i64.const 0) (i64.const 0) (i64.const 0) (i32.const 24)) (i64.const -1))
