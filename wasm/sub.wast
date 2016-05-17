@@ -1,4 +1,5 @@
 (module
+  (memory 1 1)
   (func $sub
     (param $a i64)
     (param $b i64)
@@ -10,62 +11,53 @@
     (param $c1 i64)
     (param $d1 i64)
 
-    (param $a2 i64)
-    (param $b2 i64)
-    (param $c2 i64)
-    (param $d2 i64)
+    (local $carry i32)
 
-    (param $carry i32)
-    (result $64)
+    (param $memIndex i32)
+    (result i64)
 
     ;; a
-    (set_local $a2 (call $sub64 ($a1 $a $carry)))
-    (set_local $carry (call $checkoverflow ($a2 $a1 $a)))
-
+    (set_local $carry (i64.lt_u (get_local $a) (get_local $a1)))
+    (set_local $a (i64.sub (get_local $a) (get_local $a1)))
+  
     ;; b
-    (set_local $b2 (call $sub64 ($b1 $b $carry)))
-    (set_local $carry (call $checkoverflow ($b2 $b1 $b)))
+    ;; add carry; use a1 as a temp var 
+    (set_local $a1 (i64.sub (get_local $b) (i64.extend_u/i32 (get_local $carry))))
+    ;; check for overflow
+    (set_local $carry (i64.gt_u (get_local $a1) (get_local $b)))
+    (set_local $b (i64.sub (get_local $a1) (get_local $b1)))
+    (set_local $carry (i32.or (i64.gt_u (get_local $b) (get_local $a1)) (get_local $carry)))
 
     ;; c
-    (set_local $c2 (call $sub64 ($c1 $c $carry)))
-    (set_local $carry (call $checkoverflow ($c2 $c1 $c)))
+    ;; add carry
+    (set_local $a1 (i64.sub (get_local $c) (i64.extend_u/i32 (get_local $carry))))
+    ;; check for overflow
+    (set_local $carry (i64.gt_u (get_local $a1) (get_local $c)))
+    (set_local $c (i64.sub (get_local $a1) (get_local $c1)))
+    (set_local $carry (i32.or (i64.gt_u (get_local $c) (get_local $a1)) (get_local $carry)))
 
     ;; d
-    (set_local $d2 (call $add64 ($d1 $d $carry)))
-    (set_local $carry (call $checkoverflow ($d2 $d1 $d)))
+    (set_local $d (i64.sub (i64.sub (get_local $d) (i64.extend_u/i32 (get_local $carry))) (get_local $d1)))
+
+    ;; add section done
+    (i64.store (i32.const 0) (get_local $a))
+    (i64.store (i32.const 8) (get_local $b))
+    (i64.store (i32.const 16) (get_local $c))
+    (i64.store (i32.const 24) (get_local $d))
+    (i64.load  (get_local $memIndex))
   )
 
-  ;; check the add result for overflow
-  (func $checkOverflow 
-    (param $subtrahend i64)
-    (param $a i64)
-    (param $b i64)
-    (result i64)
-    (if 
-      ;; subtrahend<=a and subtrahend<=b
-      (i64.or
-        (i64.lt_u (get_local $b) (get_local $subtrahend))
-        (i64.lt_u (get_local $a) (get_local $subtrahend)))
-      (then 
-        (return i64.const 1)
-      )
-      (else
-        (return i64.const 0)
-      )
-    )
-  )
-
-  (func $sub64
-    (param $a)
-    (param $b)
-    (param $carry)
-    (result i64)
-    (return (i64.sub (get_local $a) (i64.sub (get_local $b) (get_local $carry))))
-  )
-  (export $add)
+  (export "sub" $sub)
 )
 
-(assert_test $add((i64.const 1) (i64.const 2) (i64.const 3) (i64.const 4) (i32.const 0)))
-(assert_test $add((i64.const 1) (i64.const 2) (i64.const 3) (i64.const 4) (i32.const 1)))
-(assert_test $add((i64.const 1) (i64.const 2) (i64.const 3) (i64.const 4) (i32.const 2)))
-(assert_test $add((i64.const 1) (i64.const 2) (i64.const 3) (i64.const 4) (i32.const 3)))
+;; test subtract 2^256 - 2^256  
+(assert_return (invoke "sub" (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i32.const 0)) (i64.const 0))
+(assert_return (invoke "sub" (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i32.const 8)) (i64.const 0))
+(assert_return (invoke "sub" (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i32.const 16)) (i64.const 0))
+(assert_return (invoke "sub" (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i32.const 24)) (i64.const 0))
+
+;; test adding up to the max interger 0 - 2^256
+(assert_return (invoke "sub" (i64.const 0) (i64.const 0) (i64.const 0) (i64.const 0) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i32.const 0)) (i64.const 1))
+(assert_return (invoke "sub" (i64.const 0) (i64.const 0) (i64.const 0) (i64.const 0) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i32.const 8)) (i64.const 0))
+(assert_return (invoke "sub" (i64.const 0) (i64.const 0) (i64.const 0) (i64.const 0) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i32.const 16)) (i64.const 0))
+(assert_return (invoke "sub" (i64.const 0) (i64.const 0) (i64.const 0) (i64.const 0) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i32.const 24)) (i64.const 0))

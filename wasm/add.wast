@@ -14,10 +14,6 @@
     (param $memIndex i32)
     (result i64)
 
-    (local $a2 i64)
-    (local $b2 i64)
-    (local $c2 i64)
-    (local $d2 i64)
     (local $temp i64)
     (local $carry i32)
 
@@ -38,27 +34,19 @@
     (set_local $temp (i64.add (get_local $c) (i64.extend_u/i32 (get_local $carry))))
     ;; check for overflow
     (set_local $carry (i64.lt_u (get_local $temp) (get_local $c)))
-    (set_local $c2 (i64.add (get_local $c1) (get_local $temp)))
-    (set_local $carry (i32.or (i64.lt_u (get_local $c2) (get_local $c1)) (get_local $carry)))
+    (set_local $c (i64.add (get_local $c1) (get_local $temp)))
+    (set_local $carry (i32.or (i64.lt_u (get_local $c) (get_local $c1)) (get_local $carry)))
 
     ;; d
     ;; check for overflow
-    (set_local $d2 (i64.add (get_local $d1) (i64.add (get_local $d) (i64.extend_u/i32 (get_local $carry)))))
+    (set_local $d (i64.add (get_local $d1) (i64.add (get_local $d) (i64.extend_u/i32 (get_local $carry)))))
 
     ;; add section done
     (i64.store (i32.const 0) (get_local $a))
     (i64.store (i32.const 8) (get_local $b))
-    (i64.store (i32.const 16) (get_local $c2))
-    (i64.store (i32.const 24) (get_local $d2))
+    (i64.store (i32.const 16) (get_local $c))
+    (i64.store (i32.const 24) (get_local $d))
     (i64.load  (get_local $memIndex))
-  )
-
-  (func $add64
-    (param $a i64)
-    (param $b i64)
-    (param $carry i64)
-    (result i64)
-    (i64.add (get_local $a) (i64.add (get_local $b) (get_local $carry))))
 
   (export "add256" $add)
 )
