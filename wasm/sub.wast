@@ -13,10 +13,9 @@
     (param $b1 i64)
     (param $c1 i64)
     (param $d1 i64)
+    (param $memIndex i32)
 
     (local $carry i32)
-
-    (param $memIndex i32)
     (result i64)
     ;; a * 64^3 + b*64^2 + c*64 + d 
     ;; d
