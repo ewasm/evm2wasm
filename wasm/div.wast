@@ -27,7 +27,7 @@
     )
 
     ;; check if the divsor is larger then the dividend
-    (if (i64.lt_u (get_local $a) (get_local $a1) )
+    (if (i64.lt_u (get_local $a) (get_local $a1))
       (then
         ;; break
       )  
@@ -37,7 +37,7 @@
             (if (i64.lt_u (get_local $b) (get_local $b1))
               (then
                 ;; break
-              ) 
+              )
               (else 
                 (if (i64.eqz(get_local $b)) 
                   (then

@@ -159,9 +159,8 @@
     (set_local $r1 (i64.and (i64.shr_u (get_local $r2) (i64.const 32)) (i64.and (get_local $r3) (i64.const 4294967295))))
     (set_local $r2 (i64.and (i64.shr_u (get_local $r4) (i64.const 32)) (i64.and (get_local $r5) (i64.const 4294967295))))
     (set_local $r3 (i64.and (i64.shr_u (get_local $r6) (i64.const 32)) (i64.and (get_local $r7) (i64.const 4294967295))))
+    ;; section done
 
-
-    ;; add section done
     (i64.store (i32.const 0) (get_local $r0))
     (i64.store (i32.const 8) (get_local $r1))
     (i64.store (i32.const 16) (get_local $r2))

@@ -16,7 +16,9 @@
     (param $memIndex i32)
 
     (local $carry i32)
+    (local $temp i64)
     (result i64)
+
     ;; a * 64^3 + b*64^2 + c*64 + d 
     ;; d
     (set_local $carry (i64.lt_u (get_local $d) (get_local $d1)))
@@ -24,19 +26,19 @@
   
     ;; c
     ;; add carry; use d1 as a temp var 
-    (set_local $d1 (i64.sub (get_local $c) (i64.extend_u/i32 (get_local $carry))))
+    (set_local $temp (i64.sub (get_local $c) (i64.extend_u/i32 (get_local $carry))))
     ;; check for overflow
-    (set_local $carry (i64.gt_u (get_local $d1) (get_local $c)))
-    (set_local $c (i64.sub (get_local $d1) (get_local $c1)))
-    (set_local $carry (i32.or (i64.gt_u (get_local $c) (get_local $d1)) (get_local $carry)))
+    (set_local $carry (i64.gt_u (get_local $temp) (get_local $c)))
+    (set_local $c (i64.sub (get_local $temp) (get_local $c1)))
+    (set_local $carry (i32.or (i64.gt_u (get_local $c) (get_local $temp)) (get_local $carry)))
 
     ;; b
     ;; add carry
-    (set_local $d1 (i64.sub (get_local $b) (i64.extend_u/i32 (get_local $carry))))
+    (set_local $temp (i64.sub (get_local $b) (i64.extend_u/i32 (get_local $carry))))
     ;; check for overflow
-    (set_local $carry (i64.gt_u (get_local $d1) (get_local $b)))
-    (set_local $b (i64.sub (get_local $d1) (get_local $b1)))
-    (set_local $carry (i32.or (i64.gt_u (get_local $b) (get_local $d1)) (get_local $carry)))
+    (set_local $carry (i64.gt_u (get_local $temp) (get_local $b)))
+    (set_local $b (i64.sub (get_local $temp) (get_local $b1)))
+    (set_local $carry (i32.or (i64.gt_u (get_local $b) (get_local $temp)) (get_local $carry)))
 
     ;; a
     (set_local $a (i64.sub (i64.sub (get_local $a) (i64.extend_u/i32 (get_local $carry))) (get_local $a1)))
