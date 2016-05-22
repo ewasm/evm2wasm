@@ -13,5 +13,5 @@ function div (a, b) {
   return new Buffer(r)
 }
 
-const r = div(MAX_INTEGER, MAX_INTEGER)
+const r = div(MAX_INTEGER, 2)
 console.log(r)
