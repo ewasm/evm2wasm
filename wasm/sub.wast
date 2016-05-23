@@ -25,23 +25,18 @@
     (set_local $d (i64.sub (get_local $d) (get_local $d1)))
   
     ;; c
-    ;; add carry; use d1 as a temp var 
     (set_local $temp (i64.sub (get_local $c) (get_local $carry)))
-    ;; check for overflow
     (set_local $carry (i64.extend_u/i32 (i64.gt_u (get_local $temp) (get_local $c))))
     (set_local $c (i64.sub (get_local $temp) (get_local $c1)))
     (set_local $carry (i64.or (i64.extend_u/i32 (i64.gt_u (get_local $c) (get_local $temp))) (get_local $carry)))
 
     ;; b
-    ;; add carry
     (set_local $temp (i64.sub (get_local $b) (get_local $carry)))
-    ;; check for overflow
     (set_local $carry (i64.extend_u/i32 (i64.gt_u (get_local $temp) (get_local $b))))
     (set_local $b (i64.sub (get_local $temp) (get_local $b1)))
-    (set_local $carry (i64.or (i64.extend_u/i32 (i64.gt_u (get_local $b) (get_local $temp))) (get_local $carry)))
 
     ;; a
-    (set_local $a (i64.sub (i64.sub (get_local $a) (get_local $carry)) (get_local $a1)))
+    (set_local $a (i64.sub (i64.sub (get_local $a) (i64.or (i64.extend_u/i32 (i64.gt_u (get_local $b) (get_local $temp))) (get_local $carry))) (get_local $a1)))
 
     ;; add section done
     (i64.store (i32.const 0) (get_local $d))
@@ -60,7 +55,7 @@
 (assert_return (invoke "sub" (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i32.const 16)) (i64.const 0))
 (assert_return (invoke "sub" (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i32.const 24)) (i64.const 0))
 
-;; test adding up to the max interger 0 - 2^256
+;; test subtracting up to the max interger 0 - 2^256
 (assert_return (invoke "sub" (i64.const 0) (i64.const 0) (i64.const 0) (i64.const 0) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i32.const 0)) (i64.const 1))
 (assert_return (invoke "sub" (i64.const 0) (i64.const 0) (i64.const 0) (i64.const 0) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i32.const 8)) (i64.const 0))
 (assert_return (invoke "sub" (i64.const 0) (i64.const 0) (i64.const 0) (i64.const 0) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i32.const 16)) (i64.const 0))
