@@ -13,34 +13,23 @@
 
     (param $memIndex i32)
     (result i64)
-
-    (local $carry i32)
-    (local $temp i64)
+    (local $carry i64)
     ;; a * 64^3 + b*64^2 + c*64 + d 
 
     ;; d 
     (set_local $d     (i64.add (get_local $d1) (get_local $d)))
-    (set_local $carry (i64.lt_u (get_local $d) (get_local $d1)))
-  
-
+    (set_local $carry (i64.extend_u/i32 (i64.lt_u (get_local $d) (get_local $d1))))
     ;; c
-    ;; add carry
-    (set_local $temp  (i64.add (get_local $c) (i64.extend_u/i32 (get_local $carry))))
-    ;; check for overflow
-    (set_local $carry (i64.lt_u (get_local $temp) (get_local $c)))
-    (set_local $c     (i64.add (get_local $c1) (get_local $temp)))
-    (set_local $carry (i32.or (i64.lt_u (get_local $c) (get_local $c1)) (get_local $carry)))
-
+    (set_local $c     (i64.add (get_local $c) (get_local $carry)))
+    (set_local $carry (i64.extend_u/i32 (i64.lt_u (get_local $c) (get_local $carry))))
+    (set_local $c     (i64.add (get_local $c1) (get_local $c)))
+    (set_local $carry (i64.or (i64.extend_u/i32  (i64.lt_u (get_local $c) (get_local $c1))) (get_local $carry)))
     ;; b
-    ;; add carry
-    (set_local $temp    (i64.add (get_local $b) (i64.extend_u/i32 (get_local $carry))))
-    ;; check for overflow
-    (set_local $carry (i64.lt_u (get_local $temp) (get_local $b)))
-    (set_local $b     (i64.add (get_local $b1) (get_local $temp)))
-    (set_local $carry (i32.or (i64.lt_u (get_local $b) (get_local $b1)) (get_local $carry)))
-
+    (set_local $b     (i64.add (get_local $b) (get_local $carry)))
+    (set_local $carry (i64.extend_u/i32 (i64.lt_u (get_local $b) (get_local $carry))))
+    (set_local $b     (i64.add (get_local $b1) (get_local $b)))
     ;; a
-    (set_local $a     (i64.add (get_local $a1) (i64.add (get_local $a) (i64.extend_u/i32 (get_local $carry)))))
+    (set_local $a     (i64.add (get_local $a1) (i64.add (get_local $a) (i64.or (i64.extend_u/i32 (i64.lt_u (get_local $b) (get_local $b1))) (get_local $carry)))))
 
     ;; add section done
     (i64.store (i32.const 0) (get_local $d))

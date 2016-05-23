@@ -13,5 +13,5 @@ function div (a, b) {
   return new Buffer(r)
 }
 
-const r = div(MAX_INTEGER, 2)
+const r = div(new BN('8000000000000000000000000000000000000000000000000000000000000000', 16), MAX_INTEGER)
 console.log(r)
