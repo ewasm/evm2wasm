@@ -1,8 +1,5 @@
 (module
  ;; (import $print_mem "spectest" "print_mem")
-  (import $print_i64 "spectest" "print" (param i64))
-  (import $print_i32 "spectest" "print" (param i32))
-  (import $print_mem "spectest" "print_mem")
   (export "a" memory)
   (memory 1 1)
   (func $div
@@ -32,14 +29,14 @@
     (local $maskc i64)
     (local $maskd i64)
 
-    (local $sign  i64)
+    (local $sign  i32)
     (local $carry i32)
     (local $temp  i64)
     (result i64)
 
     (set_local $maskd (i64.const 1))
     ;; get the resulting sign
-    (set_local $sign (i64.shr_u (i64.xor (get_local $d1) (get_local $d)) (i64.const 63)))
+    (set_local $sign (i32.wrap/i64 (i64.shr_u (i64.xor (get_local $d1) (get_local $d)) (i64.const 63))))
 
     ;; convert to unsigned value
     (if (i64.eqz (i64.clz (get_local $a)))
@@ -85,7 +82,7 @@
       ;; align bits
       (loop $done $loop
         ;; align bits;
-        (if (i32.or (i64.eq (i64.clz (get_local $a1)) (i64.clz (get_local $a))) (call $gte (get_local $a1) (get_local $b1) (get_local $c1) (get_local $d1) (get_local $a) (get_local $b) (get_local $c) (get_local $d)))
+        (if (i32.or (i64.eqz (i64.clz (get_local $a1))) (call $gte (get_local $a1) (get_local $b1) (get_local $c1) (get_local $d1) (get_local $a) (get_local $b) (get_local $c) (get_local $d)))
           (br $done)
         )
 
@@ -154,8 +151,8 @@
       )
     );; end of main
 
-    ;; convert to singed
-    (if (i64.eqz (i64.clz (get_local $aq)))
+    ;; convert to signed
+    (if (get_local $sign)
       (then
         (set_local $aq (i64.xor (get_local $aq) (i64.const -1)))
         (set_local $bq (i64.xor (get_local $bq) (i64.const -1)))

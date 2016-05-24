@@ -1,8 +1,4 @@
 (module
-  ;; (import $print_mem "spectest" "print_mem")
-  (import $print_i64 "spectest" "print" (param i64))
-  (import $print_i32 "spectest" "print" (param i32))
-  (export "a" memory)
   (memory 1 1)
   (func $div
     ;; dividend
@@ -33,9 +29,58 @@
     (local $carry i32)
     (local $temp  i64)
     (local $temp2  i64)
+    (local $sign i32)
     (result i64)
 
     (set_local $maskd (i64.const 1))
+    (set_local $sign (i32.wrap/i64 (i64.shr_u (get_local $d) (i64.const 63))))
+
+    ;; convert to unsigned value
+    (if (i64.eqz (i64.clz (get_local $a)))
+      (then
+        (set_local $a (i64.xor (get_local $a) (i64.const -1)))
+        (set_local $b (i64.xor (get_local $b) (i64.const -1)))
+        (set_local $c (i64.xor (get_local $c) (i64.const -1)))
+        (set_local $d (i64.xor (get_local $d) (i64.const -1)))
+
+        ;; a = a + 1
+        (set_local $d (i64.add (get_local $d) (i64.const 1)))
+        (set_local $carry (i64.eqz (get_local $d)))
+        (set_local $c (i64.add (get_local $c) (i64.extend_u/i32 (get_local $carry))))
+        (set_local $carry (i32.and (i64.eqz (get_local $c)) (get_local $carry)))
+        (set_local $b (i64.add (get_local $b) (i64.extend_u/i32 (get_local $carry))))
+        (set_local $carry (i32.and (i64.eqz (get_local $b)) (get_local $carry)))
+        (set_local $a (i64.add (get_local $a) (i64.extend_u/i32 (get_local $carry))))
+      )
+    )
+
+    (if (i64.eqz (i64.clz (get_local $a1)))
+      (then
+        (set_local $a1 (i64.xor (get_local $a1) (i64.const -1)))
+        (set_local $b1 (i64.xor (get_local $b1) (i64.const -1)))
+        (set_local $c1 (i64.xor (get_local $c1) (i64.const -1)))
+        (set_local $d1 (i64.xor (get_local $d1) (i64.const -1)))
+
+        (set_local $d1 (i64.add (get_local $d1) (i64.const 1)))
+        (set_local $carry (i64.eqz (get_local $d1)))
+        (set_local $c1 (i64.add (get_local $c1) (i64.extend_u/i32 (get_local $carry))))
+        (set_local $carry (i32.and (i64.eqz (get_local $c1)) (get_local $carry)))
+        (set_local $b1 (i64.add (get_local $b1) (i64.extend_u/i32 (get_local $carry))))
+        (set_local $carry (i32.and (i64.eqz (get_local $b1)) (get_local $carry)))
+        (set_local $a1 (i64.add (get_local $a1) (i64.extend_u/i32 (get_local $carry))))
+      )
+    )
+    
+      (i64.store (i32.const 0)  (get_local $a))
+      (i64.store (i32.const 8)  (get_local $b))
+      (i64.store (i32.const 16) (get_local $c))
+      (i64.store (i32.const 24) (get_local $d))
+
+      (i64.store (i32.const 0)  (get_local $a1))
+      (i64.store (i32.const 8)  (get_local $b1))
+      (i64.store (i32.const 16) (get_local $c1))
+      (i64.store (i32.const 24) (get_local $d1))
+
 
     (block $main
       ;; check div by 0
@@ -108,12 +153,26 @@
       )
     );; end of main
 
+
+    ;; convert to signed
+    (if (get_local $sign)
+      (then
+        (set_local $a (i64.xor (get_local $a) (i64.const -1)))
+        (set_local $b (i64.xor (get_local $b) (i64.const -1)))
+        (set_local $c (i64.xor (get_local $c) (i64.const -1)))
+        (set_local $d (i64.xor (get_local $d) (i64.const -1)))
+
+        (set_local $d (i64.add (get_local $d) (i64.const 1)))
+        (set_local $c (i64.add (get_local $c) (i64.extend_u/i32 (i64.eqz (get_local $d)))))
+        (set_local $b (i64.add (get_local $b) (i64.extend_u/i32 (i64.eqz (get_local $c)))))
+        (set_local $a (i64.add (get_local $a) (i64.extend_u/i32 (i64.eqz (get_local $b)))))
+      )
+    )
     ;; add section done
     (i64.store (i32.const 0)  (get_local $a))
     (i64.store (i32.const 8)  (get_local $b))
     (i64.store (i32.const 16) (get_local $c))
     (i64.store (i32.const 24) (get_local $d))
-    ;; (call_import $print_mem)
     (i64.load  (get_local $memIndex))
   )
 
@@ -162,17 +221,17 @@
 (assert_return (invoke "div" (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i32.const 16)) (i64.const 0))
 (assert_return (invoke "div" (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i32.const 24)) (i64.const 0))
 
-;; 2^256 mod 2
-(assert_return (invoke "div" (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const 0) (i64.const 0) (i64.const 0) (i64.const 2) (i32.const 0)) (i64.const 0))
-(assert_return (invoke "div" (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const 0) (i64.const 0) (i64.const 0) (i64.const 2) (i32.const 8)) (i64.const 0))
-(assert_return (invoke "div" (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const 0) (i64.const 0) (i64.const 0) (i64.const 2) (i32.const 16)) (i64.const 0))
-(assert_return (invoke "div" (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const 0) (i64.const 0) (i64.const 0) (i64.const 2) (i32.const 24)) (i64.const 1))
+;; -1 mod 2 = -1
+(assert_return (invoke "div" (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const 0) (i64.const 0) (i64.const 0) (i64.const 2) (i32.const 0)) (i64.const -1))
+(assert_return (invoke "div" (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const 0) (i64.const 0) (i64.const 0) (i64.const 2) (i32.const 8)) (i64.const -1))
+(assert_return (invoke "div" (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const 0) (i64.const 0) (i64.const 0) (i64.const 2) (i32.const 16)) (i64.const -1))
+(assert_return (invoke "div" (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const 0) (i64.const 0) (i64.const 0) (i64.const 2) (i32.const 24)) (i64.const -1))
 
 ;; 2 mod 2^256 
 (assert_return (invoke "div" (i64.const 0) (i64.const 0) (i64.const 0) (i64.const 2) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i32.const 0)) (i64.const 0))
 (assert_return (invoke "div" (i64.const 0) (i64.const 0) (i64.const 0) (i64.const 2) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i32.const 8)) (i64.const 0))
 (assert_return (invoke "div" (i64.const 0) (i64.const 0) (i64.const 0) (i64.const 2) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i32.const 16)) (i64.const 0))
-(assert_return (invoke "div" (i64.const 0) (i64.const 0) (i64.const 0) (i64.const 2) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i32.const 24)) (i64.const 2))
+(assert_return (invoke "div" (i64.const 0) (i64.const 0) (i64.const 0) (i64.const 2) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i32.const 24)) (i64.const 0))
 
 ;; 1 mod 2
 (assert_return (invoke "div" (i64.const 0) (i64.const 0) (i64.const 0) (i64.const 1) (i64.const 0) (i64.const 0) (i64.const 0) (i64.const 2) (i32.const 2)) (i64.const 0))
