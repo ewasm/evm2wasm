@@ -1,6 +1,10 @@
 (module
+  (import $print_i64 "spectest" "print" (param i64))
+  (export "a" memory)
   (memory 1 1)
   (func $mul
+    ;;  a b c d e f g h
+    ;;* i j k l m n o p
     (param $a i64)
     (param $c i64)
     (param $e i64)
@@ -34,32 +38,30 @@
 
     ;; split the ops
     (i64.store (i32.const 0) (get_local $a))
-    ;; (call_import $print_mem)
 
-    (set_local $b (i64.shr_u (get_local $a) (i64.const 32))) 
-    (set_local $a (i64.and (get_local $a) (i64.const 4294967295)))
+    (set_local $b (i64.and (get_local $a) (i64.const 4294967295)))
+    (set_local $a (i64.shr_u (get_local $a) (i64.const 32))) 
 
+    (set_local $d (i64.and (get_local $c) (i64.const 4294967295)))
+    (set_local $c (i64.shr_u (get_local $c) (i64.const 32))) 
 
-    (set_local $d (i64.shr_u (get_local $c) (i64.const 32))) 
-    (set_local $c (i64.and (get_local $c) (i64.const 4294967295)))
+    (set_local $f (i64.and (get_local $e) (i64.const 4294967295)))
+    (set_local $e (i64.shr_u (get_local $e) (i64.const 32)))
 
-    (set_local $f (i64.shr_u (get_local $e) (i64.const 32)))
-    (set_local $e (i64.and (get_local $e) (i64.const 4294967295)))
+    (set_local $h (i64.and (get_local $g) (i64.const 4294967295)))
+    (set_local $g (i64.shr_u (get_local $g) (i64.const 32)))
 
-    (set_local $h (i64.shr_u (get_local $g) (i64.const 32)))
-    (set_local $g (i64.and (get_local $g) (i64.const 4294967295)))
+    (set_local $j (i64.and (get_local $i) (i64.const 4294967295)))
+    (set_local $i (i64.shr_u (get_local $i) (i64.const 32))) 
 
-    (set_local $j (i64.shr_u (get_local $i) (i64.const 32))) 
-    (set_local $i (i64.and (get_local $i) (i64.const 4294967295)))
+    (set_local $l (i64.and (get_local $k) (i64.const 4294967295)))
+    (set_local $k (i64.shr_u (get_local $k) (i64.const 32))) 
 
-    (set_local $l (i64.shr_u (get_local $k) (i64.const 32))) 
-    (set_local $k (i64.and (get_local $k) (i64.const 4294967295)))
+    (set_local $n (i64.and (get_local $m) (i64.const 4294967295)))
+    (set_local $m (i64.shr_u (get_local $m) (i64.const 32)))
 
-    (set_local $n (i64.shr_u (get_local $m) (i64.const 32)))
-    (set_local $m (i64.and (get_local $m) (i64.const 4294967295)))
-
-    (set_local $p (i64.shr_u (get_local $o) (i64.const 32)))
-    (set_local $o (i64.and (get_local $o) (i64.const 4294967295)))
+    (set_local $p (i64.and (get_local $o) (i64.const 4294967295)))
+    (set_local $o (i64.shr_u (get_local $o) (i64.const 32)))
     ;; first row multiplication 
     ;; p * h
     (set_local $r7 (i64.mul (get_local $p) (get_local $h)))
@@ -152,15 +154,12 @@
     (set_local $r0 (i64.add (i64.mul (get_local $i) (get_local $h)) (i64.and (get_local $r0) (i64.const 4294967295))))
 
 
-    (i64.store (i32.const 0) (get_local $r0))
-
     ;; combine terms
-    (set_local $r0 (i64.and (i64.shr_u (get_local $r0) (i64.const 32)) (i64.and (get_local $r1) (i64.const 4294967295))))
-    (set_local $r1 (i64.and (i64.shr_u (get_local $r2) (i64.const 32)) (i64.and (get_local $r3) (i64.const 4294967295))))
-    (set_local $r2 (i64.and (i64.shr_u (get_local $r4) (i64.const 32)) (i64.and (get_local $r5) (i64.const 4294967295))))
-    (set_local $r3 (i64.and (i64.shr_u (get_local $r6) (i64.const 32)) (i64.and (get_local $r7) (i64.const 4294967295))))
+    (set_local $r0 (i64.or (i64.shl (get_local $r0) (i64.const 32)) (i64.and (get_local $r1) (i64.const 4294967295))))
+    (set_local $r1 (i64.or (i64.shl (get_local $r2) (i64.const 32)) (i64.and (get_local $r3) (i64.const 4294967295))))
+    (set_local $r2 (i64.or (i64.shl (get_local $r4) (i64.const 32)) (i64.and (get_local $r5) (i64.const 4294967295))))
+    (set_local $r3 (i64.or (i64.shl (get_local $r6) (i64.const 32)) (i64.and (get_local $r7) (i64.const 4294967295))))
     ;; section done
-
     (i64.store (i32.const 0) (get_local $r0))
     (i64.store (i32.const 8) (get_local $r1))
     (i64.store (i32.const 16) (get_local $r2))
@@ -170,17 +169,22 @@
   (export "mul" $mul)
 )
 
+;; 2^255 * 0
 (assert_return (invoke "mul" (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const 0) (i64.const 0) (i64.const 0) (i64.const 0) (i32.const 0)) (i64.const 0))
 (assert_return (invoke "mul" (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const 0) (i64.const 0) (i64.const 0) (i64.const 0) (i32.const 8)) (i64.const 0))
 (assert_return (invoke "mul" (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const 0) (i64.const 0) (i64.const 0) (i64.const 0) (i32.const 16)) (i64.const 0))
 (assert_return (invoke "mul" (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const 0) (i64.const 0) (i64.const 0) (i64.const 0) (i32.const 24)) (i64.const 0))
 
+;; 2^255 * 2^255
 (assert_return (invoke "mul" (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i32.const 0)) (i64.const 0))
 (assert_return (invoke "mul" (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i32.const 8)) (i64.const 0))
 (assert_return (invoke "mul" (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i32.const 16)) (i64.const 0))
 (assert_return (invoke "mul" (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i64.const -1) (i32.const 24)) (i64.const 1))
 
+(assert_return (invoke "mul" (i64.const 0) (i64.const 0) (i64.const 0) (i64.const 2) (i64.const 0) (i64.const 0) (i64.const 0) (i64.const 2) (i32.const 0)) (i64.const 0))
+(assert_return (invoke "mul" (i64.const 0) (i64.const 0) (i64.const 0) (i64.const 2) (i64.const 0) (i64.const 0) (i64.const 0) (i64.const 2) (i32.const 0)) (i64.const 0))
+(assert_return (invoke "mul" (i64.const 0) (i64.const 0) (i64.const 0) (i64.const 2) (i64.const 0) (i64.const 0) (i64.const 0) (i64.const 2) (i32.const 0)) (i64.const 0))
+(assert_return (invoke "mul" (i64.const 0) (i64.const 0) (i64.const 0) (i64.const 2) (i64.const 0) (i64.const 0) (i64.const 0) (i64.const 2) (i32.const 24)) (i64.const 4))
 
-;; (assert_test $add((i64.const 1) (i64.const 2) (i64.const 3) (i64.const 4) (i32.const 1)))
-;; (assert_test $add((i64.const 1) (i64.const 2) (i64.const 3) (i64.const 4) (i32.const 2)))
-;; (assert_test $add((i64.const 1) (i64.const 2) (i64.const 3) (i64.const 4) (i32.const 3)))
+;; (2 ^32) * (2^32) = 2^33
+(assert_return (invoke "mul" (i64.const 0) (i64.const 0) (i64.const 0) (i64.const 4294967295) (i64.const 0) (i64.const 0) (i64.const 0) (i64.const 4294967295) (i32.const 24)) (i64.const -8589934591))
