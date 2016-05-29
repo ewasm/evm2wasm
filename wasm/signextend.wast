@@ -13,6 +13,12 @@
     (param $sp i32)
 
     (unreachable)
+
+    ;; section done
+    (i64.store (get_local $sp) (get_local $a0))
+    (i64.store (i32.add (get_local $sp) (i32.const 8)) (get_local $a1))
+    (i64.store (i32.add (get_local $sp) (i32.const 16)) (get_local $a2))
+    (i64.store (i32.add (get_local $sp) (i32.const 24)) (get_local $a3))
   )
   (export "signextend" $signextend)
 )
