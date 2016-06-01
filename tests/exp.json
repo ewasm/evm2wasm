@@ -1,0 +1,76 @@
+[
+  {
+    "op": "EXP",
+    "value": "0x0a",
+    "description": "(2^256 - 1) ^ (2^256 - 1)",
+    "stack": {
+      "in": [
+        "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+      ],
+      "out": ["0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"]
+    },
+    "state": "running"
+  }, {
+    "op": "EXP",
+    "value": "0x0a",
+    "description": "(2^256 -1) ^ 0",
+    "stack": {
+      "in": [
+        "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "0x00"
+      ],
+      "out": ["0x01"]
+    },
+    "state": "running"
+  },{
+    "op": "EXP",
+    "value": "0x0a",
+    "description": "(2^256 - 1) ^ 2",
+
+    "stack": {
+      "in": [
+        "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "0x02"
+      ],
+      "out": ["0x01"]
+    },
+    "state": "running"
+  }, {
+    "op": "EXP",
+    "value": "0x0a",
+    "description": "2 ^ (2^256 - 1)",
+    "stack": {
+      "in": [
+        "0x02",
+        "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+      ],
+      "out": ["0x00"]
+    },
+    "state": "running"
+  }, {
+    "op": "EXP",
+    "value": "0x0a",
+    "description": "1 ^ 2",
+    "stack": {
+      "in": [
+        "0x01",
+        "0x02"
+      ],
+      "out": ["0x01"]
+    },
+    "state": "running"
+  },{
+    "op": "EXP",
+    "value": "0x0a",
+    "description": "2 ^ 2",
+    "stack": {
+      "in": [
+        "0x02",
+        "0x02"
+      ],
+      "out": ["0x04"]
+    },
+    "state": "running"
+  }
+]
