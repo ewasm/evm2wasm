@@ -276,7 +276,7 @@
 
     (block $main
       ;; check div by 0
-      (if (call $isZero (get_local $a1) (get_local $b1) (get_local $c1) (get_local $d1))
+      (if (call $isZero_i32 (get_local $a1) (get_local $b1) (get_local $c1) (get_local $d1))
         (br $main)
       )
 
@@ -304,7 +304,7 @@
 
       (loop $done $loop
         ;; loop while mask != 0
-        (if (call $isZero (get_local $maska) (get_local $maskb) (get_local $maskc) (get_local $maskd))
+        (if (call $isZero_i32 (get_local $maska) (get_local $maskb) (get_local $maskc) (get_local $maskd))
           (br $done)
         )
         ;; if dividend >= divisor
@@ -434,7 +434,7 @@
     
     (block $main
       ;; check div by 0
-      (if (call $isZero (get_local $a1) (get_local $b1) (get_local $c1) (get_local $d1))
+      (if (call $isZero_i32 (get_local $a1) (get_local $b1) (get_local $c1) (get_local $d1))
         (br $main)
       )
 
@@ -462,7 +462,7 @@
 
       (loop $done $loop
         ;; loop while mask != 0
-        (if (call $isZero (get_local $maska) (get_local $maskb) (get_local $maskc) (get_local $maskd))
+        (if (call $isZero_i32 (get_local $maska) (get_local $maskb) (get_local $maskc) (get_local $maskd))
           (br $done)
         )
         ;; if dividend >= divisor
@@ -570,7 +570,7 @@
 
     (block $main
       ;; check div by 0
-      (if (call $isZero (get_local $a1) (get_local $b1) (get_local $c1) (get_local $d1))
+      (if (call $isZero_i32 (get_local $a1) (get_local $b1) (get_local $c1) (get_local $d1))
         (then
           (set_local $a (i64.const 0))
           (set_local $b (i64.const 0))
@@ -604,7 +604,7 @@
 
       (loop $done $loop
         ;; loop while mask != 0
-        (if (call $isZero (get_local $maska) (get_local $maskb) (get_local $maskc) (get_local $maskd))
+        (if (call $isZero_i32 (get_local $maska) (get_local $maskb) (get_local $maskc) (get_local $maskd))
           (br $done)
         )
         ;; if dividend >= divisor
@@ -733,7 +733,7 @@
 
     (block $main
       ;; check div by 0
-      (if (call $isZero (get_local $a1) (get_local $b1) (get_local $c1) (get_local $d1))
+      (if (call $isZero_i32 (get_local $a1) (get_local $b1) (get_local $c1) (get_local $d1))
         (then
           (set_local $a (i64.const 0))
           (set_local $b (i64.const 0))
@@ -767,7 +767,7 @@
 
       (loop $done $loop
         ;; loop while mask != 0
-        (if (call $isZero (get_local $maska) (get_local $maskb) (get_local $maskc) (get_local $maskd))
+        (if (call $isZero_i32 (get_local $maska) (get_local $maskb) (get_local $maskc) (get_local $maskd))
           (br $done)
         )
         ;; if dividend >= divisor
@@ -802,19 +802,6 @@
       )
     )
 
-    ;; Addition Modulo 0x08
-    (func $addmod
-      (param $sp)
-      (unreachable)
-    )
-
-    ;; Addition Modulo 0x09
-    (func $mulmod
-      (param $sp)
-      (unreachable)
-    )
-
-
     ;; convert to signed
     (if (get_local $sign)
       (then
@@ -835,6 +822,18 @@
     (i64.store (i32.const 16) (get_local $c))
     (i64.store (i32.const 24) (get_local $d))
     (i64.load  (get_local $memIndex))
+  )
+
+  ;; Addition Modulo 0x08
+  (func $addmod
+    (param $sp i32)
+    (unreachable)
+  )
+
+  ;; Addition Modulo 0x09
+  (func $mulmod
+    (param $sp i32)
+    (unreachable)
   )
 
   ;; Exponential 0x0a
@@ -863,7 +862,7 @@
 
     (loop $done $loop
        ;; while (exp > 0) {
-      (if (call $isZero (get_local $b0) (get_local $b1) (get_local $b2) (get_local $b3))
+      (if (call $isZero_i32 (get_local $b0) (get_local $b1) (get_local $b2) (get_local $b3))
         (br $done) 
       )
       
@@ -923,7 +922,7 @@
     (i64.store (i32.add (get_local $sp) (i32.const 8)) (i64.const 0))
     (i64.store (i32.add (get_local $sp) (i32.const 16)) (i64.const 0))
     (i64.store (i32.add (get_local $sp) (i32.const 24)) 
-      (i64.extend/i32
+      (i64.extend_u/i32
         (call $lt_i32 (get_local 0) (get_local 1)(get_local 2)(get_local 3)(get_local 4)(get_local 5)(get_local 6)(get_local 7))
       )
     )
@@ -945,29 +944,8 @@
     (i64.store (i32.add (get_local $sp) (i32.const 8)) (i64.const 0))
     (i64.store (i32.add (get_local $sp) (i32.const 16)) (i64.const 0))
     (i64.store (i32.add (get_local $sp) (i32.const 24)) 
-      (i64.extend/i32
+      (i64.extend_u/i32
         (call $gt_i32 (get_local 0) (get_local 1)(get_local 2)(get_local 3)(get_local 4)(get_local 5)(get_local 6)(get_local 7))
-      )
-    )
-  )
-
-  (func $slt
-    (param $a0 i64)
-    (param $a1 i64)
-    (param $a2 i64)
-    (param $a3 i64)
-    (param $b0 i64)
-    (param $b1 i64)
-    (param $b2 i64)
-    (param $b3 i64)
-    (param $sp i32)
-
-    (i64.store (get_local $sp) (i64.const 0))
-    (i64.store (i32.add (get_local $sp) (i32.const 8)) (i64.const 0))
-    (i64.store (i32.add (get_local $sp) (i32.const 16)) (i64.const 0))
-    (i64.store (i32.add (get_local $sp) (i32.const 24)) 
-      (i64.extend/i32
-        (call $slt_i32 (get_local 0) (get_local 1)(get_local 2)(get_local 3)(get_local 4)(get_local 5)(get_local 6)(get_local 7))
       )
     )
   )
@@ -988,32 +966,10 @@
     (i64.store (i32.add (get_local $sp) (i32.const 8)) (i64.const 0))
     (i64.store (i32.add (get_local $sp) (i32.const 16)) (i64.const 0))
     (i64.store (i32.add (get_local $sp) (i32.const 24)) 
-      (i64.extend/i32
+      (i64.extend_u/i32
         (call $slt_i32 (get_local 0) (get_local 1)(get_local 2)(get_local 3)(get_local 4)(get_local 5)(get_local 6)(get_local 7))
       )
     )
-  )
-
-  (func $slt_i32
-    (param $a0 i64)
-    (param $a1 i64)
-    (param $a2 i64)
-    (param $a3 i64)
- 
-    (param $b0 i64)
-    (param $b1 i64)
-    (param $b2 i64)
-    (param $b3 i64)
-
-    (result i32)
-    ;; a0 < b0 || (a0 == b0 && (a1 < b1 || (a1 == b1 && (a2 < b2 || (a2 == b2 && a3 < b3 ) ))))
-    (i32.or  (i64.lt_s (get_local $a0) (get_local $b0)) ;; a0 < b0
-    (i32.and (i64.eq   (get_local $a0) (get_local $b0)) ;; a0 == b0
-    (i32.or  (i64.lt_u (get_local $a1) (get_local $b1)) ;; a1 < b1
-    (i32.and (i64.eq   (get_local $a1) (get_local $b1)) ;; a1 == b1
-    (i32.or  (i64.lt_u (get_local $a2) (get_local $b2)) ;; a2 < b2
-    (i32.and (i64.eq   (get_local $a2) (get_local $b2)) ;; a2 == b2
-             (i64.lt_u (get_local $a3) (get_local $b3)))))))) ;; a3 < b3
   )
 
   ;; signed greater than
@@ -1034,7 +990,7 @@
     (i64.store (i32.add (get_local $sp) (i32.const 8)) (i64.const 0))
     (i64.store (i32.add (get_local $sp) (i32.const 16)) (i64.const 0))
     (i64.store (i32.add (get_local $sp) (i32.const 24)) 
-      (i64.extend/i32
+      (i64.extend_u/i32
         (call $sgt_i32 (get_local 0) (get_local 1)(get_local 2)(get_local 3)(get_local 4)(get_local 5)(get_local 6)(get_local 7))
       )
     )
@@ -1078,7 +1034,7 @@
     (i64.store (i32.add (get_local $sp) (i32.const 8)) (i64.const 0))
     (i64.store (i32.add (get_local $sp) (i32.const 16)) (i64.const 0))
     (i64.store (i32.add (get_local $sp) (i32.const 24)) 
-      (i64.extend/i32
+      (i64.extend_u/i32
         (call $eq_i32 (get_local 0) (get_local 1)(get_local 2)(get_local 3)(get_local 4)(get_local 5)(get_local 6)(get_local 7))
       )
     )
@@ -1114,8 +1070,8 @@
     (i64.store (i32.add (get_local $sp) (i32.const 8)) (i64.const 0))
     (i64.store (i32.add (get_local $sp) (i32.const 16)) (i64.const 0))
     (i64.store (i32.add (get_local $sp) (i32.const 24)) 
-      (i64.extend/i32
-        (call $isZero_i32 (get_local 0) (get_local 1)(get_local 2)(get_local 3)(get_local 4)(get_local 5)(get_local 6)(get_local 7))
+      (i64.extend_u/i32
+        (call $isZero_i32 (get_local 0) (get_local 1)(get_local 2)(get_local 3))
       )
     )
   )
@@ -1212,9 +1168,9 @@
     ;; if (a > 32)
     ;; a0 == 0 && a1 == 0 && a2 == 0 && a3 > 32
     (if 
-      (i64.and (i64.gt_u (get_local $a3) (i64.const 32))
-      (i64.and (i64.eqz  (i64.load (i32.add (get_local $sp) (i32.const 16))))
-      (i64.and (i64.eqz  (i64.load (i32.add (get_local $sp) (i32.const 8))))
+      (i32.and (i64.gt_u (get_local $a3) (i64.const 32))
+      (i32.and (i64.eqz  (i64.load (i32.add (get_local $sp) (i32.const 16))))
+      (i32.and (i64.eqz  (i64.load (i32.add (get_local $sp) (i32.const 8))))
                (i64.eqz  (i64.load (get_local $sp))))))
       (return)
     )
@@ -1224,7 +1180,7 @@
     (i64.store (i32.add (get_local $sp) (i32.const 16)) (i64.const 0))
     ;; sp + 32 + a
     (i64.store (i32.add (get_local $sp) (i32.const 24))
-               (i64.load8_u  (i64.add (i64.add (get_local $a3) (i32.const 32)) (get_local $sp))))
+               (i64.load8_u  (i32.add (i32.add (i32.wrap/i64 (get_local $a3)) (i32.const 32)) (get_local $sp))))
   )
 
   ;; Helper functions
