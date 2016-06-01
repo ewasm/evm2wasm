@@ -1,7 +1,7 @@
 (module
   (memory 1 1)
   ;; Add 0x01
-  (func $add
+  (func $ADD
     (param $a i64)
     (param $b i64)
     (param $c i64)
@@ -39,7 +39,7 @@
     (i64.load  (get_local $memIndex))
   )
   ;; Multiplication 0x02 
-  (func $mul
+  (func $MUL
     ;; a = a * b
     (param $a0 i64)
     (param $a1 i64)
@@ -197,7 +197,7 @@
     (i64.load  (get_local $memIndex))
   )
   ;; Subtraction 0x03
-  (func $sub
+  (func $SUB
     (param $a i64)
     (param $b i64)
     (param $c i64)
@@ -241,7 +241,7 @@
   )
   
   ;; division 0x04
-  (func $div
+  (func $DIV
     ;; dividend
     (param $a i64)
     (param $b i64)
@@ -361,7 +361,7 @@
   )
 
   ;; Signed division 0x03
-  (func $sdiv
+  (func $SDIV
     ;; dividend
     (param $a i64)
     (param $b i64)
@@ -535,7 +535,7 @@
   )
 
   ;; Modulo 0x06
-  (func $mod
+  (func $MOD
     ;; dividend
     (param $a i64)
     (param $b i64)
@@ -649,7 +649,7 @@
   )
   
   ;; sign modulo 0x07
-  (func $smod
+  (func $SMOD
     ;; dividend
     (param $a i64)
     (param $b i64)
@@ -825,19 +825,19 @@
   )
 
   ;; Addition Modulo 0x08
-  (func $addmod
+  (func $ADDMOD
     (param $sp i32)
     (unreachable)
   )
 
   ;; Addition Modulo 0x09
-  (func $mulmod
+  (func $MULMOD
     (param $sp i32)
     (unreachable)
   )
 
   ;; Exponential 0x0a
-  (func $exp
+  (func $EXP
     ;; base
     (param $a0 i64)
     (param $a1 i64)
@@ -872,7 +872,7 @@
         ;; result = result.mul(base).mod(TWO_POW256)
         ;; r = r * a
         (then
-          (call $mul (get_local $r0) (get_local $r1) (get_local $r2) (get_local $r3) (get_local $a0) (get_local $a1) (get_local $a2) (get_local $a3) (get_local $sp))
+          (call $MUL (get_local $r0) (get_local $r1) (get_local $r2) (get_local $r3) (get_local $a0) (get_local $a1) (get_local $a2) (get_local $a3) (get_local $sp))
           (set_local $r0 (i64.load (get_local $sp)))
           (set_local $r1 (i64.load (i32.add (get_local $sp) (i32.const 8))))
           (set_local $r2 (i64.load (i32.add (get_local $sp) (i32.const 16))))
@@ -886,7 +886,7 @@
       (set_local $b3 (i64.shr_u (get_local $b3) (i64.const 1)))
 
       ;; base = base.mul(base).mod(TWO_POW256)
-      (call $mul (get_local $a0) (get_local $a1) (get_local $a2) (get_local $a3) (get_local $a0) (get_local $a1) (get_local $a2) (get_local $a3) (get_local $sp))
+      (call $MUL (get_local $a0) (get_local $a1) (get_local $a2) (get_local $a3) (get_local $a0) (get_local $a1) (get_local $a2) (get_local $a3) (get_local $sp))
       (set_local $a0 (i64.load (get_local $sp)))
       (set_local $a1 (i64.load (i32.add (get_local $sp) (i32.const 8))))
       (set_local $a2 (i64.load (i32.add (get_local $sp) (i32.const 16))))
@@ -900,14 +900,14 @@
     (i64.store (i32.add (i32.const 24) (get_local $sp)) (get_local $r3))
   )
 
-  ;; Extend length of two’s ( complement signed integer. 0x0b
+  ;; extend length of twos  complement signed integer. 0x0b
   (func $signextend
     (param $sp i32)
     (unreachable)
   )
 
   ;; less than 0x0c
-  (func $lt
+  (func $LT
     (param $a0 i64)
     (param $a1 i64)
     (param $a2 i64)
@@ -929,7 +929,7 @@
   )
 
   ;; greater than
-  (func $gt
+  (func $GT
     (param $a0 i64)
     (param $a1 i64)
     (param $a2 i64)
@@ -951,7 +951,7 @@
   )
 
   ;; signed less than
-  (func $slt
+  (func $SLT
     (param $a0 i64)
     (param $a1 i64)
     (param $a2 i64)
@@ -973,7 +973,7 @@
   )
 
   ;; signed greater than
-  (func $sgt
+  (func $SGT
     (param $a0 i64)
     (param $a1 i64)
     (param $a2 i64)
@@ -1018,7 +1018,7 @@
   )
 
   ;; equals 0x14
-  (func $eq
+  (func $EQ
     (param $a0 i64)
     (param $a1 i64)
     (param $a2 i64)
@@ -1058,7 +1058,7 @@
   )
 
   ;; is zero
-  (func $isZero
+  (func $ISZERO
     (param $a0 i64)
     (param $a1 i64)
     (param $a2 i64)
@@ -1085,7 +1085,7 @@
   )
 
   ;; and
-  (func $and
+  (func $AND
     (param $a0 i64)
     (param $a1 i64)
     (param $a2 i64)
@@ -1105,7 +1105,7 @@
   )
 
   ;; or
-  (func $or
+  (func $OR
     (param $a0 i64)
     (param $a1 i64)
     (param $a2 i64)
@@ -1124,7 +1124,7 @@
 
 
   ;; xor
-  (func $xor
+  (func $XOR
     (param $a0 i64)
     (param $a1 i64)
     (param $a2 i64)
@@ -1144,7 +1144,7 @@
   )
 
   ;; not
-  (func $not
+  (func $NOT
     (param $a0 i64)
     (param $a1 i64)
     (param $a2 i64)
@@ -1159,7 +1159,7 @@
   )
 
   ;; byte
-  (func $byte
+  (func $BYTE
     (param $sp i32)
     (local $a3 i64)
 
@@ -1273,4 +1273,26 @@
     (i32.and (i64.eq   (get_local $a2) (get_local $b2))
              (i64.ge_u (get_local $a3) (get_local $b3))))))))
   )
+
+  ;; exports
+  (export "a" memory)
+  (export "ADD" $ADD)
+  (export "MUL" $MUL)
+  (export "SUB" $SUB)
+  (export "DIV" $DIV)
+  (export "SDIV" $SDIV)
+  (export "MOD" $MOD)
+  (export "SMOD" $SMOD)
+  (export "ADDMOD" $ADDMOD)
+  (export "MULMOD" $MULMOD)
+  (export "EXP" $EXP)
+  (export "LT" $LT)
+  (export "SLT" $SLT)
+  (export "GT" $GT)
+  (export "SGT" $SGT)
+  (export "ISZERO" $ISZERO)
+  (export "NOT" $NOT)
+  (export "OR" $OR)
+  (export "XOR" $XOR)
+  (export "BYTE" $BYTE)
 )
