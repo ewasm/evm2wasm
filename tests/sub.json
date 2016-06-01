@@ -1,0 +1,27 @@
+[
+  {
+    "op": "SUB",
+    "value": "0x03",
+    "description": "2^255 - 2^255",
+    "stack": {
+      "in": [
+        "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+      ],
+      "out": ["0x00"]
+    },
+    "state": "running"
+  }, {
+    "op": "SUB",
+    "value": "0x03",
+    "description": "0 - 2^255 = 1 checks overflow ",
+    "stack": {
+      "in": [
+        "0x00",
+        "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+      ],
+      "out": ["0x01"]
+    },
+    "state": "running"
+  }
+]

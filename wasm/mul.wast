@@ -179,5 +179,5 @@
 (assert_return (invoke "mul" (i64.const 0) (i64.const 0) (i64.const 0) (i64.const 2) (i64.const 0) (i64.const 0) (i64.const 0) (i64.const 2) (i32.const 0)) (i64.const 0))
 (assert_return (invoke "mul" (i64.const 0) (i64.const 0) (i64.const 0) (i64.const 2) (i64.const 0) (i64.const 0) (i64.const 0) (i64.const 2) (i32.const 24)) (i64.const 4))
 
-;; (2 ^32) * (2^32) = 2^33
+;; (2 ^32) * (2^32)
 (assert_return (invoke "mul" (i64.const 0) (i64.const 0) (i64.const 0) (i64.const 4294967295) (i64.const 0) (i64.const 0) (i64.const 0) (i64.const 4294967295) (i32.const 24)) (i64.const -8589934591))

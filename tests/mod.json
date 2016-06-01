@@ -1,0 +1,63 @@
+[
+  {
+    "op": "MOD",
+    "value": "0x06",
+    "description": "(2^255 - 1) mod (2^255 - 1)",
+    "stack": {
+      "in": [
+        "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+      ],
+      "out": ["0x00"]
+    },
+    "state": "running"
+  }, {
+    "op": "MOD",
+    "value": "0x06",
+    "description": "(2^255 -1) mod 0",
+    "stack": {
+      "in": [
+        "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "0x00"
+      ],
+      "out": ["0x00"]
+    },
+    "state": "running"
+  },{
+    "op": "MOD",
+    "value": "0x06",
+    "description": "(2^256 - 1) mod 2",
+    "stack": {
+      "in": [
+        "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "0x02"
+      ],
+      "out": ["0x01"]
+    },
+    "state": "running"
+  }, {
+    "op": "MOD",
+    "value": "0x06",
+    "description": "2 mod (2^256 - 1)",
+    "stack": {
+      "in": [
+        "0x02",
+        "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+      ],
+      "out": ["0x02"]
+    },
+    "state": "running"
+  }, {
+    "op": "MOD",
+    "value": "0x06",
+    "description": "1 mod 2",
+    "stack": {
+      "in": [
+        "0x01",
+        "0x02"
+      ],
+      "out": ["0x01"]
+    },
+    "state": "running"
+  }
+]

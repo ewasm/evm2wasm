@@ -8,10 +8,10 @@ function div (a, b) {
   if (b.isZero()) {
     r = [0]
   } else {
-    r = a.div(b).toArray()
+    r = a.div(b)
   }
-  return new Buffer(r)
+  return r
 }
 
-const r = div(new BN('8000000000000000000000000000000000000000000000000000000000000000', 16), MAX_INTEGER)
-console.log(r)
+const r = div(new BN(MAX_INTEGER), 2)
+console.log(r.toString(16))

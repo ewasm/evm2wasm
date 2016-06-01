@@ -15,13 +15,13 @@ function div (a, b) {
   return r
 }
 
-const r = div(new BN(-1), new BN(2))
-console.log(r)
+const r = div(new BN(1), new BN(2))
+console.log(r.toString(16))
 
 function fromSigned (num) {
   return new BN(num).fromTwos(256)
 }
 
 function toUnsigned (num) {
-  return new Buffer(num.toTwos(256).toArray())
+  return num.toTwos(256)
 }

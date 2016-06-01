@@ -1,0 +1,51 @@
+[
+  {
+    "op": "MUL",
+    "value": "0x02",
+    "description": "2^255 * 2^255",
+    "stack": {
+      "in": [
+        "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+      ],
+      "out": ["0x01"]
+    },
+    "state": "running"
+  }, {
+    "op": "MUL",
+    "value": "0x02",
+    "description": "2^255 * 0",
+    "stack": {
+      "in": [
+        "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "0x00"
+      ],
+      "out": ["0x00"]
+    },
+    "state": "running"
+  }, {
+    "op": "MUL",
+    "value": "0x02",
+    "descrittion": "2 * 2",
+    "stack": {
+      "in": [
+        "0x02",
+        "0x02"
+      ],
+      "out": ["0x04"]
+    },
+    "state": "running"
+  }, {
+    "op": "MUL",
+    "value": "0x02",
+    "descrittion": "(2^32 - 1) * (2^32 - 1)",
+    "stack": {
+      "in": [
+        "0xffffffff",
+        "0xffffffff"
+      ],
+      "out": ["0xfffffffe00000001"]
+    },
+    "state": "running"
+  }
+]

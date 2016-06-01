@@ -1,0 +1,63 @@
+[
+  {
+    "op": "SDIV",
+    "value": "0x05",
+    "description": "-1 / -1",
+    "stack": {
+      "in": [
+        "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+      ],
+      "out": ["0x01"]
+    },
+    "state": "running"
+  }, {
+    "op": "SDIV",
+    "value": "0x05",
+    "description": "-1 / 0",
+    "stack": {
+      "in": [
+        "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "0x00"
+      ],
+      "out": ["0x00"]
+    },
+    "state": "running"
+  },{
+    "op": "SDIV",
+    "value": "0x05",
+    "description": "-1 / 2",
+    "stack": {
+      "in": [
+        "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "0x02"
+      ],
+      "out": ["0"]
+    },
+    "state": "running"
+  }, {
+    "op": "SDIV",
+    "value": "0x05",
+    "description": "2 / -1",
+    "stack": {
+      "in": [
+        "0x02",
+        "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+      ],
+      "out": ["0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe"]
+    },
+    "state": "running"
+  }, {
+    "op": "SDIV",
+    "value": "0x05",
+    "description": "1/2",
+    "stack": {
+      "in": [
+        "0x01",
+        "0x02"
+      ],
+      "out": ["0x00"]
+    },
+    "state": "running"
+  }
+]
