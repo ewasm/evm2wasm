@@ -5,8 +5,6 @@ const ethUtil = require('ethereumjs-util')
 
 let testFiles = fs.readdirSync('./tests').filter((name) => name.endsWith('.json'))
 
-// testFiles = ['mul.json']
-
 tape('testing EVM1 Ops', (t) => {
   const testInstance = Wasm.instantiateModule(opsWasm, {print: {i32: print}})
 

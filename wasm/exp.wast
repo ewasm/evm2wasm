@@ -25,7 +25,7 @@
     (param $b3 i64)
     (param $memloc i32)
     (result i64)
-    (call $exp (get_local $a0) (get_local $a1) (get_local $a2) (get_local $a3) (get_local $b0) (get_local $b1) (get_local $b2) (get_local $b3) (i32.const 0))
+    (call $exp (get_local $a0) (get_local $a1) (get_local $a2) (get_local $a3) (get_local $b0) (get_local $b1) (get_local $b2) (get_local $b3) (i32.const 56))
     (i64.load (get_local $memloc))
   )
 
@@ -64,7 +64,7 @@
         ;; result = result.mul(base).mod(TWO_POW256)
         ;; r = r * a
         (then
-          (call $mul (get_local $r0) (get_local $r1) (get_local $r2) (get_local $r3) (get_local $a0) (get_local $a1) (get_local $a2) (get_local $a3) (get_local $sp))
+          (call $MUL_256 (get_local $r0) (get_local $r1) (get_local $r2) (get_local $r3) (get_local $a0) (get_local $a1) (get_local $a2) (get_local $a3) (get_local $sp))
           (set_local $r0 (i64.load (get_local $sp)))
           (set_local $r1 (i64.load (i32.add (get_local $sp) (i32.const 8))))
           (set_local $r2 (i64.load (i32.add (get_local $sp) (i32.const 16))))
@@ -78,7 +78,7 @@
       (set_local $b3 (i64.shr_u (get_local $b3) (i64.const 1)))
 
       ;; base = base.mul(base).mod(TWO_POW256)
-      (call $mul (get_local $a0) (get_local $a1) (get_local $a2) (get_local $a3) (get_local $a0) (get_local $a1) (get_local $a2) (get_local $a3) (get_local $sp))
+      (call $MUL_256 (get_local $a0) (get_local $a1) (get_local $a2) (get_local $a3) (get_local $a0) (get_local $a1) (get_local $a2) (get_local $a3) (get_local $sp))
       (set_local $a0 (i64.load (get_local $sp)))
       (set_local $a1 (i64.load (i32.add (get_local $sp) (i32.const 8))))
       (set_local $a2 (i64.load (i32.add (get_local $sp) (i32.const 16))))
@@ -92,7 +92,7 @@
     (i64.store (i32.add (i32.const 24) (get_local $sp)) (get_local $r3))
   )
 
-  (func $mul
+  (func $MUL_256
     ;; a = a * b
     (param $a0 i64)
     (param $a1 i64)
@@ -124,8 +124,6 @@
     (local $f0 i64)
     (local $f1 i64)
     (local $f2 i64)
-
-    (result i64)
 
     ;; split the ops
     (set_local $c0 (i64.and (get_local $a0) (i64.const 4294967295)))
@@ -242,11 +240,12 @@
     (set_local $a1 (i64.or (i64.shl (get_local $e1) (i64.const 32)) (i64.and (get_local $e2) (i64.const 4294967295))))
     (set_local $a2 (i64.or (i64.shl (get_local $e3) (i64.const 32)) (i64.and (get_local $f0) (i64.const 4294967295))))
     (set_local $a3 (i64.or (i64.shl (get_local $f1) (i64.const 32)) (i64.and (get_local $f2) (i64.const 4294967295))))
-    ;; section done
+
+    ;; save stack 
     (i64.store (get_local $sp) (get_local $a0))
-    (i64.store (i32.add (get_local $sp) (i32.const 8)) (get_local $a1))
-    (i64.store (i32.add (get_local $sp) (i32.const 16)) (get_local $a2))
-    (i64.store (i32.add (get_local $sp) (i32.const 24)) (get_local $a3))
+    (i64.store (i32.sub (get_local $sp) (i32.const 8)) (get_local $a1))
+    (i64.store (i32.sub (get_local $sp) (i32.const 16)) (get_local $a2))
+    (i64.store (i32.sub (get_local $sp) (i32.const 24)) (get_local $a3))
   )
   (func $isZero
     (param i64)

@@ -1,5 +1,5 @@
 (module
-  (import $print_i32 "print" "i32" (param i32))
+  ;; (import $print_i32 "print" "i32" (param i32))
   (memory 1 1)
   ;; Add 0x01
   (func $ADD
@@ -55,6 +55,8 @@
                      (get_local $carry)))))
     (return (get_local $sp))
   )
+
+  ;; Multiplication 0x02 
   (func $MUL
     (param $sp i32)
     (result i32)
@@ -72,7 +74,6 @@
     )
     (return (get_local $sp))
   )
-  ;; Multiplication 0x02 
   (func $MUL_256
     ;; a = a * b
     (param $a0 i64)
@@ -286,19 +287,20 @@
   
   ;; division 0x04
   (func $DIV
+    (param $sp i32)
+    (result i32)
+
     ;; dividend
-    (param $a i64)
-    (param $b i64)
-    (param $c i64)
-    (param $d i64)
+    (local $a i64)
+    (local $b i64)
+    (local $c i64)
+    (local $d i64)
 
     ;; divisor
-    (param $a1 i64)
-    (param $b1 i64)
-    (param $c1 i64)
-    (param $d1 i64)
-
-    (param $memIndex i32)
+    (local $a1 i64)
+    (local $b1 i64)
+    (local $c1 i64)
+    (local $d1 i64)
 
     ;; quotient
     (local $aq i64)
@@ -314,9 +316,21 @@
     (local $carry i32)
     (local $temp  i64)
     (local $temp2  i64)
-    (result i64)
 
     (set_local $maskd (i64.const 1))
+
+    ;; load args from the stack
+    (set_local $a (i64.load (get_local $sp)))
+    (set_local $b (i64.load (i32.sub (get_local $sp) (i32.const 8))))
+    (set_local $c (i64.load (i32.sub (get_local $sp) (i32.const 16))))
+    (set_local $d (i64.load (i32.sub (get_local $sp) (i32.const 24))))
+    ;; decement the stack pointer
+    (set_local $sp (i32.sub (get_local $sp) (i32.const 32)))
+
+    (set_local $a1 (i64.load (get_local $sp)))
+    (set_local $b1 (i64.load (i32.sub (get_local $sp) (i32.const 8))))
+    (set_local $c1 (i64.load (i32.sub (get_local $sp) (i32.const 16))))
+    (set_local $d1 (i64.load (i32.sub (get_local $sp) (i32.const 24))))
 
     (block $main
       ;; check div by 0
@@ -395,30 +409,29 @@
       )
     );; end of main
 
-    ;; add section done
-    (i64.store (i32.const 0)  (get_local $aq))
-    (i64.store (i32.const 8)  (get_local $bq))
-    (i64.store (i32.const 16) (get_local $cq))
-    (i64.store (i32.const 24) (get_local $dq))
-    ;; (call_import $print_mem)
-    (i64.load  (get_local $memIndex))
+    (i64.store (get_local $sp) (get_local $aq))
+    (i64.store (i32.sub (get_local $sp) (i32.const 8)) (get_local $bq))
+    (i64.store (i32.sub (get_local $sp) (i32.const 16)) (get_local $cq))
+    (i64.store (i32.sub (get_local $sp) (i32.const 24)) (get_local $dq))
+    (get_local $sp)
   )
 
   ;; Signed division 0x03
   (func $SDIV
+    (param $sp i32)
+    (result i32)
+
     ;; dividend
-    (param $a i64)
-    (param $b i64)
-    (param $c i64)
-    (param $d i64)
+    (local $a i64)
+    (local $b i64)
+    (local $c i64)
+    (local $d i64)
 
     ;; divisor
-    (param $a1 i64)
-    (param $b1 i64)
-    (param $c1 i64)
-    (param $d1 i64)
-
-    (param $memIndex i32)
+    (local $a1 i64)
+    (local $b1 i64)
+    (local $c1 i64)
+    (local $d1 i64)
 
     ;; quotient
     (local $aq i64)
@@ -435,7 +448,19 @@
     (local $sign  i32)
     (local $carry i32)
     (local $temp  i64)
-    (result i64)
+
+    ;; load args from the stack
+    (set_local $a (i64.load (get_local $sp)))
+    (set_local $b (i64.load (i32.sub (get_local $sp) (i32.const 8))))
+    (set_local $c (i64.load (i32.sub (get_local $sp) (i32.const 16))))
+    (set_local $d (i64.load (i32.sub (get_local $sp) (i32.const 24))))
+    ;; decement the stack pointer
+    (set_local $sp (i32.sub (get_local $sp) (i32.const 32)))
+
+    (set_local $a1 (i64.load (get_local $sp)))
+    (set_local $b1 (i64.load (i32.sub (get_local $sp) (i32.const 8))))
+    (set_local $c1 (i64.load (i32.sub (get_local $sp) (i32.const 16))))
+    (set_local $d1 (i64.load (i32.sub (get_local $sp) (i32.const 24))))
 
     (set_local $maskd (i64.const 1))
     ;; get the resulting sign
@@ -569,30 +594,30 @@
       )
     )
 
-    (i64.store (i32.const 0)  (get_local $aq))
-    (i64.store (i32.const 8)  (get_local $bq))
-    (i64.store (i32.const 16) (get_local $cq))
-    (i64.store (i32.const 24) (get_local $dq))
-
+    (i64.store (get_local $sp) (get_local $aq))
+    (i64.store (i32.sub (get_local $sp) (i32.const 8)) (get_local $bq))
+    (i64.store (i32.sub (get_local $sp) (i32.const 16)) (get_local $cq))
+    (i64.store (i32.sub (get_local $sp) (i32.const 24)) (get_local $dq))
     ;; add section done
-    (i64.load  (get_local $memIndex))
+    (get_local $sp)
   )
 
   ;; Modulo 0x06
   (func $MOD
+    (param $sp i32)
+    (result i32)
+
     ;; dividend
-    (param $a i64)
-    (param $b i64)
-    (param $c i64)
-    (param $d i64)
+    (local $a i64)
+    (local $b i64)
+    (local $c i64)
+    (local $d i64)
 
     ;; divisor
-    (param $a1 i64)
-    (param $b1 i64)
-    (param $c1 i64)
-    (param $d1 i64)
-
-    (param $memIndex i32)
+    (local $a1 i64)
+    (local $b1 i64)
+    (local $c1 i64)
+    (local $d1 i64)
 
     ;; quotient
     (local $aq i64)
@@ -608,9 +633,21 @@
     (local $carry i32)
     (local $temp  i64)
     (local $temp2  i64)
-    (result i64)
 
     (set_local $maskd (i64.const 1))
+
+    ;; load args from the stack
+    (set_local $a (i64.load (get_local $sp)))
+    (set_local $b (i64.load (i32.sub (get_local $sp) (i32.const 8))))
+    (set_local $c (i64.load (i32.sub (get_local $sp) (i32.const 16))))
+    (set_local $d (i64.load (i32.sub (get_local $sp) (i32.const 24))))
+    ;; decement the stack pointer
+    (set_local $sp (i32.sub (get_local $sp) (i32.const 32)))
+
+    (set_local $a1 (i64.load (get_local $sp)))
+    (set_local $b1 (i64.load (i32.sub (get_local $sp) (i32.const 8))))
+    (set_local $c1 (i64.load (i32.sub (get_local $sp) (i32.const 16))))
+    (set_local $d1 (i64.load (i32.sub (get_local $sp) (i32.const 24))))
 
     (block $main
       ;; check div by 0
@@ -683,30 +720,29 @@
       )
     );; end of main
 
-    ;; add section done
-    (i64.store (i32.const 0)  (get_local $a))
-    (i64.store (i32.const 8)  (get_local $b))
-    (i64.store (i32.const 16) (get_local $c))
-    (i64.store (i32.const 24) (get_local $d))
-    ;; (call_import $print_mem)
-    (i64.load  (get_local $memIndex))
+    (i64.store (get_local $sp) (get_local $a))
+    (i64.store (i32.sub (get_local $sp) (i32.const 8)) (get_local $b))
+    (i64.store (i32.sub (get_local $sp) (i32.const 16)) (get_local $c))
+    (i64.store (i32.sub (get_local $sp) (i32.const 24)) (get_local $d))
+    (get_local $sp)
   )
   
   ;; sign modulo 0x07
   (func $SMOD
+    (param $sp i32)
+    (result i32)
+
     ;; dividend
-    (param $a i64)
-    (param $b i64)
-    (param $c i64)
-    (param $d i64)
+    (local $a i64)
+    (local $b i64)
+    (local $c i64)
+    (local $d i64)
 
     ;; divisor
-    (param $a1 i64)
-    (param $b1 i64)
-    (param $c1 i64)
-    (param $d1 i64)
-
-    (param $memIndex i32)
+    (local $a1 i64)
+    (local $b1 i64)
+    (local $c1 i64)
+    (local $d1 i64)
 
     ;; quotient
     (local $aq i64)
@@ -720,10 +756,22 @@
     (local $maskc i64)
     (local $maskd i64)
     (local $carry i32)
+    (local $sign i32)
     (local $temp  i64)
     (local $temp2  i64)
-    (local $sign i32)
-    (result i64)
+
+    ;; load args from the stack
+    (set_local $a (i64.load (get_local $sp)))
+    (set_local $b (i64.load (i32.sub (get_local $sp) (i32.const 8))))
+    (set_local $c (i64.load (i32.sub (get_local $sp) (i32.const 16))))
+    (set_local $d (i64.load (i32.sub (get_local $sp) (i32.const 24))))
+    ;; decement the stack pointer
+    (set_local $sp (i32.sub (get_local $sp) (i32.const 32)))
+
+    (set_local $a1 (i64.load (get_local $sp)))
+    (set_local $b1 (i64.load (i32.sub (get_local $sp) (i32.const 8))))
+    (set_local $c1 (i64.load (i32.sub (get_local $sp) (i32.const 16))))
+    (set_local $d1 (i64.load (i32.sub (get_local $sp) (i32.const 24))))
 
     (set_local $maskd (i64.const 1))
     (set_local $sign (i32.wrap/i64 (i64.shr_u (get_local $d) (i64.const 63))))
@@ -764,17 +812,6 @@
       )
     )
     
-      (i64.store (i32.const 0)  (get_local $a))
-      (i64.store (i32.const 8)  (get_local $b))
-      (i64.store (i32.const 16) (get_local $c))
-      (i64.store (i32.const 24) (get_local $d))
-
-      (i64.store (i32.const 0)  (get_local $a1))
-      (i64.store (i32.const 8)  (get_local $b1))
-      (i64.store (i32.const 16) (get_local $c1))
-      (i64.store (i32.const 24) (get_local $d1))
-
-
     (block $main
       ;; check div by 0
       (if (call $isZero_i32 (get_local $a1) (get_local $b1) (get_local $c1) (get_local $d1))
@@ -860,13 +897,14 @@
         (set_local $a (i64.add (get_local $a) (i64.extend_u/i32 (i64.eqz (get_local $b)))))
       )
     )
-    ;; add section done
-    (i64.store (i32.const 0)  (get_local $a))
-    (i64.store (i32.const 8)  (get_local $b))
-    (i64.store (i32.const 16) (get_local $c))
-    (i64.store (i32.const 24) (get_local $d))
-    (i64.load  (get_local $memIndex))
-  )
+
+    ;; save the stack
+    (i64.store (get_local $sp) (get_local $a))
+    (i64.store (i32.sub (get_local $sp) (i32.const 8)) (get_local $b))
+    (i64.store (i32.sub (get_local $sp) (i32.const 16)) (get_local $c))
+    (i64.store (i32.sub (get_local $sp) (i32.const 24)) (get_local $d))
+    (get_local $sp)
+  ) ;; end for SMOD
 
   ;; Addition Modulo 0x08
   (func $ADDMOD
@@ -882,24 +920,36 @@
 
   ;; Exponential 0x0a
   (func $EXP
+    (param $sp i32)
+    (result i32)
+
     ;; base
-    (param $a0 i64)
-    (param $a1 i64)
-    (param $a2 i64)
-    (param $a3 i64)
+    (local $a0 i64)
+    (local $a1 i64)
+    (local $a2 i64)
+    (local $a3 i64)
 
     ;; exp
-    (param $b0 i64)
-    (param $b1 i64)
-    (param $b2 i64)
-    (param $b3 i64)
-
-    (param $sp i32)
+    (local $b0 i64)
+    (local $b1 i64)
+    (local $b2 i64)
+    (local $b3 i64)
 
     (local $r0 i64)
     (local $r1 i64)
     (local $r2 i64)
     (local $r3 i64)
+
+    ;; load args from the stack
+    (set_local $a0 (i64.load (get_local $sp)))
+    (set_local $a1 (i64.load (i32.sub (get_local $sp) (i32.const 8))))
+    (set_local $a2 (i64.load (i32.sub (get_local $sp) (i32.const 16))))
+    (set_local $a3 (i64.load (i32.sub (get_local $sp) (i32.const 24))))
+
+    (set_local $b0 (i64.load (i32.sub (get_local $sp) (i32.const 32))))
+    (set_local $b1 (i64.load (i32.sub (get_local $sp) (i32.const 40))))
+    (set_local $b2 (i64.load (i32.sub (get_local $sp) (i32.const 48))))
+    (set_local $b3 (i64.load (i32.sub (get_local $sp) (i32.const 56))))
 
     ;; let result = new BN(1)
     (set_local $r3 (i64.const 1))
@@ -918,9 +968,9 @@
         (then
           (call $MUL_256 (get_local $r0) (get_local $r1) (get_local $r2) (get_local $r3) (get_local $a0) (get_local $a1) (get_local $a2) (get_local $a3) (get_local $sp))
           (set_local $r0 (i64.load (get_local $sp)))
-          (set_local $r1 (i64.load (i32.add (get_local $sp) (i32.const 8))))
-          (set_local $r2 (i64.load (i32.add (get_local $sp) (i32.const 16))))
-          (set_local $r3 (i64.load (i32.add (get_local $sp) (i32.const 24))))
+          (set_local $r1 (i64.load (i32.sub (get_local $sp) (i32.const 8))))
+          (set_local $r2 (i64.load (i32.sub (get_local $sp) (i32.const 16))))
+          (set_local $r3 (i64.load (i32.sub (get_local $sp) (i32.const 24))))
         )
       )
       ;; exp = exp.shrn(1)
@@ -932,16 +982,20 @@
       ;; base = base.mul(base).mod(TWO_POW256)
       (call $MUL_256 (get_local $a0) (get_local $a1) (get_local $a2) (get_local $a3) (get_local $a0) (get_local $a1) (get_local $a2) (get_local $a3) (get_local $sp))
       (set_local $a0 (i64.load (get_local $sp)))
-      (set_local $a1 (i64.load (i32.add (get_local $sp) (i32.const 8))))
-      (set_local $a2 (i64.load (i32.add (get_local $sp) (i32.const 16))))
-      (set_local $a3 (i64.load (i32.add (get_local $sp) (i32.const 24))))
+      (set_local $a1 (i64.load (i32.sub (get_local $sp) (i32.const 8))))
+      (set_local $a2 (i64.load (i32.sub (get_local $sp) (i32.const 16))))
+      (set_local $a3 (i64.load (i32.sub (get_local $sp) (i32.const 24))))
       (br $loop)
     ) 
 
+    ;; decement the stack pointer
+    (set_local $sp (i32.sub (get_local $sp) (i32.const 32)))
+
     (i64.store (get_local $sp) (get_local $r0))
-    (i64.store (i32.add (i32.const 8) (get_local $sp)) (get_local $r1))
-    (i64.store (i32.add (i32.const 16) (get_local $sp)) (get_local $r2))
-    (i64.store (i32.add (i32.const 24) (get_local $sp)) (get_local $r3))
+    (i64.store (i32.sub (get_local $sp) (i32.const 8)) (get_local $r1))
+    (i64.store (i32.sub (get_local $sp) (i32.const 16)) (get_local $r2))
+    (i64.store (i32.sub (get_local $sp) (i32.const 24)) (get_local $r3))
+    (get_local $sp)
   )
 
   ;; extend length of twos  complement signed integer. 0x0b
