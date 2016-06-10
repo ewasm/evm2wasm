@@ -1,3 +1,4 @@
+;; each insturction take a stack pointer and returns the resulting stack pointer
 (module
   ;; (import $print_i32 "print" "i32" (param i32))
   (memory 1 1)

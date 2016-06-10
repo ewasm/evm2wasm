@@ -82,12 +82,6 @@ void compile_segments(struct SegmentHead head){
         case STOP:
           break; 
         case ADD:
-          // how to get the cary bits right?
-          // ir1 = (add (a1) (b1))
-          // ir2 = (add (a2) (b2))
-          // ir3 = (add (a3) (b3))
-          // ir4 = (add (a4) (b4))
-          // if(stack_avaible){}else{pop_stack}
           break;
         case MUL:
           break;
