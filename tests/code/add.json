@@ -1,4 +1,4 @@
-{
+[{
   "description": "2 + 2",
   "source": [
     "PUSH1",
@@ -7,11 +7,11 @@
     "0x02",
     "ADD"
   ],
-  "code": "0x600260021",
+  "code": "0x6002600201",
   "result": {
     "stack": [
       "0x04"
     ],
     "memory": []
   }
-}
+}]
