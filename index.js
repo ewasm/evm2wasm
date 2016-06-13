@@ -1,9 +1,11 @@
 const BN = require('bn.js')
+const fs = require('fs')
 const opcodes = require('./opcodes.js')
 
 // compile segments
-module.exports = function (evmCode) {
+module.exports = function compile (evmCode) {
   const initCode = '(get_local $sp)'
+  const opcodesUsed = new Set()
   let wasmCode = initCode
   let opcodeCount = 0
   const segments = []
@@ -14,18 +16,18 @@ module.exports = function (evmCode) {
       case 'JUMP':
         wasmCode = `(set_local $temp ${wasmCode})
                         (set_local $sp i32.sub (get_local $temp) (i32.const 4))
-                        (set_local $jump_loc (get_local $temp))
+                        (set_local $jump_dest (get_local $temp))
                         (br $loop)`
         break
       case 'JUMPI':
         wasmCode = `(block 
                         (set_local $temp ${wasmCode})
                         (set_local $sp i32.sub (get_local $temp) (i32.const 8))
-                        (set_local $jump_loc (get_local $temp))
+                        (set_local $jump_dest (get_local $temp))
                         (br_if $loop (i64.load (i32.add (get_local $sp) (i32.const 4)))))`
         break
       case 'JUMPDEST':
-        segments.push(wasmCode)
+        segments.push([wasmCode, i])
         wasmCode = ''
         break
       case 'LOG':
@@ -56,24 +58,74 @@ module.exports = function (evmCode) {
         break
     }
     wasmCode = `(call $${op.name} ${wasmCode})`
+    if (op.name.slice(4) !== 'JUMP') {
+      opcodesUsed.add(op.name)
+    }
     opcodeCount++
   }
   if (wasmCode !== '') {
     segments.push(wasmCode)
   }
-  return assmebleSegments(segments)
+  const mainFunc = assmebleSegments(segments)
+  const funcMap = resolveFuncs(opcodesUsed)
+  funcMap.add('main', mainFunc)
+  return assembleFunctions(funcMap)
 }
 
 function assmebleSegments (segments) {
-  return segments[0]
+  let wasm = buildJumpMap(segments)
+
+  segments.forEach((seg) => {
+    wasm = `(block
+             ${wasm}
+             ${seg[0]})`
+  })
+  return `(func 
+           (local $sp) 
+           (local $jump_dest)
+           ${wasm})`
+}
+
+function buildJumpMap (segments) {
+  let wasm = '(unreachable)'
+  let brTable = '(br_table'
+
+  segments.forEach((seg, index) => {
+    brTable += ' ' + index.toString()
+    wasm = `(if (i32.eq (get_local $jump_dest) (i32.const ${seg[1]})
+                (then (i32.const ${index}))
+                (else ${wasm})))`
+  })
+
+  brTable += wasm + ')'
+  return brTable
 }
 
 // converts 8 bytes into a int 64
-function bytes2int64(bytes) {
+function bytes2int64 (bytes) {
   return new BN(bytes).fromTwos(64).toString()
 }
+
+function resolveFuncs (funcs, dir = './wasm/') {
+  const funcMap = new Map()
+  for (let func of funcs) {
+    const wastPath = dir + func + '.wast'
+    const wast = fs.readFileSync()
+    funcMap.add(func, wast.toString())
+  }
+  return funcMap
+}
+
+function assembleFunctions (funcs, imports, exports) {
+  let funcStr = ''
+  for (let func in funcs) {
+    funcStr += func
+  }
+  return `(module ${funcStr})`
+}
+
 // remap code hashes
-// pull original code; if code is not wasm try to convert it. Transpiler will 
+// pull original code; if code is not wasm try to convert it. Transpiler will
 // need to be written in wasm
 // TRADE OFF 
 //  if you have polifilly 

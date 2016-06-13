@@ -9,6 +9,7 @@
         (block
           (block $a
             (br_table $a 1 2 3 $cont
+              (if (i32.eqget_local $jump_stm))
               (get_local $jump_stm)
             )
             ;; first section
