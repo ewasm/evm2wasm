@@ -9,6 +9,7 @@ module.exports = function compile (evmCode) {
   let wasmCode = initCode
   let opcodeCount = 0
   const segments = []
+  let segNumber = 0
   for (let i = 0; i < evmCode.length; i++) {
     const op = opcodes(evmCode[i])
     let bytes
@@ -27,7 +28,8 @@ module.exports = function compile (evmCode) {
                         (br_if $loop (i64.load (i32.add (get_local $sp) (i32.const 4)))))`
         break
       case 'JUMPDEST':
-        segments.push([wasmCode, i])
+        segments.push([wasmCode, segNumber])
+        segNumber = i
         wasmCode = ''
         break
       case 'LOG':
@@ -39,16 +41,18 @@ module.exports = function compile (evmCode) {
         i += op.number
         break
       case 'PUSH':
-        bytes = evmCode.slice(i, i + op.number * 8)
+        i++
+        bytes = evmCode.slice(i, i + op.number)
+        // console.log(bytes);
         for (let i = 0; i < bytes.length; i += 8) {
           const int64 = bytes2int64(bytes.slice(i, i + 8))
           wasmCode = `(i64.const ${int64})` + wasmCode
         }
-        // padd the remained of the word with 0
+        // padd the remaining of the word with 0
         for (let i = 0; i < 32 - bytes.length; i += 8) {
           wasmCode = '(i64.const 0)' + wasmCode
         }
-        i += op.number
+        i += op.number - 1
         break
       case 'DUP':
         wasmCode = `(i64.const ${op.number})` + wasmCode
@@ -64,11 +68,12 @@ module.exports = function compile (evmCode) {
     opcodeCount++
   }
   if (wasmCode !== '') {
-    segments.push(wasmCode)
+    segments.push([wasmCode, segNumber])
   }
   const mainFunc = assmebleSegments(segments)
+  console.log(mainFunc)
   const funcMap = resolveFuncs(opcodesUsed)
-  funcMap.add('main', mainFunc)
+  funcMap.set('main', mainFunc)
   return assembleFunctions(funcMap)
 }
 
@@ -80,9 +85,9 @@ function assmebleSegments (segments) {
              ${wasm}
              ${seg[0]})`
   })
-  return `(func 
-           (local $sp) 
-           (local $jump_dest)
+  return `(func $main 
+           (local $sp i32) 
+           (local $jump_dest i32)
            ${wasm})`
 }
 
@@ -106,20 +111,20 @@ function bytes2int64 (bytes) {
   return new BN(bytes).fromTwos(64).toString()
 }
 
-function resolveFuncs (funcs, dir = './wasm/') {
+function resolveFuncs (funcs, dir = '/wasm/') {
   const funcMap = new Map()
   for (let func of funcs) {
-    const wastPath = dir + func + '.wast'
-    const wast = fs.readFileSync()
-    funcMap.add(func, wast.toString())
+    const wastPath =  __dirname + dir + func + '.wast'
+    const wast = fs.readFileSync(wastPath)
+    funcMap.set(func, wast.toString())
   }
   return funcMap
 }
 
 function assembleFunctions (funcs, imports, exports) {
   let funcStr = ''
-  for (let func in funcs) {
-    funcStr += func
+  for (let func of funcs) {
+    funcStr += func[1]
   }
   return `(module ${funcStr})`
 }
