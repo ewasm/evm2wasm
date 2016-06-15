@@ -6,7 +6,7 @@
     "in": [
       "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
       "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"],
-    "out": ["0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe"]
+      "out": ["0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe"]
   },
   "state": "running"
 },
@@ -18,7 +18,18 @@
     "in": [
       "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
       "0x00"],
-    "out": ["0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"]
+      "out": ["0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"]
+  },
+  "state": "running"
+},{
+  "op": "ADD",
+  "value": "0x01",
+  "description": "2 + 2",
+  "stack": {
+    "in": [
+      "0x02",
+      "0x02"],
+      "out": ["0x04"]
   },
   "state": "running"
 }]
