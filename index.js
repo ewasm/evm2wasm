@@ -84,7 +84,7 @@ exports.compile = function (evmCode) {
   if (wasmCode !== '') {
     segments.push([wasmCode, segNumber])
   }
-  const mainFunc = '(export "main" $main)' + assmebleSegments(segments)
+  const mainFunc = '(start $main)' + assmebleSegments(segments)
   const funcMap = exports.resolveFunctions(opcodesUsed)
   funcMap.push(mainFunc)
   return exports.buildModule(funcMap)
@@ -117,7 +117,7 @@ function assmebleSegments (segments) {
 
 function buildJumpMap (segments) {
   let wasm = '(unreachable)'
-  let brTable = '(br_table'
+  let brTable = '(block (br_table'
 
   segments.forEach((seg, index) => {
     brTable += ' ' + index.toString()
@@ -126,7 +126,7 @@ function buildJumpMap (segments) {
                 (else ${wasm}))`
   })
 
-  brTable += wasm + ')'
+  brTable += wasm + '))'
   return brTable
 }
 
