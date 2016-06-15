@@ -6,6 +6,8 @@
   (local $d i64)
   (local $carry i64)
   (result i32)
+  
+  (set_local $sp (i32.sub (get_local $sp) (i32.const 8)) )
 
   ;; d c b a
   ;; pop the stack 
@@ -50,5 +52,7 @@
                  (i64.or  ;; carry 
                    (i64.extend_u/i32 (i64.lt_u (get_local $d) (get_local $c))) 
                    (get_local $carry)))))
+
+  (set_local $sp (i32.add (get_local $sp) (i32.const 8)) )
   (return (get_local $sp))
 )

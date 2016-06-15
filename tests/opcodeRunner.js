@@ -10,20 +10,18 @@ tape('testing EVM1 Ops', (t) => {
   testFiles.forEach((path) => {
     let opTest = require(`./opcode/${path}`)
     opTest.forEach((test) => {
-      const opsWasm = buildTest(test.op)
-      const testInstance = Wasm.instantiateModule(opsWasm, {print: {i32: print}})
+      const testInstance = buildTest(test.op)
       // populate the stack
       t.comment(`testing ${test.description}`)
-
       test.stack.in.reverse().forEach((item, index) => {
         item = Uint8Array.from(ethUtil.setLength(new Buffer(item.slice(2), 'hex'), 32)).reverse()
         new Uint8Array(testInstance.exports.memory).set(item, index * 32)
       })
       // run the opcode
-      let sp = testInstance.exports[test.op](test.stack.in.length * 32 - 8)
-      t.equal((sp + 8) / 32, test.stack.out.length, 'should have corrent number of items on the stack')
+      let sp = testInstance.exports[test.op](test.stack.in.length * 32)
+      console.log(sp);
+      t.equal(sp / 32, test.stack.out.length, 'should have corrent number of items on the stack')
       sp = 0
-
       // check the results
       test.stack.out.forEach((item, index) => {
         const expectedItem = new Uint8Array(ethUtil.setLength(new Buffer(item.slice(2), 'hex'), 32)).reverse()
@@ -41,8 +39,9 @@ function print (i) {
 
 function buildTest (op) {
   const funcs = compiler.resolveFunctions(new Set([op]))
-  const linked = compiler.linkFunctions(funcs, [], [op])
+  const linked = compiler.buildModule(funcs, [], [op])
   fs.writeFileSync('temp.wast', linked)
   cp.execSync('../deps/sexpr-wasm-prototype/out/sexpr-wasm ./temp.wast -o ./temp.wasm')
-  return fs.readFileSync('./temp.wasm')
+  const opsWasm = fs.readFileSync('./temp.wasm')
+  return Wasm.instantiateModule(opsWasm, {print: {i32: print}})
 }

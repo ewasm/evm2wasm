@@ -30,6 +30,7 @@
   (local $temp  i64)
   (local $temp2  i64)
 
+  (set_local $sp (i32.sub (get_local $sp) (i32.const 8)) )
   (set_local $maskd (i64.const 1))
 
   ;; load args from the stack
@@ -126,5 +127,7 @@
   (i64.store (i32.sub (get_local $sp) (i32.const 8)) (get_local $bq))
   (i64.store (i32.sub (get_local $sp) (i32.const 16)) (get_local $cq))
   (i64.store (i32.sub (get_local $sp) (i32.const 24)) (get_local $dq))
+
+  (set_local $sp (i32.add (get_local $sp) (i32.const 8)) )
   (get_local $sp)
 )

@@ -21,7 +21,6 @@ exports.compile = function (evmCode) {
   const segments = []
   let segNumber = 0
 
-
   for (let i = 0; i < evmCode.length; i++) {
     const op = opcodes(evmCode[i])
     let bytes
@@ -55,12 +54,13 @@ exports.compile = function (evmCode) {
       case 'PUSH':
         i++
         bytes = evmCode.slice(i, i + op.number)
-        for (let i = 0; i < bytes.length; i += 8) {
-          const int64 = bytes2int64(bytes.slice(i, i + 8))
+        let q = 0
+        for (; q < bytes.length; q += 8) {
+          const int64 = bytes2int64(bytes.slice(q, q + 8))
           wasmCode = `(i64.const ${int64})` + wasmCode
         }
         // padd the remaining of the word with 0
-        for (let i = 0; i < 32 - bytes.length; i += 8) {
+        for (; q < 32; q += 8) {
           wasmCode = '(i64.const 0)' + wasmCode
         }
         i += op.number - 1
@@ -71,9 +71,12 @@ exports.compile = function (evmCode) {
       case 'SWAP':
         wasmCode = `(i64.const ${op.number})` + wasmCode
         break
+      case 'STOP':
+        wasmCode = `(br $done ${wasmCode})`
+        break
     }
     wasmCode = `(call $${op.name} ${wasmCode})`
-    if (op.name.slice(4) !== 'JUMP') {
+    if (op.name.slice(4) !== 'JUMP' && op.name !== 'STOP') {
       opcodesUsed.add(op.name)
     }
     opcodeCount++
@@ -81,10 +84,10 @@ exports.compile = function (evmCode) {
   if (wasmCode !== '') {
     segments.push([wasmCode, segNumber])
   }
-  const mainFunc = assmebleSegments(segments)
-  const funcMap = resolveFuncs(opcodesUsed)
-  funcMap.set('main', mainFunc)
-  return linkFunctions(funcMap)
+  const mainFunc = '(export "main" $main)' + assmebleSegments(segments)
+  const funcMap = exports.resolveFunctions(opcodesUsed)
+  funcMap.push(mainFunc)
+  return exports.buildModule(funcMap)
 }
 
 // add an op as this contract depends on
@@ -118,9 +121,9 @@ function buildJumpMap (segments) {
 
   segments.forEach((seg, index) => {
     brTable += ' ' + index.toString()
-    wasm = `(if (i32.eq (get_local $jump_dest) (i32.const ${seg[1]})
+    wasm = `(if (i32.eq (get_local $jump_dest) (i32.const ${seg[1]}))
                 (then (i32.const ${index}))
-                (else ${wasm})))`
+                (else ${wasm}))`
   })
 
   brTable += wasm + ')'
@@ -132,7 +135,7 @@ function bytes2int64 (bytes) {
   return new BN(bytes).fromTwos(64).toString()
 }
 
-exports.resolveFunctions = function resolveFuncs (funcSet, dir = '/wasm/') {
+exports.resolveFunctions = function resolveFunctions (funcSet, dir = '/wasm/') {
   let funcs = []
   for (let func of funcSet) {
     const wastPath = __dirname + dir + func + '.wast'
@@ -140,13 +143,13 @@ exports.resolveFunctions = function resolveFuncs (funcSet, dir = '/wasm/') {
     funcs.push(wast.toString())
     const depFuncs = depMap.get(func)
     if (depFuncs) {
-      funcs = funcs.concat(resolveFuncs(depFuncs, dir))
+      funcs = funcs.concat(resolveFunctions(depFuncs, dir))
     }
   }
   return funcs
 }
 
-exports.linkFunctions = function linkFunctions (funcs, imports, exports) {
+exports.buildModule = function buildModule (funcs, imports=[], exports=[]) {
   let funcStr = ''
   for (let func of funcs) {
     funcStr += func
