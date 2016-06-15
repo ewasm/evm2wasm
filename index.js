@@ -2,14 +2,26 @@ const BN = require('bn.js')
 const fs = require('fs')
 const opcodes = require('./opcodes.js')
 
+// map to track dependant WASM functions
+const depMap = new Map([
+  ['MOD', ['ISZERO_32', 'GTE']],
+  ['SDIV', ['ISZERO_32', 'GTE']],
+  ['SMOD', ['ISZERO_32', 'GTE']],
+  ['DIV', ['ISZERO_32', 'GTE']],
+  ['EXP', ['ISZERO_32', 'MUL_256']],
+  ['MUL', ['MUL_256']]
+])
+
 // compile segments
-module.exports = function compile (evmCode) {
+exports.compile = function (evmCode) {
   const initCode = '(get_local $sp)'
   const opcodesUsed = new Set()
   let wasmCode = initCode
   let opcodeCount = 0
   const segments = []
   let segNumber = 0
+
+
   for (let i = 0; i < evmCode.length; i++) {
     const op = opcodes(evmCode[i])
     let bytes
@@ -43,7 +55,6 @@ module.exports = function compile (evmCode) {
       case 'PUSH':
         i++
         bytes = evmCode.slice(i, i + op.number)
-        // console.log(bytes);
         for (let i = 0; i < bytes.length; i += 8) {
           const int64 = bytes2int64(bytes.slice(i, i + 8))
           wasmCode = `(i64.const ${int64})` + wasmCode
@@ -71,10 +82,20 @@ module.exports = function compile (evmCode) {
     segments.push([wasmCode, segNumber])
   }
   const mainFunc = assmebleSegments(segments)
-  console.log(mainFunc)
   const funcMap = resolveFuncs(opcodesUsed)
   funcMap.set('main', mainFunc)
-  return assembleFunctions(funcMap)
+  return linkFunctions(funcMap)
+}
+
+// add an op as this contract depends on
+function addOpDep (opset, op) {
+  opset.add(opset)
+  const deps = depMap.get(op)
+  if (deps) {
+    deps.forEach((dep) => {
+      addOpDep(opset, dep)
+    })
+  }
 }
 
 function assmebleSegments (segments) {
@@ -111,22 +132,33 @@ function bytes2int64 (bytes) {
   return new BN(bytes).fromTwos(64).toString()
 }
 
-function resolveFuncs (funcs, dir = '/wasm/') {
-  const funcMap = new Map()
-  for (let func of funcs) {
-    const wastPath =  __dirname + dir + func + '.wast'
+exports.resolveFunctions = function resolveFuncs (funcSet, dir = '/wasm/') {
+  let funcs = []
+  for (let func of funcSet) {
+    const wastPath = __dirname + dir + func + '.wast'
     const wast = fs.readFileSync(wastPath)
-    funcMap.set(func, wast.toString())
+    funcs.push(wast.toString())
+    const depFuncs = depMap.get(func)
+    if (depFuncs) {
+      funcs = funcs.concat(resolveFuncs(depFuncs, dir))
+    }
   }
-  return funcMap
+  return funcs
 }
 
-function assembleFunctions (funcs, imports, exports) {
+exports.linkFunctions = function linkFunctions (funcs, imports, exports) {
   let funcStr = ''
   for (let func of funcs) {
-    funcStr += func[1]
+    funcStr += func
   }
-  return `(module ${funcStr})`
+  for (let exprt of exports) {
+    funcStr += `(export "${exprt}" $${exprt})`
+  }
+  return `(module
+          (memory 1 1)
+          (export "a" memory)
+           ${funcStr}
+          )`
 }
 
 // remap code hashes

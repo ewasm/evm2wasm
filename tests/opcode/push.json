@@ -1,7 +1,7 @@
 [{
   "op": "PUSH",
   "value": "0x6002",
-  "description": "pushes two to the stack"
+  "description": "pushes two to the stack",
   "stack": {
     "in": [],
     "out": ["0x02"]
