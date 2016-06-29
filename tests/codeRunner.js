@@ -11,6 +11,7 @@ tape('testing transcompiler', (t) => {
   testFiles.forEach((path) => {
     let codeTests = require(dir + path)
     codeTests.forEach((test) => {
+      t.comment(test.description)
       const testInstance = buildTest(new Buffer(test.code.slice(2), 'hex'))
       // check the results
       test.result.stack.forEach((item, index) => {

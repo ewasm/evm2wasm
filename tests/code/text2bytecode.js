@@ -138,17 +138,19 @@ fs.readdir('.', (err, filenames) => {
   filenames = filenames.filter((name) => name.slice(-5) === '.json')
   filenames.forEach((filename) => {
     let byteCode = '0x'
-    const test = require(`./${filename}`)
-    test.source.forEach((op) => {
-      const opcode = opcodeMap[op]
-      if (opcode) {
-        byteCode += opcode
-      } else {
-        byteCode += op.slice(2)
-      }
-    })
+    const tests = require(`./${filename}`)
+    for (const index in tests) {
+      tests[index].source.forEach((op) => {
+        const opcode = opcodeMap[op]
+        if (opcode) {
+          byteCode += opcode
+        } else {
+          byteCode += op.slice(2)
+        }
+      })
 
-    test.code = byteCode
-    fs.writeFileSync(filename, JSON.stringify(test, null, '  '))
+      tests[index].code = byteCode
+      fs.writeFileSync(filename, JSON.stringify(test, null, '  '))
+    }
   })
 })
