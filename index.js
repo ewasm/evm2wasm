@@ -14,9 +14,9 @@ const depMap = new Map([
 
 // compile segments
 exports.compile = function (evmCode) {
-  const initCode = '(get_local $sp)'
   const opcodesUsed = new Set()
-  let wasmCode = initCode
+  const opcodesIgnore = new Set(['JUMP', 'JUMPI', 'JUMPDEST', 'STOP'])
+  let wasmCode = '(get_local $sp)'
   let opcodeCount = 0
   const segments = []
   let segNumber = 0
@@ -27,14 +27,14 @@ exports.compile = function (evmCode) {
     switch (op.name) {
       case 'JUMP':
         wasmCode = `(set_local $temp ${wasmCode})
-                        (set_local $sp i32.sub (get_local $temp) (i32.const 4))
+                        (set_local $sp (i32.sub (get_local $temp) (i32.const 4)))
                         (set_local $jump_dest (get_local $temp))
                         (br $loop)`
         break
       case 'JUMPI':
         wasmCode = `(block 
                         (set_local $temp ${wasmCode})
-                        (set_local $sp i32.sub (get_local $temp) (i32.const 8))
+                        (set_local $sp (i32.sub (get_local $temp) (i32.const 8)))
                         (set_local $jump_dest (get_local $temp))
                         (br_if $loop (i64.load (i32.add (get_local $sp) (i32.const 4)))))`
         break
@@ -72,11 +72,12 @@ exports.compile = function (evmCode) {
         wasmCode = `(i64.const ${op.number})` + wasmCode
         break
       case 'STOP':
-        wasmCode = `(br $done ${wasmCode})`
+        wasmCode = `${wasmCode} (br $done)`
         break
     }
-    wasmCode = `(call $${op.name} ${wasmCode})`
-    if (op.name.slice(4) !== 'JUMP' && op.name !== 'STOP') {
+    console.log(wasmCode);
+    if (!opcodesIgnore.has(op.name)) {
+      wasmCode = `(call $${op.name} ${wasmCode})`
       opcodesUsed.add(op.name)
     }
     opcodeCount++
@@ -111,8 +112,10 @@ function assmebleSegments (segments) {
   })
   return `(func $main 
            (local $sp i32) 
+           (local $temp i32) 
            (local $jump_dest i32)
-           ${wasm})`
+           (loop $done $loop
+            ${wasm}))`
 }
 
 function buildJumpMap (segments) {

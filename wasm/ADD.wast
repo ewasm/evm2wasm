@@ -1,11 +1,11 @@
 ;; Add 0x01
 (func $ADD
   (param $sp i32)
+  (result i32)
   (local $a i64)
   (local $c i64)
   (local $d i64)
   (local $carry i64)
-  (result i32)
   
   (set_local $sp (i32.sub (get_local $sp) (i32.const 8)) )
 
