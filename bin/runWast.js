@@ -13,12 +13,15 @@ const instance = Wasm.instantiateModule(opsWasm, {
   }
 })
 
+instance.exports.main()
+
 function print (i) {
   console.log(i)
 }
 
 function printMem (i) {
-  const mem = new Uint8Array(instance.exports.memory).slice(0, 128)
+  console.log('--- mem---');
+  const mem = new Uint8Array(instance.exports.memory).slice(0, 128).join('')
   console.log(mem)
 }
 

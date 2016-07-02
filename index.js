@@ -17,7 +17,7 @@ exports.compile = function (evmCode) {
   const opcodesUsed = new Set()
   const opcodesIgnore = new Set(['JUMP', 'JUMPI', 'JUMPDEST', 'STOP'])
   const initCode = '(get_local $sp)'
-  let wasmCode =   initCode
+  let wasmCode = initCode
   let opcodeCount = 0
   const segments = []
   let segNumber = 0
@@ -28,7 +28,8 @@ exports.compile = function (evmCode) {
     switch (op.name) {
       case 'JUMP':
         wasmCode = `(set_local $sp ${wasmCode})
-                    (set_local $jump_dest (i32.wrap/i64 (i64.load (i32.sub (get_local $sp) (i32.const 32)))))
+                    (set_local $sp (i32.sub (get_local $sp) (i32.const 32)))
+                    (set_local $jump_dest (i32.wrap/i64 (i64.load (get_local $sp))))
                     (br $loop)`
         break
       case 'JUMPI':
