@@ -16,7 +16,8 @@ const depMap = new Map([
 exports.compile = function (evmCode) {
   const opcodesUsed = new Set()
   const opcodesIgnore = new Set(['JUMP', 'JUMPI', 'JUMPDEST', 'STOP'])
-  let wasmCode = '(get_local $sp)'
+  const initCode = '(get_local $sp)'
+  let wasmCode =   initCode
   let opcodeCount = 0
   const segments = []
   let segNumber = 0
@@ -26,10 +27,9 @@ exports.compile = function (evmCode) {
     let bytes
     switch (op.name) {
       case 'JUMP':
-        wasmCode = `(set_local $temp ${wasmCode})
-                        (set_local $sp (i32.sub (get_local $temp) (i32.const 4)))
-                        (set_local $jump_dest (get_local $temp))
-                        (br $loop)`
+        wasmCode = `(set_local $sp ${wasmCode})
+                    (set_local $jump_dest (i32.wrap/i64 (i64.load (i32.sub (get_local $sp) (i32.const 32)))))
+                    (br $loop)`
         break
       case 'JUMPI':
         wasmCode = `(block 
@@ -41,7 +41,7 @@ exports.compile = function (evmCode) {
       case 'JUMPDEST':
         segments.push([wasmCode, segNumber])
         segNumber = i
-        wasmCode = ''
+        wasmCode = initCode
         break
       case 'LOG':
         bytes = evmCode.slice(i, i + op.number * 8)
@@ -75,7 +75,6 @@ exports.compile = function (evmCode) {
         wasmCode = `${wasmCode} (br $done)`
         break
     }
-    console.log(wasmCode);
     if (!opcodesIgnore.has(op.name)) {
       wasmCode = `(call $${op.name} ${wasmCode})`
       opcodesUsed.add(op.name)
@@ -89,6 +88,10 @@ exports.compile = function (evmCode) {
   const funcMap = exports.resolveFunctions(opcodesUsed)
   funcMap.push(mainFunc)
   return exports.buildModule(funcMap)
+}
+
+function compileSegment (segment) {
+   
 }
 
 // add an op as this contract depends on
@@ -105,8 +108,8 @@ function addOpDep (opset, op) {
 function assmebleSegments (segments) {
   let wasm = buildJumpMap(segments)
 
-  segments.forEach((seg) => {
-    wasm = `(block
+  segments.forEach((seg, index) => {
+    wasm = `(block $${index + 1} 
              ${wasm}
              ${seg[0]})`
   })
@@ -120,10 +123,10 @@ function assmebleSegments (segments) {
 
 function buildJumpMap (segments) {
   let wasm = '(unreachable)'
-  let brTable = '(block (br_table'
+  let brTable = '(block $0 (br_table'
 
   segments.forEach((seg, index) => {
-    brTable += ' ' + index.toString()
+    brTable += ' $' + index
     wasm = `(if (i32.eq (get_local $jump_dest) (i32.const ${seg[1]}))
                 (then (i32.const ${index}))
                 (else ${wasm}))`

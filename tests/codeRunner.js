@@ -18,6 +18,7 @@ tape('testing transcompiler', (t) => {
         const sp = index * 32
         const expectedItem = new Uint8Array(ethUtil.setLength(new Buffer(item.slice(2), 'hex'), 32)).reverse()
         const result = new Uint8Array(testInstance.exports.memory).slice(sp, sp + 32)
+        console.log(result);
         t.equals(result.toString(), expectedItem.toString(), 'should have correct item on stack')
       })
     })

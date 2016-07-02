@@ -37,11 +37,20 @@ function print (i) {
   console.log(i)
 }
 
+function printMem (i) {
+  console.log(i)
+}
+
 function buildTest (op) {
   const funcs = compiler.resolveFunctions(new Set([op]))
   const linked = compiler.buildModule(funcs, [], [op])
   fs.writeFileSync('temp.wast', linked)
   cp.execSync('../deps/sexpr-wasm-prototype/out/sexpr-wasm ./temp.wast -o ./temp.wasm')
   const opsWasm = fs.readFileSync('./temp.wasm')
-  return Wasm.instantiateModule(opsWasm, {print: {i32: print}})
+  return Wasm.instantiateModule(opsWasm, {
+    spectest: {
+      print: print
+    },
+    printMem: printMem
+  })
 }
