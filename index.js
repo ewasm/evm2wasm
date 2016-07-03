@@ -29,7 +29,7 @@ exports.compile = function (evmCode) {
       case 'JUMP':
         wasmCode = `(set_local $sp ${wasmCode})
                     (set_local $sp (i32.sub (get_local $sp) (i32.const 32)))
-                    (set_local $jump_dest (i32.wrap/i64 (i64.load (get_local $sp))))
+                    (set_local $jump_dest (i64.load (get_local $sp)))
                     (br $loop)`
         break
       case 'JUMPI':
@@ -91,10 +91,6 @@ exports.compile = function (evmCode) {
   return exports.buildModule(funcMap)
 }
 
-function compileSegment (segment) {
-   
-}
-
 // add an op as this contract depends on
 function addOpDep (opset, op) {
   opset.add(opset)
@@ -116,8 +112,7 @@ function assmebleSegments (segments) {
   })
   return `(func $main 
            (local $sp i32) 
-           (local $temp i32) 
-           (local $jump_dest i32)
+           (local $jump_dest i64)
            (loop $done $loop
             ${wasm}))`
 }
@@ -128,7 +123,7 @@ function buildJumpMap (segments) {
 
   segments.forEach((seg, index) => {
     brTable += ' $' + index
-    wasm = `(if (i32.eq (get_local $jump_dest) (i32.const ${seg[1]}))
+    wasm = `(if (i64.eq (get_local $jump_dest) (i64.const ${seg[1]}))
                 (then (i32.const ${index}))
                 (else ${wasm}))`
   })
