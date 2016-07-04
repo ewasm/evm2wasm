@@ -33,11 +33,10 @@ exports.compile = function (evmCode) {
                     (br $loop)`
         break
       case 'JUMPI':
-        wasmCode = `(block 
-                        (set_local $temp ${wasmCode})
-                        (set_local $sp (i32.sub (get_local $temp) (i32.const 8)))
-                        (set_local $jump_dest (get_local $temp))
-                        (br_if $loop (i64.load (i32.add (get_local $sp) (i32.const 4)))))`
+        wasmCode = `(set_local $sp ${wasmCode})
+                    (set_local $sp (i32.sub (get_local $sp) (i32.const 32)))
+                    (set_local $jump_dest (i64.load (get_local $sp)))
+                    (br_if $loop (i64.load (get_local $sp)))`
         break
       case 'JUMPDEST':
         segments.push([wasmCode, segNumber])

@@ -1,8 +1,0 @@
-{
-  "name": "cqueue",
-  "version": "1.0.38",
-  "repo": "mbucc/cqueue",
-  "description": "OpenBSD's queue(3): linked lists and queues.'",
-  "license": "ISC and BSD",
-  "src": ["queue.h", "queue.3" ]
-}

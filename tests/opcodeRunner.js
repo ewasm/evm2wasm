@@ -19,7 +19,7 @@ tape('testing EVM1 Ops', (t) => {
       })
       // run the opcode
       let sp = testInstance.exports[test.op](test.stack.in.length * 32)
-      console.log(sp);
+      // console.log(sp);
       t.equal(sp / 32, test.stack.out.length, 'should have corrent number of items on the stack')
       sp = 0
       // check the results
