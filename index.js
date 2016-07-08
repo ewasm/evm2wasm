@@ -25,6 +25,7 @@ exports.compile = function (evmCode) {
   for (let i = 0; i < evmCode.length; i++) {
     const op = opcodes(evmCode[i])
     let bytes
+    console.log(op.name);
     switch (op.name) {
       case 'JUMP':
         wasmCode = `(set_local $sp ${wasmCode})
@@ -66,9 +67,11 @@ exports.compile = function (evmCode) {
         i += op.number - 1
         break
       case 'DUP':
+        // adds the number on the stack to DUP
         wasmCode = `(i64.const ${op.number})` + wasmCode
         break
       case 'SWAP':
+        // adds the number on the stack to SWAP
         wasmCode = `(i64.const ${op.number})` + wasmCode
         break
       case 'STOP':
@@ -148,6 +151,7 @@ exports.buildModule = function buildModule (funcs, imports=[], exports=[]) {
     funcStr += `(export "${exprt}" $${exprt})`
   }
   return `(module
+          (import $sstore  "ethereum" "sstore"  (param i32 i32))
           (memory 1 1)
           (export "a" memory)
            ${funcStr}

@@ -16,7 +16,7 @@ module.exports = function (code) {
 function compile(code) {
   // todo add better caching
   const wast = evm2wasm.compile(code)
-  fs.writeFileSync('temp.wast', wast)
+  fs.writeFileSync('temp.wast', {ethereum: wast})
   cp.execSync('../deps/sexpr-wasm-prototype/out/sexpr-wasm ./temp.wast -o ./temp.wasm')
   return fs.readFileSync('./temp.wasm')
 }
