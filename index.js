@@ -90,17 +90,6 @@ exports.compile = function (evmCode) {
   return exports.buildModule(funcMap)
 }
 
-// add an op as this contract depends on
-function addOpDep (opset, op) {
-  opset.add(opset)
-  const deps = depMap.get(op)
-  if (deps) {
-    deps.forEach((dep) => {
-      addOpDep(opset, dep)
-    })
-  }
-}
-
 function assmebleSegments (segments) {
   let wasm = buildJumpMap(segments)
 

@@ -1,8 +1,8 @@
-const fs = require('fs')
-const cp = require('child_process')
-const tape = require('tape')
+const fs       = require('fs')
+const cp       = require('child_process')
+const tape     = require('tape')
 const evm2wasm = require('../index.js')
-const ethUtil = require('ethereumjs-util')
+const ethUtil  = require('ethereumjs-util')
 
 const dir = './code/'
 let testFiles = fs.readdirSync(dir).filter((name) => name.endsWith('.json'))
@@ -12,7 +12,7 @@ tape('testing transcompiler', (t) => {
     let codeTests = require(dir + path)
     codeTests.forEach((test) => {
       t.comment(test.description)
-      const testInstance = buildTest(new Buffer(test.code.slice(2), 'hex'))
+      const testInstance = buildTest(test.code)
       // check the results
       test.result.stack.forEach((item, index) => {
         const sp = index * 32
@@ -26,6 +26,7 @@ tape('testing transcompiler', (t) => {
 })
 
 function buildTest (code) {
+  code = new Buffer(code.slice(2), 'hex')
   const compiled = evm2wasm.compile(code)
   fs.writeFileSync('temp.wast', compiled)
   cp.execSync('../deps/sexpr-wasm-prototype/out/sexpr-wasm ./temp.wast -o ./temp.wasm')
