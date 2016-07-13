@@ -1,14 +1,16 @@
 const fs = require('fs')
 const cp = require('child_process')
 const tape = require('tape')
+const Kernel   = require('ewasm-kernel')
 const ethUtil = require('ethereumjs-util')
 const compiler = require('../index.js')
+const dir = `${__dirname}/opcode`
 
-let testFiles = fs.readdirSync('./opcode').filter((name) => name.endsWith('.json'))
+let testFiles = fs.readdirSync(dir).filter((name) => name.endsWith('.json'))
 
 tape('testing EVM1 Ops', (t) => {
   testFiles.forEach((path) => {
-    let opTest = require(`./opcode/${path}`)
+    let opTest = require(`${dir}/${path}`)
     opTest.forEach((test) => {
       const testInstance = buildTest(test.op)
       // populate the stack
@@ -44,13 +46,6 @@ function printMem (i) {
 function buildTest (op) {
   const funcs = compiler.resolveFunctions(new Set([op]))
   const linked = compiler.buildModule(funcs, [], [op])
-  fs.writeFileSync('temp.wast', linked)
-  cp.execSync('../deps/sexpr-wasm-prototype/out/sexpr-wasm ./temp.wast -o ./temp.wasm')
-  const opsWasm = fs.readFileSync('./temp.wasm')
-  return Wasm.instantiateModule(opsWasm, {
-    spectest: {
-      print: print
-    },
-    printMem: printMem
-  })
+  const wasm = compiler.compileWAST(linked)
+  return Kernel.codeHandler(wasm)
 }

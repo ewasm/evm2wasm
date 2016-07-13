@@ -1,5 +1,6 @@
 const BN = require('bn.js')
 const fs = require('fs')
+const cp = require('child_process')
 const opcodes = require('./opcodes.js')
 
 // map to track dependant WASM functions
@@ -12,8 +13,19 @@ const depMap = new Map([
   ['MUL', ['MUL_256']]
 ])
 
-// compile segments
 exports.compile = function (evmCode) {
+  const wast = exports.compileEVM(evmCode)
+  return exports.compileWAST(wast)
+}
+
+exports.compileWAST = function (wast) {
+  fs.writeFileSync('temp.wast', wast)
+  cp.execSync(`${__dirname}/deps/sexpr-wasm-prototype/out/sexpr-wasm ./temp.wast -o ./temp.wasm`)
+  return fs.readFileSync('./temp.wasm')
+}
+
+// compile segments
+exports.compileEVM = function (evmCode) {
   const opcodesUsed = new Set()
   const opcodesIgnore = new Set(['JUMP', 'JUMPI', 'JUMPDEST', 'STOP'])
   const initCode = '(get_local $sp)'
@@ -25,7 +37,6 @@ exports.compile = function (evmCode) {
   for (let i = 0; i < evmCode.length; i++) {
     const op = opcodes(evmCode[i])
     let bytes
-    console.log(op.name);
     switch (op.name) {
       case 'JUMP':
         wasmCode = `(set_local $sp ${wasmCode})
@@ -92,6 +103,7 @@ exports.compile = function (evmCode) {
   funcMap.push(mainFunc)
   return exports.buildModule(funcMap)
 }
+
 
 function assmebleSegments (segments) {
   let wasm = buildJumpMap(segments)

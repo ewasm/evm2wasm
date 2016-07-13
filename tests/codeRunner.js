@@ -1,10 +1,10 @@
 const fs       = require('fs')
-const cp       = require('child_process')
 const tape     = require('tape')
 const evm2wasm = require('../index.js')
 const ethUtil  = require('ethereumjs-util')
+const Kernel   = require('ewasm-kernel')
 
-const dir = './code/'
+const dir = `${__dirname}/code/`
 let testFiles = fs.readdirSync(dir).filter((name) => name.endsWith('.json'))
 
 tape('testing transcompiler', (t) => {
@@ -28,10 +28,7 @@ tape('testing transcompiler', (t) => {
 function buildTest (code) {
   code = new Buffer(code.slice(2), 'hex')
   const compiled = evm2wasm.compile(code)
-  fs.writeFileSync('temp.wast', compiled)
-  cp.execSync('../deps/sexpr-wasm-prototype/out/sexpr-wasm ./temp.wast -o ./temp.wasm')
-  const opsWasm = fs.readFileSync('./temp.wasm')
-  return Wasm.instantiateModule(opsWasm, {print: {i32: print}})
+  return Kernel.codeHandler(compiled)
 }
 
 function print (i) {
