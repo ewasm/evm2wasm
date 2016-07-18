@@ -59,7 +59,7 @@ const codes = {
   0x52: ['MSTORE', 3, 2, 0, false],
   0x53: ['MSTORE8', 3, 2, 0, false],
   0x54: ['SLOAD', 50, 1, 1, true],
-  0x55: ['SSTORE', 0, 2, 0, true],
+  0x55: ['SSTORE', 5000, 2, 0, true],
   0x56: ['JUMP', 8, 1, 0, false],
   0x57: ['JUMPI', 10, 2, 0, false],
   0x58: ['PC', 2, 0, 1, false],

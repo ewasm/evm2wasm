@@ -33,9 +33,11 @@ exports.compileEVM = function (evmCode) {
   let opcodeCount = 0
   const segments = []
   let segNumber = 0
+  let gasCount = 0
 
   for (let i = 0; i < evmCode.length; i++) {
     const op = opcodes(evmCode[i])
+    gasCount += op.fee
     let bytes
     switch (op.name) {
       case 'JUMP':
@@ -51,7 +53,7 @@ exports.compileEVM = function (evmCode) {
                     (br_if $loop (i64.load (get_local $sp)))`
         break
       case 'JUMPDEST':
-        segments.push([wasmCode, segNumber])
+        addSegement()
         segNumber = i
         wasmCode = initCode
         break
@@ -96,12 +98,17 @@ exports.compileEVM = function (evmCode) {
     opcodeCount++
   }
   if (wasmCode !== '') {
-    segments.push([wasmCode, segNumber])
+    addSegement()
   }
-  const mainFunc = '(start $main)' + assmebleSegments(segments)
+  const mainFunc = '(export "main" $main)' + assmebleSegments(segments)
   const funcMap = exports.resolveFunctions(opcodesUsed)
   funcMap.push(mainFunc)
   return exports.buildModule(funcMap)
+
+  function addSegement (){
+    wasmCode = `(call_import $useGas (i32.const ${gasCount})) ${wasmCode}`
+    segments.push([wasmCode, segNumber])
+  }
 }
 
 
@@ -164,6 +171,7 @@ exports.buildModule = function buildModule (funcs, imports=[], exports=[]) {
   }
   return `(module
           (import $sstore  "ethereum" "sstore"  (param i32 i32))
+          (import $useGas  "ethereum" "useGas"  (param i32))
           (memory 1 1)
           (export "a" memory)
            ${funcStr}
