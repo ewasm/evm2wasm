@@ -1,3 +1,5 @@
+'use strict'
+
 const BN = require('bn.js')
 const fs = require('fs')
 const cp = require('child_process')
