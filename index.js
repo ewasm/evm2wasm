@@ -10,7 +10,8 @@ const depMap = new Map([
   ['SMOD', ['ISZERO_32', 'GTE']],
   ['DIV', ['ISZERO_32', 'GTE']],
   ['EXP', ['ISZERO_32', 'MUL_256']],
-  ['MUL', ['MUL_256']]
+  ['MUL', ['MUL_256']],
+  ['ISZERO', ['ISZERO_32']]
 ])
 
 exports.compile = function (evmCode) {
