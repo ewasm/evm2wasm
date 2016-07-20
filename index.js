@@ -176,8 +176,8 @@ exports.buildModule = function buildModule (funcs, imports=[], exports=[]) {
           (import $sstore  "ethereum" "sstore"  (param i32 i32))
           (import $useGas  "ethereum" "useGas"  (param i32))
           (memory 1 1)
-          (export "a" memory)
-           ${funcStr}
+          (export "memory" memory)
+            ${funcStr}
           )`
 }
 
