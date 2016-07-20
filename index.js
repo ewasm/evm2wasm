@@ -90,6 +90,8 @@ exports.compileEVM = function (evmCode) {
       case 'STOP':
         wasmCode = `${wasmCode} (br $done)`
         break
+      case 'INVALID':
+        throw new Error('Invalid opcode ' + evmCode[i].toString(16))
     }
     if (!opcodesIgnore.has(op.name)) {
       wasmCode = `(call $${op.name} ${wasmCode})`
