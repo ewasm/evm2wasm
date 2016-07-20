@@ -166,7 +166,10 @@ exports.resolveFunctionDeps = function resolveFunctionDeps (funcSet) {
   return funcs
 }
 
-exports.resolveFunctions = function resolveFunctions (funcSet, dir='/wasm/') {
+exports.resolveFunctions = function resolveFunctions (funcSet, dir) {
+  if (!dir) {
+    dir = '/wasm/'
+  }
   let funcs = []
   for (let func of exports.resolveFunctionDeps(funcSet)) {
     const wastPath = __dirname + dir + func + '.wast'
@@ -176,7 +179,13 @@ exports.resolveFunctions = function resolveFunctions (funcSet, dir='/wasm/') {
   return funcs
 }
 
-exports.buildModule = function buildModule (funcs, imports=[], exports=[]) {
+exports.buildModule = function buildModule (funcs, imports, exports) {
+  if (!imports) {
+    imports = []
+  }
+  if (!exports) {
+    exports = []
+  }
   let funcStr = ''
   for (let func of funcs) {
     funcStr += func
