@@ -25,7 +25,18 @@ function setupEnviroment (testData) {
 
 function checkResults (testData, t, instance, environment) {
   // check gas used
-  t.equals(ethUtil.intToHex(environment.gasLimit), testData.gas,  'should have the correct gas')
+  t.equals(ethUtil.intToHex(environment.gasLimit), testData.gas, 'should have the correct gas')
+  // check storage
+  const testsStorage = testData.post[testData.exec.address].storage
+  if (testsStorage) {
+    for (let testKey in testsStorage) {
+      const testValue = testsStorage[testKey]
+      const key = new Uint8Array(new Buffer(testKey.slice(2), 'hex'))
+      let value = environment.state.getValue(key)
+      value = '0x' + new Buffer(value.reverse()).toString('hex')
+      t.equals(value, testValue, 'should have correct storage value')
+    }
+  }
 }
 
 const tests = testing.getTests('vm', argv)
