@@ -147,16 +147,26 @@ function bytes2int64 (bytes) {
   return new BN(bytes).fromTwos(64).toString()
 }
 
-exports.resolveFunctions = function resolveFunctions (funcSet, dir = '/wasm/') {
-  let funcs = []
+// Ensure that dependencies are only imported once (use the Set)
+exports.resolveFunctionDeps = function resolveFunctionDeps (funcSet) {
+  let funcs = funcSet
   for (let func of funcSet) {
+    const deps = depMap.get(func)
+    if (deps) {
+      for (var dep of deps) {
+        funcs.add(dep)
+      }
+    }
+  }
+  return funcs
+}
+
+exports.resolveFunctions = function resolveFunctions (funcSet, dir='/wasm/') {
+  let funcs = []
+  for (let func of exports.resolveFunctionDeps(funcSet)) {
     const wastPath = __dirname + dir + func + '.wast'
     const wast = fs.readFileSync(wastPath)
     funcs.push(wast.toString())
-    const depFuncs = depMap.get(func)
-    if (depFuncs) {
-      funcs = funcs.concat(resolveFunctions(depFuncs, dir))
-    }
   }
   return funcs
 }
