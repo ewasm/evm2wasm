@@ -65,13 +65,13 @@ exports.compileEVM = function (evmCode, stackTrace) {
       case 'JUMP':
         wasmCode = `(set_local $sp ${wasmCode})
                     (set_local $sp (i32.sub (get_local $sp) (i32.const 32)))
-                    (set_local $jump_dest (i64.load (i32.add (get_local $sp) (i32.const 32))))
+                    (set_local $jump_dest (i32.load (i32.add (get_local $sp) (i32.const 32))))
                     (br $loop)`
         break
       case 'JUMPI':
         wasmCode = `(set_local $sp ${wasmCode})
                     (set_local $sp (i32.sub (get_local $sp) (i32.const 32)))
-                    (set_local $jump_dest (i64.load (i32.add (get_local $sp) (i32.const 32))))
+                    (set_local $jump_dest (i32.load (i32.add (get_local $sp) (i32.const 32))))
                     (br_if $loop (i64.load (get_local $sp)))`
         break
       case 'JUMPDEST':
@@ -157,7 +157,7 @@ function assmebleSegments (segments) {
   })
   return `(func $main 
            (local $sp i32) 
-           (local $jump_dest i64)
+           (local $jump_dest i32)
            (set_local $sp (i32.const -32)) 
            (loop $done $loop
             ${wasm}))`
@@ -169,7 +169,7 @@ function buildJumpMap (segments) {
 
   segments.forEach((seg, index) => {
     brTable += ' $' + index
-    wasm = `(if (i64.eq (get_local $jump_dest) (i64.const ${seg[1]}))
+    wasm = `(if (i32.eq (get_local $jump_dest) (i32.const ${seg[1]}))
                 (then (i32.const ${index}))
                 (else ${wasm}))`
   })
