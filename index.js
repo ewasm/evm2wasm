@@ -10,7 +10,8 @@ const depMap = new Map([
   ['SMOD', ['ISZERO_32', 'GTE']],
   ['DIV', ['ISZERO_32', 'GTE']],
   ['EXP', ['ISZERO_32', 'MUL_256']],
-  ['MUL', ['MUL_256']]
+  ['MUL', ['MUL_256']],
+  ['ISZERO', ['ISZERO_32']]
 ])
 
 exports.compile = function (evmCode) {
@@ -90,6 +91,8 @@ exports.compileEVM = function (evmCode) {
       case 'STOP':
         wasmCode = `${wasmCode} (br $done)`
         break
+      case 'INVALID':
+        throw new Error('Invalid opcode ' + evmCode[i].toString(16))
     }
     if (!opcodesIgnore.has(op.name)) {
       wasmCode = `(call $${op.name} ${wasmCode})`
@@ -173,8 +176,8 @@ exports.buildModule = function buildModule (funcs, imports=[], exports=[]) {
           (import $sstore  "ethereum" "sstore"  (param i32 i32))
           (import $useGas  "ethereum" "useGas"  (param i32))
           (memory 1 1)
-          (export "a" memory)
-           ${funcStr}
+          (export "memory" memory)
+            ${funcStr}
           )`
 }
 

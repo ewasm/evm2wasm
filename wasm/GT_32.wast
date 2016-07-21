@@ -1,4 +1,4 @@
-great than i32
+;;great than i32
 (func $gt_i32
   (param $a0 i64)
   (param $a1 i64)
