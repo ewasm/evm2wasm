@@ -1,1 +1,28 @@
-[]
+[{
+  "op": "ISZERO",
+  "value": "0x15",
+  "description": "0 == 0",
+  "stack": {
+    "in": [
+      "0x00"
+    ],
+    "out": [
+      "0x00"
+    ]
+  },
+  "state": "running"
+},
+{
+  "op": "ISZERO",
+  "value": "0x15",
+  "description": "1 == 0",
+  "stack": {
+    "in": [
+      "0x01"
+    ],
+    "out": [
+      "0x01"
+    ]
+  },
+  "state": "running"
+}]
