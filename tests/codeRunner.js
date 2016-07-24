@@ -1,3 +1,5 @@
+'use strict'
+
 const fs       = require('fs')
 const tape     = require('tape')
 const evm2wasm = require('../index.js')

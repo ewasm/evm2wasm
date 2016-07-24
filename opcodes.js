@@ -1,3 +1,5 @@
+'use strict'
+
 const codes = {
   // 0x0 range - arithmetic ops
   // name, baseCost, off stack, on stack, dynamic
