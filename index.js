@@ -6,6 +6,7 @@ const opcodes = require('./opcodes.js')
 // map to track dependant WASM functions
 const depMap = new Map([
   ['MOD', ['ISZERO_32', 'GTE']],
+  ['ADDMOD', ['MOD', 'ADD']],
   ['SDIV', ['ISZERO_32', 'GTE']],
   ['SMOD', ['ISZERO_32', 'GTE']],
   ['DIV', ['ISZERO_32', 'GTE']],

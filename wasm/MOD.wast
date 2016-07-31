@@ -27,8 +27,7 @@
   (local $maskc i64)
   (local $maskd i64)
   (local $carry i32)
-  (local $temp  i64)
-  (local $temp2  i64)
+  (local $temp i64)
 
   (set_local $sp (i32.sub (get_local $sp) (i32.const 8)) )
   (set_local $maskd (i64.const 1))

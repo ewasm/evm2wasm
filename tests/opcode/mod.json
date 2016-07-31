@@ -59,5 +59,18 @@
       "out": ["0x01"]
     },
     "state": "running"
+  },{
+    "op": "MOD",
+    "value": "0x06",
+    "description": "(2^256 -1) mod (2^256 - 2)",
+    "stack": {
+      "in": [
+        "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe"
+      ],
+      "out": ["0x0000000000000000000000000000000000000000000000000000000000000001"]
+    },
+    "state": "running"
   }
+
 ]

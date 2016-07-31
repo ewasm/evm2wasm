@@ -1,7 +1,6 @@
 const fs = require('fs')
-const cp = require('child_process')
 const tape = require('tape')
-const Kernel   = require('ewasm-kernel')
+const Kernel = require('ewasm-kernel')
 const ethUtil = require('ethereumjs-util')
 const compiler = require('../index.js')
 const dir = `${__dirname}/opcode`
@@ -21,9 +20,9 @@ tape('testing EVM1 Ops', (t) => {
       })
       // run the opcode
       let sp = testInstance.exports[test.op](test.stack.in.length * 32)
-      // console.log(sp);
       t.equal(sp / 32, test.stack.out.length, 'should have corrent number of items on the stack')
       sp = 0
+      console.log(new Buffer(testInstance.exports.memory).slice(0, 100).toString('hex'))
       // check the results
       test.stack.out.forEach((item, index) => {
         const expectedItem = new Uint8Array(ethUtil.setLength(new Buffer(item.slice(2), 'hex'), 32)).reverse()

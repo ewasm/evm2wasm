@@ -31,8 +31,9 @@ function checkResults (testData, t, instance, environment) {
   if (testsStorage) {
     for (let testKey in testsStorage) {
       const testValue = testsStorage[testKey]
-      const key = new Uint8Array(new Buffer(testKey.slice(2), 'hex'))
-      let value = environment.state.getValue(key)
+      const key = testKey.slice(2)
+      let value = environment.state.get(key)
+      // console.log(environment.state)
       value = '0x' + new Buffer(value.reverse()).toString('hex')
       t.equals(value, testValue, 'should have correct storage value')
     }
@@ -42,4 +43,3 @@ function checkResults (testData, t, instance, environment) {
 const tests = testing.getTests('vm', argv)
 const skip = []
 testing.runTests(runner, tests, tape, skip)
-

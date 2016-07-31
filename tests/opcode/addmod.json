@@ -1,1 +1,31 @@
-[]
+[{
+  "op": "ADDMOD",
+  "value": "0x08",
+  "description": "2^255  + 2^255 % 0",
+  "stack": {
+    "in": [
+      "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+    ],
+    "out": [
+      "0x0000000000000000000000000000000000000000000000000000000000000000"
+    ]
+  },
+  "state": "running"
+}, {
+  "op": "ADDMOD",
+  "value": "0x08",
+  "description": "2^255  + 2^255 % 0",
+  "stack": {
+    "in": [
+      "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+    ],
+    "out": [
+      "0x0000000000000000000000000000000000000000000000000000000000000000"
+    ]
+  },
+  "state": "running"
+}]
