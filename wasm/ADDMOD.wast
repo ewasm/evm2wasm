@@ -18,8 +18,6 @@
 
   (local $carry i64)
 
-  (set_local $sp (i32.sub (get_local $sp) (i32.const 8)))
-
   ;; load args from the stack
   (set_local $a (i64.load (get_local $sp)))
   (set_local $b (i64.load (i32.sub (get_local $sp) (i32.const 8))))
@@ -64,7 +62,7 @@
         (get_local $carry) (get_local $a)    (get_local $b)    (get_local $c)    (get_local $d)
         (i64.const 0)      (get_local $moda) (get_local $modb) (get_local $modc) (get_local $modd) (get_local $sp))
 
-  (i32.add (i32.const 8) (get_local $sp))
+  (get_local $sp)
 )
 
 (func $MOD_320
@@ -230,4 +228,4 @@
   (i32.or  (i64.gt_u (get_local $a3) (get_local $b3)) ;; a2 > b2
   (i32.and (i64.eq   (get_local $a3) (get_local $b3))
            (i64.ge_u (get_local $a4) (get_local $b4))))))))))
-  )
+)

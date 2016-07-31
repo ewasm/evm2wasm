@@ -19,10 +19,9 @@ tape('testing EVM1 Ops', (t) => {
         new Uint8Array(testInstance.exports.memory).set(item, index * 32)
       })
       // run the opcode
-      let sp = testInstance.exports[test.op](test.stack.in.length * 32)
+      let sp = testInstance.exports[test.op](test.stack.in.length * 32 - 8) + 8
       t.equal(sp / 32, test.stack.out.length, 'should have corrent number of items on the stack')
       sp = 0
-      console.log(new Buffer(testInstance.exports.memory).slice(0, 100).toString('hex'))
       // check the results
       test.stack.out.forEach((item, index) => {
         const expectedItem = new Uint8Array(ethUtil.setLength(new Buffer(item.slice(2), 'hex'), 32)).reverse()
@@ -33,14 +32,6 @@ tape('testing EVM1 Ops', (t) => {
   })
   t.end()
 })
-
-function print (i) {
-  console.log(i)
-}
-
-function printMem (i) {
-  console.log(i)
-}
 
 function buildTest (op) {
   const funcs = compiler.resolveFunctions(new Set([op]))
