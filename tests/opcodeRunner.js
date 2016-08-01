@@ -17,7 +17,7 @@ tape('testing EVM1 Ops', (t) => {
       t.comment(`testing ${test.description}`)
       test.stack.in.reverse().forEach((item, index) => {
         item = hexToUint8Array(item)
-        new Uint8Array(testInstance.exports.memory).set(item, index * 32)
+        setMemory(testInstance, item, index * 32)
       })
 
       // Runs the opcode. An empty stack must start with the stack pointer at -8.
@@ -30,7 +30,7 @@ tape('testing EVM1 Ops', (t) => {
       // compare the output stack against the predefined values
       test.stack.out.forEach((item, index) => {
         const expectedItem = hexToUint8Array(item)
-        const result = new Uint8Array(testInstance.exports.memory).slice(sp, sp = sp + 32)
+        const result = getMemory(testInstance, sp, sp = sp + 32)
         t.equals(result.toString(), expectedItem.toString(), 'should have correct item on stack')
       })
     })
@@ -47,4 +47,12 @@ function buildTest (op) {
 
 function hexToUint8Array(item, length) {
   return new Uint8Array(ethUtil.setLength(new Buffer(item.slice(2), 'hex'), 32)).reverse()
+}
+
+function setMemory(instance, value, start) {
+  new Uint8Array(instance.exports.memory).set(value, start)
+}
+
+function getMemory(instance, start, end) {
+  return new Uint8Array(instance.exports.memory).slice(start, end)
 }
