@@ -1,6 +1,8 @@
 const fs = require('fs')
 const tape = require('tape')
 const Kernel = require('ewasm-kernel')
+const KernelInterface = require('ewasm-kernel/interface.js')
+const KernelEnvironment = require('ewasm-kernel/environment.js')
 const ethUtil = require('ethereumjs-util')
 const compiler = require('../index.js')
 const dir = `${__dirname}/opcode`
@@ -11,7 +13,10 @@ tape('testing EVM1 Ops', (t) => {
   testFiles.forEach((path) => {
     let opTest = require(`${dir}/${path}`)
     opTest.forEach((test) => {
+      const testEnvironment = new KernelEnvironment()
+      const testInterface = new KernelInterface(testEnvironment)
       const testInstance = buildTest(test.op)
+
       t.comment(`testing ${test.description}`)
 
       // populate the stack with predefined values
@@ -62,11 +67,11 @@ tape('testing EVM1 Ops', (t) => {
   t.end()
 })
 
-function buildTest (op) {
+function buildTest (op, interface) {
   const funcs = compiler.resolveFunctions(new Set([op]))
   const linked = compiler.buildModule(funcs, [], [op])
   const wasm = compiler.compileWAST(linked)
-  return Kernel.codeHandler(wasm)
+  return Kernel.codeHandler(wasm, interface)
 }
 
 function hexToUint8Array(item, length) {
