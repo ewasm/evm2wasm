@@ -18,11 +18,12 @@ tape('testing EVM1 Ops', (t) => {
         item = Uint8Array.from(ethUtil.setLength(new Buffer(item.slice(2), 'hex'), 32)).reverse()
         new Uint8Array(testInstance.exports.memory).set(item, index * 32)
       })
-      // run the opcode
-      let sp = testInstance.exports[test.op](test.stack.in.length * 32)
+      // Runs the opcode. An empty stack must start with the stack pointer at -8.
+      // also we have to add 8 to the resulting sp to accommodate for the fact
+      // that the sp is pointing to memory segment holding the last stack item
+      let sp = testInstance.exports[test.op](test.stack.in.length * 32 - 8) + 8
       t.equal(sp / 32, test.stack.out.length, 'should have corrent number of items on the stack')
       sp = 0
-      console.log(new Buffer(testInstance.exports.memory).slice(0, 100).toString('hex'))
       // check the results
       test.stack.out.forEach((item, index) => {
         const expectedItem = new Uint8Array(ethUtil.setLength(new Buffer(item.slice(2), 'hex'), 32)).reverse()
@@ -33,14 +34,6 @@ tape('testing EVM1 Ops', (t) => {
   })
   t.end()
 })
-
-function print (i) {
-  console.log(i)
-}
-
-function printMem (i) {
-  console.log(i)
-}
 
 function buildTest (op) {
   const funcs = compiler.resolveFunctions(new Set([op]))

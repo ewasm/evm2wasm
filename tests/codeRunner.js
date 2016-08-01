@@ -1,8 +1,8 @@
-const fs       = require('fs')
-const tape     = require('tape')
+const fs = require('fs')
+const tape = require('tape')
 const evm2wasm = require('../index.js')
-const ethUtil  = require('ethereumjs-util')
-const Kernel   = require('ewasm-kernel')
+const ethUtil = require('ethereumjs-util')
+const Kernel = require('ewasm-kernel')
 
 const dir = `${__dirname}/code/`
 let testFiles = fs.readdirSync(dir).filter((name) => name.endsWith('.json'))
@@ -29,8 +29,4 @@ function buildTest (code) {
   code = new Buffer(code.slice(2), 'hex')
   const compiled = evm2wasm.compile(code)
   return Kernel.codeHandler(compiled)
-}
-
-function print (i) {
-  console.log(i)
 }
