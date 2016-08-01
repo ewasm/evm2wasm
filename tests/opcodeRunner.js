@@ -16,7 +16,7 @@ tape('testing EVM1 Ops', (t) => {
       // populate the stack with predefined values
       t.comment(`testing ${test.description}`)
       test.stack.in.reverse().forEach((item, index) => {
-        item = Uint8Array.from(ethUtil.setLength(new Buffer(item.slice(2), 'hex'), 32)).reverse()
+        item = hexToUint8Array(item)
         new Uint8Array(testInstance.exports.memory).set(item, index * 32)
       })
 
@@ -29,7 +29,7 @@ tape('testing EVM1 Ops', (t) => {
 
       // compare the output stack against the predefined values
       test.stack.out.forEach((item, index) => {
-        const expectedItem = new Uint8Array(ethUtil.setLength(new Buffer(item.slice(2), 'hex'), 32)).reverse()
+        const expectedItem = hexToUint8Array(item)
         const result = new Uint8Array(testInstance.exports.memory).slice(sp, sp = sp + 32)
         t.equals(result.toString(), expectedItem.toString(), 'should have correct item on stack')
       })
@@ -43,4 +43,8 @@ function buildTest (op) {
   const linked = compiler.buildModule(funcs, [], [op])
   const wasm = compiler.compileWAST(linked)
   return Kernel.codeHandler(wasm)
+}
+
+function hexToUint8Array(item, length) {
+  return new Uint8Array(ethUtil.setLength(new Buffer(item.slice(2), 'hex'), 32)).reverse()
 }
