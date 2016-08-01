@@ -12,13 +12,24 @@ tape('testing EVM1 Ops', (t) => {
     let opTest = require(`${dir}/${path}`)
     opTest.forEach((test) => {
       const testInstance = buildTest(test.op)
+      t.comment(`testing ${test.description}`)
 
       // populate the stack with predefined values
-      t.comment(`testing ${test.description}`)
       test.stack.in.reverse().forEach((item, index) => {
-        item = Uint8Array.from(ethUtil.setLength(new Buffer(item.slice(2), 'hex'), 32)).reverse()
-        new Uint8Array(testInstance.exports.memory).set(item, index * 32)
+        item = hexToUint8Array(item)
+        setMemory(testInstance, item, index * 32)
       })
+
+      // populate the memory
+      if (test.memory) {
+        Object.keys(test.memory.in).forEach((offset) => {
+          test.memory.in[offset].forEach((item, index) => {
+            offset |= 0
+            item = hexToUint8Array(item)
+            setMemory(testInstance, item, offset + index * 32)
+          })
+        })
+      }
 
       // Runs the opcode. An empty stack must start with the stack pointer at -8.
       // also we have to add 8 to the resulting sp to accommodate for the fact
@@ -29,10 +40,23 @@ tape('testing EVM1 Ops', (t) => {
 
       // compare the output stack against the predefined values
       test.stack.out.forEach((item, index) => {
-        const expectedItem = new Uint8Array(ethUtil.setLength(new Buffer(item.slice(2), 'hex'), 32)).reverse()
-        const result = new Uint8Array(testInstance.exports.memory).slice(sp, sp = sp + 32)
+        const expectedItem = hexToUint8Array(item)
+        const result = getMemory(testInstance, sp, sp = sp + 32)
         t.equals(result.toString(), expectedItem.toString(), 'should have correct item on stack')
       })
+
+      // check the memory
+      if (test.memory) {
+        Object.keys(test.memory.out).forEach((offset) => {
+          test.memory.out[offset].forEach((item, index) => {
+            offset |= 0
+            const expectedItem = hexToUint8Array(item)
+            const result = getMemory(testInstance, offset + index * 32, offset + index * 32 + expectedItem.length)
+            t.equals(result.toString(), expectedItem.toString(), `should have the correct memory slot at ${offset}:${index}`)
+          })
+        })
+      }
+
     })
   })
   t.end()
@@ -43,4 +67,16 @@ function buildTest (op) {
   const linked = compiler.buildModule(funcs, [], [op])
   const wasm = compiler.compileWAST(linked)
   return Kernel.codeHandler(wasm)
+}
+
+function hexToUint8Array(item, length) {
+  return new Uint8Array(ethUtil.setLength(new Buffer(item.slice(2), 'hex'), 32)).reverse()
+}
+
+function setMemory(instance, value, start) {
+  new Uint8Array(instance.exports.memory).set(value, start)
+}
+
+function getMemory(instance, start, end) {
+  return new Uint8Array(instance.exports.memory).slice(start, end)
 }
