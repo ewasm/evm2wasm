@@ -62,6 +62,13 @@ tape('testing EVM1 Ops', (t) => {
         })
       }
 
+      // check for EVM return value
+      if (test.return) {
+        const expectedItem = hexToUint8Array(test.return)
+        //const result = testEnvironment.returnValue
+        const result = testInterface.env.returnValue
+        t.equals(result.toString(), expectedItem.toString(), 'should have correct return value')
+      }
     })
   })
   t.end()
