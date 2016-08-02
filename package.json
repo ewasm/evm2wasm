@@ -1,5 +1,5 @@
 {
-  "name": "evm-wasm-transcompiler-js",
+  "name": "evm2wasm",
   "version": "0.0.0",
   "description": "This is a JS protope of a EVM to eWASM transcompiler",
   "main": "index.js",
@@ -14,20 +14,21 @@
     "ethereumjs-testing": "0.0.1",
     "ethereumjs-util": "^4.5.0",
     "ethereumjs-vm": "^1.4.0",
-    "ewasm-kernel": "git+https://github.com/ethereumjs/evm2wasm.git"
+    "ewasm-kernel": "git+https://github.com/ewasm/evm2wasm.git"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ethereumjs/evm2wasm.git"
+    "url": "git+https://github.com/ewasm/evm2wasm.git"
   },
   "bugs": {
-    "url": "https://github.com/ethereumjs/ewasm-kernel/issues"
+    "url": "https://github.com/ewasm/evm2wasm/issues"
   },
-  "homepage": "https://github.com/ethereumjs/evm2wasm",
+  "homepage": "https://github.com/ewasm/evm2wasm",
   "keywords": [
     "ethereum",
-    "webassebly",
+    "webassembly",
     "wasm",
+    "ewasm",
     "transcompiler"
   ]
 }
