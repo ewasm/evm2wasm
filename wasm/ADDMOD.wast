@@ -127,7 +127,7 @@
       (set_local $a1 (i64.add (i64.shl (get_local $a1) (i64.const 1)) (i64.shr_u (get_local $b1) (i64.const 63))))
       (set_local $b1 (i64.add (i64.shl (get_local $b1) (i64.const 1)) (i64.shr_u (get_local $c1) (i64.const 63))))
       (set_local $c1 (i64.add (i64.shl (get_local $c1) (i64.const 1)) (i64.shr_u (get_local $d1) (i64.const 63))))
-      (set_local $d1 (i64.add (i64.shl (get_local $c1) (i64.const 1)) (i64.shr_u (get_local $d1) (i64.const 63))))
+      (set_local $d1 (i64.add (i64.shl (get_local $d1) (i64.const 1)) (i64.shr_u (get_local $e1) (i64.const 63))))
       (set_local $e1 (i64.shl (get_local $e1) (i64.const 1)))
 
       ;; mask = mask << 1
@@ -187,10 +187,10 @@
   );; end of main
   ;; (call_import $print_64 (get_local $d))
   ;; (call_import $print_32 (get_local $sp))
-  (i64.store (get_local $sp) (get_local $a))
-  (i64.store (i32.sub (get_local $sp) (i32.const 8)) (get_local $b))
-  (i64.store (i32.sub (get_local $sp) (i32.const 16)) (get_local $c))
-  (i64.store (i32.sub (get_local $sp) (i32.const 24)) (get_local $d))
+  (i64.store (get_local $sp) (get_local $b))
+  (i64.store (i32.sub (get_local $sp) (i32.const 8)) (get_local $c))
+  (i64.store (i32.sub (get_local $sp) (i32.const 16)) (get_local $d))
+  (i64.store (i32.sub (get_local $sp) (i32.const 24)) (get_local $e))
   (get_local $sp)
 )
 

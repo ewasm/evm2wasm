@@ -1,1 +1,49 @@
-[]
+[{
+  "op": "MULMOD",
+  "value": "0x09",
+  "description": "0 * 0 % 0",
+  "stack": {
+    "in": [
+      "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "0x0000000000000000000000000000000000000000000000000000000000000000"
+    ],
+    "out": [
+      "0x0000000000000000000000000000000000000000000000000000000000000000"
+    ]
+  },
+  "state": "running"
+},
+{
+  "op": "MULMOD",
+  "value": "0x09",
+  "description": "(2^256 -1) * (2^256 -1) % (2^256 -1)",
+  "stack": {
+    "in": [
+        "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+    ],
+    "out": [
+      "0x0000000000000000000000000000000000000000000000000000000000000000"
+    ]
+  },
+  "state": "running"
+},
+{
+  "op": "MULMOD",
+  "value": "0x09",
+  "description": "(2^256 -1) * (2^256 -1) % 0",
+  "stack": {
+    "in": [
+        "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "0x0000000000000000000000000000000000000000000000000000000000000000"
+    ],
+    "out": [
+      "0x0000000000000000000000000000000000000000000000000000000000000000"
+    ]
+  },
+  "state": "running"
+}
+]

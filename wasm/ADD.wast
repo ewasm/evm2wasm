@@ -15,7 +15,6 @@
   ;; decement the stack pointer
   (set_local $sp (i32.sub (get_local $sp) (i32.const 32)))
 
-  ;; a * 64^3 + b*64^2 + c*64 + d 
   ;; d 
   (set_local $carry (i64.add (get_local $d) (i64.load (i32.sub (get_local $sp) (i32.const 24)))))
   ;; save d  to mem
