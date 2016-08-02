@@ -45,7 +45,6 @@ tape('testing EVM1 Ops', (t) => {
       t.equal(sp / 32, test.stack.out.length, 'should have corrent number of items on the stack')
       sp = 0
 
-      // compare the output stack against the predefined values
       test.stack.out.forEach((item, index) => {
         const expectedItem = hexToUint8Array(item)
         const result = getMemory(testInstance, sp, sp = sp + 32)
