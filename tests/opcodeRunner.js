@@ -17,7 +17,8 @@ tape('testing EVM1 Ops', (t) => {
       const testInterface = new KernelInterface(testEnvironment)
       const testInstance = buildTest(test.op)
 
-      t.comment(`testing ${test.description}`)
+      // FIXME: have separate `t.test()` for better grouping
+      t.comment(`testing ${test.op} ${test.description}`)
 
       // populate the stack with predefined values
       test.stack.in.reverse().forEach((item, index) => {
