@@ -15,7 +15,7 @@ tape('testing EVM1 Ops', (t) => {
     opTest.forEach((test) => {
       const testEnvironment = new KernelEnvironment()
       const testInterface = new KernelInterface(testEnvironment)
-      const testInstance = buildTest(test.op)
+      const testInstance = buildTest(test.op, testInterface)
 
       // FIXME: have separate `t.test()` for better grouping
       t.comment(`testing ${test.op} ${test.description}`)
