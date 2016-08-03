@@ -14,7 +14,8 @@
     "ethereumjs-testing": "0.0.1",
     "ethereumjs-util": "^4.5.0",
     "ethereumjs-vm": "^1.4.0",
-    "ewasm-kernel": "git+https://github.com/ewasm/evm2wasm.git"
+    "ewasm-kernel": "git+https://github.com/ewasm/evm2wasm.git",
+    "tape": "^4.6.0"
   },
   "repository": {
     "type": "git",
