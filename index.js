@@ -22,7 +22,7 @@ exports.compile = function (evmCode) {
 
 exports.compileWAST = function (wast) {
   fs.writeFileSync('temp.wast', wast)
-  cp.execSync(`${__dirname}/deps/sexpr-wasm-prototype/out/sexpr-wasm ./temp.wast -o ./temp.wasm`)
+  cp.execSync(`${__dirname}/tools/sexpr-wasm-prototype/out/sexpr-wasm ./temp.wast -o ./temp.wasm`)
   return fs.readFileSync('./temp.wasm')
 }
 
