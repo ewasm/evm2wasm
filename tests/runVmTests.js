@@ -33,7 +33,6 @@ function checkResults (testData, t, instance, environment) {
       const testValue = testsStorage[testKey]
       const key = testKey.slice(2)
       let value = environment.state.get(key)
-      // console.log(environment.state)
       value = '0x' + new Buffer(value.reverse()).toString('hex')
       t.equals(value, testValue, 'should have correct storage value')
     }
