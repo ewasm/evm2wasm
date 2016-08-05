@@ -6,10 +6,8 @@
   (local $a3 i64)
 
   (param $sp i32)
-
   (result i32)
 
-  ;; (set_local $sp (i32.sub (get_local $sp) (i32.const 8)) )
   ;; load args from the stack
   (set_local $a0 (i64.load (get_local $sp)))
   (set_local $a1 (i64.load (i32.sub (get_local $sp) (i32.const 8))))

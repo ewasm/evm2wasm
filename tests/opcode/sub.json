@@ -17,8 +17,8 @@
     "description": "0 - 2^255 = 1 checks overflow ",
     "stack": {
       "in": [
-        "0x00",
-        "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+        "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "0x00"
       ],
       "out": ["0x01"]
     },
