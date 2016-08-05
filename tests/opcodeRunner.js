@@ -21,7 +21,7 @@ tape('testing EVM1 Ops', (t) => {
       t.comment(`testing ${test.op} ${test.description}`)
 
       // populate the stack with predefined values
-      test.stack.in.reverse().forEach((item, index) => {
+      test.stack.in.forEach((item, index) => {
         item = hexToUint8Array(item)
         setMemory(testInstance, item, index * 32)
       })
