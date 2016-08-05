@@ -1,0 +1,39 @@
+[{
+  "op": "SWAP",
+  "value": "90",
+  "description": "SWAP0",
+  "params": [
+    0
+  ],
+  "stack": {
+    "in": [
+      "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "0x4242000000000000000000000000000000000000000000000000000000004242"
+    ],
+    "out": [
+      "0x4242000000000000000000000000000000000000000000000000000000004242",
+      "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+    ]
+  },
+  "state": "running"
+},{
+  "op": "SWAP",
+  "value": "91",
+  "description": "SWAP1",
+  "params": [
+    1
+  ],
+  "stack": {
+    "in": [
+      "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "0x4242000000000000000000000000000000000000000000000000000000004242",
+      "0x0000000000000000000000000000000000000000000000000000000000000000"
+    ],
+    "out": [
+      "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "0x4242000000000000000000000000000000000000000000000000000000004242",
+      "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+    ]
+  },
+  "state": "running"
+}]
