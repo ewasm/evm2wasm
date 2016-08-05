@@ -83,11 +83,11 @@ exports.compileEVM = function (evmCode) {
         break
       case 'DUP':
         // adds the number on the stack to DUP
-        wasmCode = `(i64.const ${op.number - 0x80})` + wasmCode
+        wasmCode = `(i32.const ${op.number - 0x80})` + wasmCode
         break
       case 'SWAP':
         // adds the number on the stack to SWAP
-        wasmCode = `(i64.const ${op.number - 0x90})` + wasmCode
+        wasmCode = `(i32.const ${op.number - 0x90})` + wasmCode
         break
       case 'STOP':
         wasmCode = `${wasmCode} (br $done)`
