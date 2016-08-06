@@ -9,7 +9,7 @@ const evm2wasm = require('../index.js')
 
 function runner (testData, t, cb) {
   const code = new Buffer(testData.exec.code.slice(2), 'hex')
-  const evm = evm2wasm.compile(code)
+  const evm = evm2wasm.compile(code, argv.trace)
   const enviroment = setupEnviroment(testData)
   const ethInterface = new Interface(enviroment)
   const instance = Kernel.codeHandler(evm, ethInterface)

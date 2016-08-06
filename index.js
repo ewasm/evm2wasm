@@ -15,8 +15,8 @@ const depMap = new Map([
   ['ISZERO', ['ISZERO_32']]
 ])
 
-exports.compile = function (evmCode) {
-  const wast = exports.compileEVM(evmCode)
+exports.compile = function (evmCode, stackTrace) {
+  const wast = exports.compileEVM(evmCode, stackTrace)
   return exports.compileWAST(wast)
 }
 
@@ -27,18 +27,18 @@ exports.compileWAST = function (wast) {
 }
 
 // compile segments
-exports.compileEVM = function (evmCode) {
+exports.compileEVM = function (evmCode, stackTrace) {
   const opcodesUsed = new Set()
   const opcodesIgnore = new Set(['JUMP', 'JUMPI', 'JUMPDEST', 'STOP'])
   const initCode = '(get_local $sp)'
   let wasmCode = initCode
-  let opcodeCount = 0
   const segments = []
   let segNumber = 0
   let gasCount = 0
 
   for (let i = 0; i < evmCode.length; i++) {
-    const op = opcodes(evmCode[i])
+    const opint = evmCode[i]
+    const op = opcodes(opint)
     gasCount += op.fee
     let bytes
     switch (op.name) {
@@ -83,11 +83,11 @@ exports.compileEVM = function (evmCode) {
         break
       case 'DUP':
         // adds the number on the stack to DUP
-        wasmCode = `(i32.const ${op.number - 0x80})` + wasmCode
+        wasmCode = `(i32.const ${op.number - 1})` + wasmCode
         break
       case 'SWAP':
         // adds the number on the stack to SWAP
-        wasmCode = `(i32.const ${op.number - 0x90})` + wasmCode
+        wasmCode = `(i32.const ${op.number - 1})` + wasmCode
         break
       case 'STOP':
         wasmCode = `${wasmCode} (br $done)`
@@ -96,20 +96,31 @@ exports.compileEVM = function (evmCode) {
         throw new Error('Invalid opcode ' + evmCode[i].toString(16))
     }
     if (!opcodesIgnore.has(op.name)) {
-      wasmCode = `(call $${op.name} ${wasmCode})`
+      if (stackTrace) {
+        // creates a stack trace
+        wasmCode = `\n(call_import $stackTrace (call $${op.name} ${wasmCode}) (i32.const ${opint} ))`
+      } else {
+        wasmCode = `\n(call $${op.name} ${wasmCode})`
+      }
       opcodesUsed.add(op.name)
     }
-    opcodeCount++
   }
   if (wasmCode !== '') {
     addSegement()
   }
-  const mainFunc = '(export "main" $main)' + assmebleSegments(segments)
+
+  let mainFunc = '(export "main" $main)' + assmebleSegments(segments)
+
+  // import stack trace function
+  if (stackTrace) {
+    mainFunc = '(import $stackTrace "debug" "evmStackTrace" (param i32 i32) (result i32))' + mainFunc
+  }
+
   const funcMap = exports.resolveFunctions(opcodesUsed)
   funcMap.push(mainFunc)
   return exports.buildModule(funcMap)
 
-  function addSegement (){
+  function addSegement () {
     wasmCode = `(call_import $useGas (i32.const ${gasCount})) ${wasmCode}`
     segments.push([wasmCode, segNumber])
   }

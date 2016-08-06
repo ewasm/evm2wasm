@@ -59,5 +59,19 @@
       "out": ["0x00"]
     },
     "state": "running"
+  },
+   {
+    "op": "DIV",
+    "value": "0x04",
+    "description": "19/2",
+    "stack": {
+      "in": [
+        "0x02",
+        "0x13"
+      ],
+      "out": ["0x09"]
+    },
+    "state": "running"
   }
+
 ]

@@ -1,4 +1,5 @@
 ;; division 0x04
+(import $print64 "debug" "print" (param i64))
 (func $DIV
   (param $sp i32)
   (result i32)
@@ -54,7 +55,11 @@
     ;; align bits
     (loop $done $loop
       ;; align bits;
-      (if (i32.or (i64.eq (i64.clz (get_local $a1)) (i64.clz (get_local $a))) (call $gte (get_local $a1) (get_local $b1) (get_local $c1) (get_local $d1) (get_local $a) (get_local $b) (get_local $c) (get_local $d)))
+      (if 
+        ;; check to make sure we are not overflowing
+        (i32.or (i64.eqz (i64.clz (get_local $a1)))
+        ;;  divisor < dividend
+        (call $gte (get_local $a1) (get_local $b1) (get_local $c1) (get_local $d1) (get_local $a) (get_local $b) (get_local $c) (get_local $d)))
         (br $done)
       )
 
@@ -72,6 +77,7 @@
 
       (br $loop)
     )
+
 
     (loop $done $loop
       ;; loop while mask != 0
@@ -122,8 +128,8 @@
     )
   );; end of main
 
-  (i64.store (get_local $sp) (get_local $aq))
-  (i64.store (i32.sub (get_local $sp) (i32.const 8)) (get_local $bq))
+  (i64.store (get_local $sp)                          (get_local $aq))
+  (i64.store (i32.sub (get_local $sp) (i32.const 8))  (get_local $bq))
   (i64.store (i32.sub (get_local $sp) (i32.const 16)) (get_local $cq))
   (i64.store (i32.sub (get_local $sp) (i32.const 24)) (get_local $dq))
 
