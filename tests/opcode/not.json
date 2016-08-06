@@ -1,1 +1,44 @@
-[]
+[
+{
+  "op": "NOT",
+  "value": "0x19",
+  "description": "~0x33...",
+  "stack": {
+    "in": [
+      "0x3333333333333333333333333333333333333333333333333333333333333333"
+    ],
+    "out": [
+      "0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    ]
+  },
+  "state": "running"
+},
+{
+  "op": "NOT",
+  "value": "0x19",
+  "description": "~0x00..",
+  "stack": {
+    "in": [
+      "0x0000000000000000000000000000000000000000000000000000000000000000"
+    ],
+    "out": [
+      "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+    ]
+  },
+  "state": "running"
+},
+{
+  "op": "NOT",
+  "value": "0x19",
+  "description": "~0xaa..",
+  "stack": {
+    "in": [
+      "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+    ],
+    "out": [
+      "0x0000000000000000000000000000000000000000000000000000000000000000"
+    ]
+  },
+  "state": "running"
+}
+]
