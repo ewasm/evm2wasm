@@ -1,1 +1,53 @@
-[]
+[
+  {
+    "op": "BYTE",
+    "value": "0x01",
+    "description": "0x42ffffff[3]",
+    "in": {
+      "stack": [
+        "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffff42ffffff",
+        "0x0000000000000000000000000000000000000000000000000000000000000003"
+      ]
+    },
+    "out": {
+      "stack": [
+        "0x0000000000000000000000000000000000000000000000000000000000000042"
+      ]
+    },
+    "environment": {}
+  },
+  {
+    "op": "BYTE",
+    "value": "0x01",
+    "description": "0x42ffffff[31]",
+    "in": {
+      "stack": [
+        "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffff42ffffff",
+        "0x000000000000000000000000000000000000000000000000000000000000001f"
+      ]
+    },
+    "out": {
+      "stack": [
+        "0x00000000000000000000000000000000000000000000000000000000000000ff"
+      ]
+    },
+    "environment": {}
+  },
+  {
+    "op": "BYTE",
+    "value": "0x01",
+    "description": "0x42ffffff[32]",
+    "in": {
+      "stack": [
+        "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffff42ffffff",
+        "0x0000000000000000000000000000000000000000000000000000000000000020"
+      ]
+    },
+    "out": {
+      "stack": [
+        "0x0000000000000000000000000000000000000000000000000000000000000000"
+      ]
+    },
+    "environment": {}
+  }
+]
