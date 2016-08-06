@@ -1,0 +1,62 @@
+[
+{
+  "op": "AND",
+  "value": "0x16",
+  "description": "0xcc & 0x33",
+  "stack": {
+    "in": [
+      "0x3333333333333333333333333333333333333333333333333333333333333333",
+      "0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    ],
+    "out": [
+      "0x0000000000000000000000000000000000000000000000000000000000000000"
+    ]
+  },
+  "state": "running"
+},
+{
+  "op": "AND",
+  "value": "0x16",
+  "description": "0x33 & 033",
+  "stack": {
+    "in": [
+      "0x3333333333333333333333333333333333333333333333333333333333333333",
+      "0x3333333333333333333333333333333333333333333333333333333333333333"
+    ],
+    "out": [
+      "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+    ]
+  },
+  "state": "running"
+},
+{
+  "op": "AND",
+  "value": "0x16",
+  "description": "0xff | 0xf0",
+  "stack": {
+    "in": [
+      "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "0xf0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0"
+    ],
+    "out": [
+      "0xf0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0"
+    ]
+  },
+  "state": "running"
+},
+{
+  "op": "AND",
+  "value": "0x16",
+  "description": "0xff | 0x00",
+  "stack": {
+    "in": [
+      "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "0xffffffffffffffffffffffffffffffff00000000000000000000000000000000"
+    ],
+    "out": [
+      "0xffffffffffffffffffffffffffffffff00000000000000000000000000000000"
+    ]
+  },
+  "state": "running"
+}
+]
