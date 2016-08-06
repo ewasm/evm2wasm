@@ -201,8 +201,15 @@ exports.resolveFunctions = function resolveFunctions (funcSet, dir='/wasm/') {
   let funcs = []
   for (let func of exports.resolveFunctionDeps(funcSet)) {
     const wastPath = __dirname + dir + func + '.wast'
-    const wast = fs.readFileSync(wastPath)
-    funcs.push(wast.toString())
+    try {
+      const wast = fs.readFileSync(wastPath)
+      funcs.push(wast.toString())
+    } catch (e) {
+      // FIXME: remove this once every opcode is implemented
+      //        (though it should not cause any issues)
+      console.error("Inserting MISSING opcode", func)
+      funcs.push(`(func $${func} (param $sp i32) (result i32) (unreachable))`)
+    }
   }
   return funcs
 }
