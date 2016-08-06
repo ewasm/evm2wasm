@@ -29,7 +29,6 @@
   (set_local $c1 (i64.load (i32.add (get_local $sp) (i32.const  8))))
   (set_local $d1 (i64.load          (get_local $sp)))
 
-
   ;; a * 64^3 + b*64^2 + c*64 + d 
   ;; d
   (set_local $carry (i64.extend_u/i32 (i64.lt_u (get_local $d) (get_local $d1))))
