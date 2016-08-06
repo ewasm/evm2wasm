@@ -23,6 +23,13 @@ tape('testing EVM1 Ops', (t) => {
       // FIXME: have separate `t.test()` for better grouping
       t.comment(`testing ${test.op} ${test.description}`)
 
+      // populate the environment
+      if (test.environment) {
+        Object.keys(test.environment).forEach((key) => {
+          testEnvironment[key] = test.environment[key]
+        })
+      }
+
       // populate the stack with predefined values
       test.stack.in.forEach((item, index) => {
         item = hexToUint8Array(item)
