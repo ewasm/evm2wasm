@@ -1,1 +1,62 @@
-[]
+[
+{
+  "op": "XOR",
+  "value": "0x18",
+  "description": "0xcc ^ 0x33",
+  "stack": {
+    "in": [
+      "0x3333333333333333333333333333333333333333333333333333333333333333",
+      "0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    ],
+    "out": [
+      "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+    ]
+  },
+  "state": "running"
+},
+{
+  "op": "XOR",
+  "value": "0x18",
+  "description": "0xff ^ 0xff",
+  "stack": {
+    "in": [
+      "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+    ],
+    "out": [
+      "0x0000000000000000000000000000000000000000000000000000000000000000"
+    ]
+  },
+  "state": "running"
+},
+{
+  "op": "XOR",
+  "value": "0x18",
+  "description": "0xaa ^ 0xbb",
+  "stack": {
+    "in": [
+      "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    ],
+    "out": [
+      "0x1111111111111111111111111111111111111111111111111111111111111111"
+    ]
+  },
+  "state": "running"
+},
+{
+  "op": "XOR",
+  "value": "0x18",
+  "description": "0xaa00 ^ 0xbb00",
+  "stack": {
+    "in": [
+      "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa00000000000000000000000000000000",
+      "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb00000000000000000000000000000000"
+    ],
+    "out": [
+      "0x1111111111111111111111111111111100000000000000000000000000000000"
+    ]
+  },
+  "state": "running"
+}
+]

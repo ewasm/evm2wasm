@@ -1,19 +1,14 @@
-;; xor
+;; XOR(sp[-1], sp[-2])
 (func $XOR
-  (param $a0 i64)
-  (param $a1 i64)
-  (param $a2 i64)
-  (param $a3 i64)
-
-  (param $b0 i64)
-  (param $b1 i64)
-  (param $b2 i64)
-  (param $b3 i64)
-
   (param $sp i32)
+  (result i32)
 
-  (i64.store (get_local $sp) (i64.xor (get_local $a0) (get_local $b0)))
-  (i64.store (i32.add (get_local $sp) (i32.const 8)) (i64.xor (get_local $a1) (get_local $b1)))
-  (i64.store (i32.add (get_local $sp) (i32.const 16)) (i64.xor (get_local $a2) (get_local $b2)))
-  (i64.store (i32.add (get_local $sp) (i32.const 24)) (i64.xor (get_local $a3) (get_local $b3)))
+  (i64.store (i32.sub (get_local $sp) (i32.const 32)) (i64.xor (i64.load (i32.sub (get_local $sp) (i32.const 32))) (i64.load (i32.sub (get_local $sp) (i32.const 0)))))
+  (i64.store (i32.sub (get_local $sp) (i32.const 40)) (i64.xor (i64.load (i32.sub (get_local $sp) (i32.const 40))) (i64.load (i32.sub (get_local $sp) (i32.const 8)))))
+  (i64.store (i32.sub (get_local $sp) (i32.const 48)) (i64.xor (i64.load (i32.sub (get_local $sp) (i32.const 48))) (i64.load (i32.sub (get_local $sp) (i32.const 16)))))
+  (i64.store (i32.sub (get_local $sp) (i32.const 56)) (i64.xor (i64.load (i32.sub (get_local $sp) (i32.const 56))) (i64.load (i32.sub (get_local $sp) (i32.const 24)))))
+
+  (set_local $sp (i32.sub (get_local $sp) (i32.const 32)))
+
+  (return (get_local $sp))
 )
