@@ -32,17 +32,18 @@
   (set_local $maskd (i64.const 1))
 
   ;; load args from the stack
-  (set_local $a (i64.load (get_local $sp)))
-  (set_local $b (i64.load (i32.sub (get_local $sp) (i32.const 8))))
-  (set_local $c (i64.load (i32.sub (get_local $sp) (i32.const 16))))
-  (set_local $d (i64.load (i32.sub (get_local $sp) (i32.const 24))))
+  (set_local $a (i64.load (i32.add (get_local $sp) (i32.const 24))))
+  (set_local $b (i64.load (i32.add (get_local $sp) (i32.const 16))))
+  (set_local $c (i64.load (i32.add (get_local $sp) (i32.const  8))))
+  (set_local $d (i64.load          (get_local $sp)))
   ;; decement the stack pointer
   (set_local $sp (i32.sub (get_local $sp) (i32.const 32)))
 
-  (set_local $a1 (i64.load (get_local $sp)))
-  (set_local $b1 (i64.load (i32.sub (get_local $sp) (i32.const 8))))
-  (set_local $c1 (i64.load (i32.sub (get_local $sp) (i32.const 16))))
-  (set_local $d1 (i64.load (i32.sub (get_local $sp) (i32.const 24))))
+  (set_local $a1 (i64.load (i32.add (get_local $sp) (i32.const 24))))
+  (set_local $b1 (i64.load (i32.add (get_local $sp) (i32.const 16))))
+  (set_local $c1 (i64.load (i32.add (get_local $sp) (i32.const  8))))
+  (set_local $d1 (i64.load          (get_local $sp)))
+
 
   (block $main
     ;; check div by 0
@@ -115,9 +116,10 @@
     )
   );; end of main
 
-  (i64.store (get_local $sp) (get_local $a))
-  (i64.store (i32.sub (get_local $sp) (i32.const 8)) (get_local $b))
-  (i64.store (i32.sub (get_local $sp) (i32.const 16)) (get_local $c))
-  (i64.store (i32.sub (get_local $sp) (i32.const 24)) (get_local $d))
+  (i64.store (i32.add (get_local $sp) (i32.const 24)) (get_local $a))
+  (i64.store (i32.add (get_local $sp) (i32.const 16)) (get_local $b))
+  (i64.store (i32.add (get_local $sp) (i32.const  8)) (get_local $c))
+  (i64.store          (get_local $sp)                 (get_local $d))
+
   (get_local $sp)
 )

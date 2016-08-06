@@ -1,7 +1,4 @@
 (func $MULMOD
-  ;;  a b c d e f g h
-  ;;* i j k l m n o p
-  ;;----------------
   (param $sp i32)
   (result i32)
 
@@ -36,16 +33,22 @@
   (local $modc i64)
   (local $modd i64)
 
-  ;; pop three items of the stack
-  (set_local $a (i64.load (get_local $sp)))
-  (set_local $c (i64.load (i32.sub (get_local $sp) (i32.const 8))))
-  (set_local $e (i64.load (i32.sub (get_local $sp) (i32.const 16))))
-  (set_local $g (i64.load (i32.sub (get_local $sp) (i32.const 24))))
-  (set_local $i (i64.load (i32.sub (get_local $sp) (i32.const 32))))
-  (set_local $k (i64.load (i32.sub (get_local $sp) (i32.const 40))))
-  (set_local $m (i64.load (i32.sub (get_local $sp) (i32.const 48))))
-  (set_local $o (i64.load (i32.sub (get_local $sp) (i32.const 56))))
+  ;; pop two items of the stack
+  (set_local $a (i64.load (i32.add (get_local $sp) (i32.const 24))))
+  (set_local $c (i64.load (i32.add (get_local $sp) (i32.const 16))))
+  (set_local $e (i64.load (i32.add (get_local $sp) (i32.const  8))))
+  (set_local $g (i64.load          (get_local $sp)))
+  (set_local $i (i64.load (i32.sub (get_local $sp) (i32.const  8))))
+  (set_local $k (i64.load (i32.sub (get_local $sp) (i32.const 16))))
+  (set_local $m (i64.load (i32.sub (get_local $sp) (i32.const 24))))
+  (set_local $o (i64.load (i32.sub (get_local $sp) (i32.const 32))))
 
+  (set_local $sp (i32.sub (get_local $sp) (i32.const 64)))
+
+  ;; MUL
+  ;;  a b c d e f g h
+  ;;* i j k l m n o p
+  ;;----------------
 
   ;; split the ops
   (set_local $b (i64.and (get_local $a) (i64.const 4294967295)))
@@ -233,16 +236,18 @@
   (set_local $g (i64.or (i64.shl (get_local $temp3) (i64.const 32)) (i64.and (get_local $temp2) (i64.const 4294967295))))
   (set_local $h (i64.or (i64.shl (get_local $temp1) (i64.const 32)) (i64.and (get_local $temp0) (i64.const 4294967295))))
 
-  (set_local $sp (i32.sub (get_local $sp) (i32.const 64)))
-  (set_local $moda (i64.load (get_local $sp)))
-  (set_local $modb (i64.load (i32.sub (get_local $sp) (i32.const 8))))
-  (set_local $modc (i64.load (i32.sub (get_local $sp) (i32.const 16))))
-  (set_local $modd (i64.load (i32.sub (get_local $sp) (i32.const 24))))
+  ;; pop the MOD argmunet off the stack
+
+  (set_local $moda (i64.load (i32.add (get_local $sp) (i32.const 24))))
+  (set_local $modb (i64.load (i32.add (get_local $sp) (i32.const 16))))
+  (set_local $modc (i64.load (i32.add (get_local $sp) (i32.const  8))))
+  (set_local $modd (i64.load          (get_local $sp)))
 
   (call $MOD_512
          (get_local $a) (get_local $b) (get_local $c) (get_local $d) (get_local $e) (get_local $f) (get_local $g) (get_local $h) 
-         (i64.const 0)  (i64.const 0) (i64.const 0)  (i64.const 0)  (get_local $moda) (get_local $modb) (get_local $modc) (get_local $modd) (get_local $sp)
+         (i64.const 0)  (i64.const 0) (i64.const 0)  (i64.const 0)  (get_local $moda) (get_local $modb) (get_local $modc) (get_local $modd) (i32.add (get_local $sp) (i32.const 24))
   )
+
   (get_local $sp)
 )
 

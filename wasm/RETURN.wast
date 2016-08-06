@@ -19,15 +19,15 @@
   (set_local $memstart (i32.const 32768))
 
   ;; load args from the stack
-  (set_local $offset0 (i64.load (get_local $sp)))
-  (set_local $offset1 (i64.load (i32.sub (get_local $sp) (i32.const 8))))
-  (set_local $offset2 (i64.load (i32.sub (get_local $sp) (i32.const 16))))
-  (set_local $offset3 (i64.load (i32.sub (get_local $sp) (i32.const 24))))
+  (set_local $offset0 (i64.load (i32.add (get_local $sp) (i32.const 24))))
+  (set_local $offset1 (i64.load (i32.add (get_local $sp) (i32.const 16))))
+  (set_local $offset2 (i64.load (i32.add (get_local $sp) (i32.const  8))))
+  (set_local $offset3 (i64.load          (get_local $sp)))
 
-  (set_local $length0 (i64.load (i32.sub (get_local $sp) (i32.const 32))))
-  (set_local $length1 (i64.load (i32.sub (get_local $sp) (i32.const 40))))
-  (set_local $length2 (i64.load (i32.sub (get_local $sp) (i32.const 48))))
-  (set_local $length3 (i64.load (i32.sub (get_local $sp) (i32.const 56))))
+  (set_local $length0 (i64.load (i32.sub (get_local $sp) (i32.const  8))))
+  (set_local $length1 (i64.load (i32.sub (get_local $sp) (i32.const 16))))
+  (set_local $length2 (i64.load (i32.sub (get_local $sp) (i32.const 24))))
+  (set_local $length3 (i64.load (i32.sub (get_local $sp) (i32.const 32))))
 
   ;; FIXME: how to deal with overflow?
   (set_local $offset (i32.wrap/i64 (get_local $offset3)))
@@ -35,6 +35,5 @@
 
   (call_import $return (i32.add (get_local $offset) (get_local $memstart)) (get_local $length))
 
-  (set_local $sp (i32.sub (get_local $sp) (i32.const 64)))
-  (return (get_local $sp))
+  (i32.sub (get_local $sp) (i32.const 64))
 )

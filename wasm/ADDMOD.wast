@@ -19,24 +19,24 @@
   (local $carry i64)
 
   ;; load args from the stack
-  (set_local $a (i64.load (get_local $sp)))
-  (set_local $b (i64.load (i32.sub (get_local $sp) (i32.const 8))))
-  (set_local $c (i64.load (i32.sub (get_local $sp) (i32.const 16))))
-  (set_local $d (i64.load (i32.sub (get_local $sp) (i32.const 24))))
+  (set_local $a (i64.load (i32.add (get_local $sp) (i32.const 24))))
+  (set_local $b (i64.load (i32.add (get_local $sp) (i32.const 16))))
+  (set_local $c (i64.load (i32.add (get_local $sp) (i32.const 8))))
+  (set_local $d (i64.load (get_local $sp)))
 
   (set_local $sp (i32.sub (get_local $sp) (i32.const 32)))
 
-  (set_local $a1 (i64.load (get_local $sp)))
-  (set_local $b1 (i64.load (i32.sub (get_local $sp) (i32.const 8))))
-  (set_local $c1 (i64.load (i32.sub (get_local $sp) (i32.const 16))))
-  (set_local $d1 (i64.load (i32.sub (get_local $sp) (i32.const 24))))
+  (set_local $a1 (i64.load (i32.add (get_local $sp) (i32.const 24))))
+  (set_local $b1 (i64.load (i32.add (get_local $sp) (i32.const 16))))
+  (set_local $c1 (i64.load (i32.add (get_local $sp) (i32.const 8))))
+  (set_local $d1 (i64.load (get_local $sp)))
 
   (set_local $sp (i32.sub (get_local $sp) (i32.const 32)))
 
-  (set_local $moda (i64.load (get_local $sp)))
-  (set_local $modb (i64.load (i32.sub (get_local $sp) (i32.const 8))))
-  (set_local $modc (i64.load (i32.sub (get_local $sp) (i32.const 16))))
-  (set_local $modd (i64.load (i32.sub (get_local $sp) (i32.const 24))))
+  (set_local $moda (i64.load (i32.add (get_local $sp) (i32.const 24))))
+  (set_local $modb (i64.load (i32.add (get_local $sp) (i32.const 16))))
+  (set_local $modc (i64.load (i32.add (get_local $sp) (i32.const 8))))
+  (set_local $modd (i64.load (get_local $sp)))
 
   ;; a * 64^3 + b*64^2 + c*64 + d 
   ;; d 
@@ -185,13 +185,10 @@
       (br $loop)
     )
   );; end of main
-  ;; (call_import $print_64 (get_local $d))
-  ;; (call_import $print_32 (get_local $sp))
-  (i64.store (get_local $sp) (get_local $b))
-  (i64.store (i32.sub (get_local $sp) (i32.const 8)) (get_local $c))
-  (i64.store (i32.sub (get_local $sp) (i32.const 16)) (get_local $d))
-  (i64.store (i32.sub (get_local $sp) (i32.const 24)) (get_local $e))
-  (get_local $sp)
+  (i64.store (i32.add (get_local $sp) (i32.const 24)) (get_local $b))
+  (i64.store (i32.add (get_local $sp) (i32.const 16)) (get_local $c))
+  (i64.store (i32.add (get_local $sp) (i32.const 8))  (get_local $d))
+  (i64.store (get_local $sp)                          (get_local $e))
 )
 
 (func $isZero_320
