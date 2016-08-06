@@ -1,26 +1,61 @@
-;; byte
+;; BYTE(offset: sp[-1], value: sp[-2])
 (func $BYTE
   (param $sp i32)
   (result i32)
-  (local $a3 i64)
 
-  (set_local $a3 (i64.load (i32.add (get_local $sp) (i32.const 24))))
+  (local $word0 i64)
+  (local $word1 i64)
+  (local $word2 i64)
+  (local $word3 i64)
 
-  ;; if (a > 32)
-  ;; a0 == 0 && a1 == 0 && a2 == 0 && a3 > 32
-  (if 
-    (i32.and (i64.gt_u (get_local $a3) (i64.const 32))
-    (i32.and (i64.eqz  (i64.load (i32.add (get_local $sp) (i32.const 16))))
-    (i32.and (i64.eqz  (i64.load (i32.add (get_local $sp) (i32.const 8))))
-             (i64.eqz  (i64.load (get_local $sp))))))
-    (return (get_local $sp))
+  (local $offset0 i64)
+  (local $offset1 i64)
+  (local $offset2 i64)
+  (local $offset3 i64)
+  (local $offsetTop i64)
+
+  (local $scratch i32)
+  (set_local $scratch (i32.const 32776))
+
+  ;; load args from the stack
+  (set_local $offset3 (i64.load (i32.add (get_local $sp) (i32.const 24))))
+  (set_local $offset2 (i64.load (i32.add (get_local $sp) (i32.const 16))))
+  (set_local $offset1 (i64.load (i32.add (get_local $sp) (i32.const  8))))
+  (set_local $offset0 (i64.load          (get_local $sp)))
+
+  (set_local $sp (i32.sub (get_local $sp) (i32.const 32)))
+
+  (i64.store (i32.add (get_local $scratch) (i32.const 24)) (i64.load (i32.add (get_local $sp) (i32.const 24))))
+  (i64.store (i32.add (get_local $scratch) (i32.const 16)) (i64.load (i32.add (get_local $sp) (i32.const 16))))
+  (i64.store (i32.add (get_local $scratch) (i32.const 8))  (i64.load (i32.add (get_local $sp) (i32.const 8))))
+  (i64.store          (get_local $scratch)                 (i64.load          (get_local $sp)))
+
+  (set_local $word3 (i64.load (i32.add (get_local $sp) (i32.const 24))))
+  (set_local $word2 (i64.load (i32.add (get_local $sp) (i32.const 16))))
+  (set_local $word1 (i64.load (i32.add (get_local $sp) (i32.const  8))))
+  (set_local $word0 (i64.load          (get_local $sp)))
+
+  (set_local $offsetTop (i64.or (get_local $offset1) (i64.or (get_local $offset2) (get_local $offset3))))
+
+  ;; clean the stack
+  (i64.store          (get_local $sp)                 (i64.const 0))
+  (i64.store (i32.add (get_local $sp) (i32.const 8))  (i64.const 0))
+  (i64.store (i32.add (get_local $sp) (i32.const 16)) (i64.const 0))
+  (i64.store (i32.add (get_local $sp) (i32.const 24)) (i64.const 0))
+
+  ;; if the offset is proper, do the calculation
+  (if
+    (i32.eqz
+      (i32.or
+        (i64.gt_u (get_local $offset0) (i64.const 32))
+        (i64.gt_u (get_local $offsetTop) (i64.const 0))
+      )
+    )
+
+    (then
+      (i64.store (get_local $sp) (i64.load8_u (i32.add (get_local $scratch) (i32.wrap/i64 (get_local $offset0)))))
+    )
   )
 
-  (i64.store (get_local $sp) (i64.const 0))
-  (i64.store (i32.add (get_local $sp) (i32.const 8)) (i64.const 0))
-  (i64.store (i32.add (get_local $sp) (i32.const 16)) (i64.const 0))
-  ;; sp + 32 + a
-  (i64.store (i32.add (get_local $sp) (i32.const 24))
-             (i64.load8_u  (i32.add (i32.add (i32.wrap/i64 (get_local $a3)) (i32.const 32)) (get_local $sp))))
   (return (get_local $sp))
 )
