@@ -17,14 +17,14 @@
 {
   "op": "AND",
   "value": "0x16",
-  "description": "0x33 & 033",
+  "description": "0x33 & 0x33",
   "stack": {
     "in": [
       "0x3333333333333333333333333333333333333333333333333333333333333333",
       "0x3333333333333333333333333333333333333333333333333333333333333333"
     ],
     "out": [
-      "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+      "0x3333333333333333333333333333333333333333333333333333333333333333"
     ]
   },
   "state": "running"
