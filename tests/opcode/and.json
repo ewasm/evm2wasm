@@ -17,14 +17,14 @@
 {
   "op": "AND",
   "value": "0x16",
-  "description": "0x33 & 033",
+  "description": "0x33 & 0x33",
   "stack": {
     "in": [
       "0x3333333333333333333333333333333333333333333333333333333333333333",
       "0x3333333333333333333333333333333333333333333333333333333333333333"
     ],
     "out": [
-      "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+      "0x3333333333333333333333333333333333333333333333333333333333333333"
     ]
   },
   "state": "running"
@@ -32,7 +32,7 @@
 {
   "op": "AND",
   "value": "0x16",
-  "description": "0xff | 0xf0",
+  "description": "0xff & 0xf0",
   "stack": {
     "in": [
       "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
@@ -47,7 +47,7 @@
 {
   "op": "AND",
   "value": "0x16",
-  "description": "0xff | 0x00",
+  "description": "0xff & 0x00",
   "stack": {
     "in": [
       "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
