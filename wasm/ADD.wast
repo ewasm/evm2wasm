@@ -7,14 +7,13 @@
   (local $d i64)
   (local $carry i64)
   
-  (set_local $sp (i32.add (get_local $sp) (i32.const 24)))
   ;; d c b a
   ;; pop the stack 
-  (set_local $a (i64.load (get_local $sp)))
-  (set_local $c (i64.load (i32.sub (get_local $sp) (i32.const 16))))
-  (set_local $d (i64.load (i32.sub (get_local $sp) (i32.const 24))))
+  (set_local $a (i64.load (i32.add (get_local $sp) (i32.const 24))))
+  (set_local $c (i64.load (i32.add (get_local $sp) (i32.const 8))))
+  (set_local $d (i64.load (get_local $sp)))
   ;; decement the stack pointer
-  (set_local $sp (i32.sub (get_local $sp) (i32.const 32)))
+  (set_local $sp (i32.sub (get_local $sp) (i32.const 8)))
 
   ;; d 
   (set_local $carry (i64.add (get_local $d) (i64.load (i32.sub (get_local $sp) (i32.const 24)))))
@@ -51,6 +50,5 @@
                    (i64.extend_u/i32 (i64.lt_u (get_local $d) (get_local $c))) 
                    (get_local $carry)))))
 
-  (set_local $sp (i32.sub (get_local $sp) (i32.const 24)))
-  (return (get_local $sp))
+  (i32.sub (get_local $sp) (i32.const 24))
 )

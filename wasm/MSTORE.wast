@@ -17,18 +17,19 @@
   ;; Hardcode memory start at 32k: https://github.com/ewasm/evm2wasm/issues/16
   (set_local $memstart (i32.const 32768))
 
-  (set_local $sp (i32.add (get_local $sp) (i32.const 24)))
 
   ;; load args from the stack
-  (set_local $word0 (i64.load (get_local $sp)))
-  (set_local $word1 (i64.load (i32.sub (get_local $sp) (i32.const 8))))
-  (set_local $word2 (i64.load (i32.sub (get_local $sp) (i32.const 16))))
-  (set_local $word3 (i64.load (i32.sub (get_local $sp) (i32.const 24))))
+  (set_local $word0 (i64.load (i32.add (get_local $sp) (i32.const 24))))
+  (set_local $word1 (i64.load (i32.add (get_local $sp) (i32.const 16))))
+  (set_local $word2 (i64.load (i32.add (get_local $sp) (i32.const  8))))
+  (set_local $word3 (i64.load          (get_local $sp)))
 
-  (set_local $offset0 (i64.load (i32.sub (get_local $sp) (i32.const 32))))
-  (set_local $offset1 (i64.load (i32.sub (get_local $sp) (i32.const 40))))
-  (set_local $offset2 (i64.load (i32.sub (get_local $sp) (i32.const 48))))
-  (set_local $offset3 (i64.load (i32.sub (get_local $sp) (i32.const 56))))
+  (set_local $sp (i32.sub (get_local $sp) (i32.const 32)))
+
+  (set_local $offset0 (i64.load (i32.add (get_local $sp) (i32.const 24))))
+  (set_local $offset1 (i64.load (i32.add (get_local $sp) (i32.const 16))))
+  (set_local $offset2 (i64.load (i32.add (get_local $sp) (i32.const  8))))
+  (set_local $offset3 (i64.load          (get_local $sp)))
 
   ;; FIXME: how to deal with overflow?
   (set_local $offset (i32.add (i32.wrap/i64 (get_local $offset3)) (get_local $memstart)))
@@ -38,7 +39,5 @@
   (i64.store (i32.add (get_local $offset) (i32.const 16)) (get_local $word1))
   (i64.store (i32.add (get_local $offset) (i32.const 24)) (get_local $word0))
 
-  (set_local $sp (i32.sub (get_local $sp) (i32.const 64)))
-  (set_local $sp (i32.sub (get_local $sp) (i32.const 24)))
-  (return (get_local $sp))
+  (i32.sub (get_local $sp) (i32.const 32))
 )

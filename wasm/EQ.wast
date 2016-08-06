@@ -14,6 +14,5 @@
   (i64.store (i32.sub (get_local $sp) (i32.const 32)) (i64.const 0))
   (i64.store (i32.sub (get_local $sp) (i32.const 40)) (i64.const 0))
   (i64.store (i32.sub (get_local $sp) (i32.const 48)) (i64.const 0))
-  (set_local $sp (i32.sub (get_local $sp) (i32.const 24)))
-  (i32.sub (get_local $sp) (i32.const 32))
+  (i32.sub (get_local $sp) (i32.const 56))
 )
