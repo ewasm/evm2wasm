@@ -16,19 +16,19 @@
   (local $temp i64)
   (result i32)
 
-  (set_local $sp (i32.add (get_local $sp) (i32.const 24)))
 
-  (set_local $a (i64.load (get_local $sp)))
-  (set_local $b (i64.load (i32.sub (get_local $sp) (i32.const 8))))
-  (set_local $c (i64.load (i32.sub (get_local $sp) (i32.const 16))))
-  (set_local $d (i64.load (i32.sub (get_local $sp) (i32.const 24))))
+  (set_local $a (i64.load (i32.add (get_local $sp) (i32.const 24))))
+  (set_local $b (i64.load (i32.add (get_local $sp) (i32.const 16))))
+  (set_local $c (i64.load (i32.add (get_local $sp) (i32.const  8))))
+  (set_local $d (i64.load          (get_local $sp)))
   ;; decement the stack pointer
   (set_local $sp (i32.sub (get_local $sp) (i32.const 32)))
 
-  (set_local $a1 (i64.load (get_local $sp)))
-  (set_local $b1 (i64.load (i32.sub (get_local $sp) (i32.const 8))))
-  (set_local $c1 (i64.load (i32.sub (get_local $sp) (i32.const 16))))
-  (set_local $d1 (i64.load (i32.sub (get_local $sp) (i32.const 24))))
+  (set_local $a1 (i64.load (i32.add (get_local $sp) (i32.const 24))))
+  (set_local $b1 (i64.load (i32.add (get_local $sp) (i32.const 16))))
+  (set_local $c1 (i64.load (i32.add (get_local $sp) (i32.const  8))))
+  (set_local $d1 (i64.load          (get_local $sp)))
+
 
   ;; a * 64^3 + b*64^2 + c*64 + d 
   ;; d
@@ -49,10 +49,10 @@
   ;; a
   (set_local $a (i64.sub (i64.sub (get_local $a) (i64.or (i64.extend_u/i32 (i64.gt_u (get_local $b) (get_local $temp))) (get_local $carry))) (get_local $a1)))
 
-  (i64.store (get_local $sp) (get_local $a))
-  (i64.store (i32.sub (get_local $sp) (i32.const 8)) (get_local $b))
-  (i64.store (i32.sub (get_local $sp) (i32.const 16)) (get_local $c))
-  (i64.store (i32.sub (get_local $sp) (i32.const 24)) (get_local $d))
-  (set_local $sp (i32.sub  (get_local $sp) (i32.const 24)))
+  (i64.store (i32.add (get_local $sp) (i32.const 24)) (get_local $a))
+  (i64.store (i32.add (get_local $sp) (i32.const 16)) (get_local $b))
+  (i64.store (i32.add (get_local $sp) (i32.const  8)) (get_local $c))
+  (i64.store          (get_local $sp)                 (get_local $d))
+
   (get_local $sp)
 )
