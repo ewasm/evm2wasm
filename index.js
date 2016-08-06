@@ -15,6 +15,18 @@ const depMap = new Map([
   ['ISZERO', ['ISZERO_32']]
 ])
 
+const interfaceImportMap = {
+  'sstore': {
+    'inputs': [ 'i32', 'i32' ]
+  },
+  'useGas': {
+    'inputs': [ 'i32' ]
+  },
+  'return': {
+    'inputs': [ 'i32', 'i32' ]
+  }
+}
+
 exports.compile = function (evmCode, stackTrace) {
   const wast = exports.compileEVM(evmCode, stackTrace)
   return exports.compileWAST(wast)
@@ -187,6 +199,32 @@ exports.resolveFunctions = function resolveFunctions (funcSet, dir='/wasm/') {
   return funcs
 }
 
+exports.buildInterfaceImports = function () {
+  let importStr = ''
+
+  Object.keys(interfaceImportMap).forEach((key) => {
+    let options = interfaceImportMap[key]
+
+    importStr += `(import $${key} "ethereum" "${key}"`
+
+    if (options.inputs) {
+      importStr += ` (param `
+      for (let input of options.inputs) {
+        importStr += `${input} `
+      }
+      importStr += `)`
+    }
+
+    if (options.output) {
+      importStr += ` (param ${options.output})`
+    }
+
+    importStr += `)\n`
+  })
+
+  return importStr
+}
+
 exports.buildModule = function buildModule (funcs, imports=[], exports=[]) {
   let funcStr = ''
   for (let func of funcs) {
@@ -195,10 +233,9 @@ exports.buildModule = function buildModule (funcs, imports=[], exports=[]) {
   for (let exprt of exports) {
     funcStr += `(export "${exprt}" $${exprt})`
   }
+  let importStr = this.buildInterfaceImports()
   return `(module
-          (import $sstore  "ethereum" "sstore"  (param i32 i32))
-          (import $useGas  "ethereum" "useGas"  (param i32))
-          (import $return  "ethereum" "return"  (param i32 i32))
+          ${importStr}
           (memory 1 1)
           (export "memory" memory)
             ${funcStr}
