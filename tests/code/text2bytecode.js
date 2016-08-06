@@ -150,7 +150,7 @@ fs.readdir('.', (err, filenames) => {
       })
 
       tests[index].code = byteCode
-      fs.writeFileSync(filename, JSON.stringify(test, null, '  '))
+      fs.writeFileSync(filename, JSON.stringify(tests, null, '  '))
     }
   })
 })
