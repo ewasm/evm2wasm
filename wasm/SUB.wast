@@ -16,6 +16,8 @@
   (local $temp i64)
   (result i32)
 
+  (set_local $sp (i32.add (get_local $sp) (i32.const 24)))
+
   (set_local $a (i64.load (get_local $sp)))
   (set_local $b (i64.load (i32.sub (get_local $sp) (i32.const 8))))
   (set_local $c (i64.load (i32.sub (get_local $sp) (i32.const 16))))
@@ -51,5 +53,6 @@
   (i64.store (i32.sub (get_local $sp) (i32.const 8)) (get_local $b))
   (i64.store (i32.sub (get_local $sp) (i32.const 16)) (get_local $c))
   (i64.store (i32.sub (get_local $sp) (i32.const 24)) (get_local $d))
+  (set_local $sp (i32.sub  (get_local $sp) (i32.const 24)))
   (get_local $sp)
 )

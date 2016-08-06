@@ -36,6 +36,7 @@
   (local $modc i64)
   (local $modd i64)
 
+  (set_local $sp (i32.add (get_local $sp) (i32.const 24)))
   ;; pop three items of the stack
   (set_local $a (i64.load (get_local $sp)))
   (set_local $c (i64.load (i32.sub (get_local $sp) (i32.const 8))))
@@ -243,6 +244,8 @@
          (get_local $a) (get_local $b) (get_local $c) (get_local $d) (get_local $e) (get_local $f) (get_local $g) (get_local $h) 
          (i64.const 0)  (i64.const 0) (i64.const 0)  (i64.const 0)  (get_local $moda) (get_local $modb) (get_local $modc) (get_local $modd) (get_local $sp)
   )
+
+  (set_local $sp (i32.sub (get_local $sp) (i32.const 24)))
   (get_local $sp)
 )
 
