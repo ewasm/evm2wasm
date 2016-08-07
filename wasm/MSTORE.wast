@@ -36,6 +36,7 @@
 
   ;; FIXME: how to deal with overflow?
   (set_local $offset (i32.add (i32.wrap/i64 (get_local $offset3)) (get_local $memstart)))
+  (call $memUseGas (i32.wrap/i64 (get_local $offset3)))
 
   (i64.store          (get_local $offset)                 (get_local $word3))
   (i64.store (i32.add (get_local $offset) (i32.const 8))  (get_local $word2))
