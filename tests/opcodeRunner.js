@@ -7,6 +7,9 @@ const ethUtil = require('ethereumjs-util')
 const compiler = require('../index.js')
 const dir = `${__dirname}/opcode`
 
+// Transcompiled contracts have their EVM1 memory start at this WASM memory location
+const EVM_MEMORY_OFFSET = 32768
+
 let testFiles = fs.readdirSync(dir).filter((name) => name.endsWith('.json'))
 
 tape('testing EVM1 Ops', (t) => {
@@ -31,6 +34,7 @@ tape('testing EVM1 Ops', (t) => {
         Object.keys(test.memory.in).forEach((offset) => {
           test.memory.in[offset].forEach((item, index) => {
             offset |= 0
+            offset += EVM_MEMORY_OFFSET
             item = hexToUint8Array(item)
             setMemory(testInstance, item, offset + index * 32)
           })
@@ -57,6 +61,7 @@ tape('testing EVM1 Ops', (t) => {
         Object.keys(test.memory.out).forEach((offset) => {
           test.memory.out[offset].forEach((item, index) => {
             offset |= 0
+            offset += EVM_MEMORY_OFFSET
             const expectedItem = hexToUint8Array(item)
             const result = getMemory(testInstance, offset + index * 32, offset + index * 32 + expectedItem.length)
             t.equals(result.toString(), expectedItem.toString(), `should have the correct memory slot at ${offset}:${index}`)
