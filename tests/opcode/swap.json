@@ -1,6 +1,6 @@
 [{
   "op": "SWAP",
-  "value": "90",
+  "value": "0x90",
   "description": "SWAP0",
   "params": [
     0
@@ -18,7 +18,7 @@
   "state": "running"
 },{
   "op": "SWAP",
-  "value": "91",
+  "value": "0x91",
   "description": "SWAP1",
   "params": [
     1

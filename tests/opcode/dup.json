@@ -1,7 +1,7 @@
 [
 {
   "op": "DUP",
-  "value": "80",
+  "value": "0x80",
   "description": "DUP0",
   "params": [
     0
@@ -19,7 +19,7 @@
 },
 {
   "op": "DUP",
-  "value": "81",
+  "value": "0x81",
   "description": "DUP1",
   "params": [
     1

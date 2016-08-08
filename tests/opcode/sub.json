@@ -8,7 +8,7 @@
         "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
         "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
       ],
-      "out": ["0x00"]
+      "out": ["0x0000000000000000000000000000000000000000000000000000000000000000"]
     },
     "state": "running"
   }, {
@@ -18,9 +18,9 @@
     "stack": {
       "in": [
         "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
-        "0x00"
+        "0x0000000000000000000000000000000000000000000000000000000000000000"
       ],
-      "out": ["0x01"]
+      "out": ["0x0000000000000000000000000000000000000000000000000000000000000001"]
     },
     "state": "running"
   }
