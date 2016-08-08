@@ -15,8 +15,7 @@
   (local $length3 i64)
   (result i32)
 
-  ;; Hardcode memory start at 32k: https://github.com/ewasm/evm2wasm/issues/16
-  (set_local $memstart (i32.const 32768))
+  (set_local $memstart (i32.const 33832))
 
   ;; load args from the stack
   (set_local $offset0 (i64.load (i32.add (get_local $sp) (i32.const 24))))
