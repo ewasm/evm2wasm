@@ -39,3 +39,8 @@ The eWASM contract memory layout is currently as follows:
 | Contract memory starts here ("unlimited" in size)
 `---------------------------------------------------
 ```
+
+### Gas metering
+
+The generated *eWASM contract* contains gas metering. It is assumed *evm2wasm* will become a deployed trusted contract, which returns eWASM code that
+does not need to be run through the gas injector contract.
