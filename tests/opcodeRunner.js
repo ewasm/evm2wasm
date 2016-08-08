@@ -8,7 +8,7 @@ const compiler = require('../index.js')
 const dir = `${__dirname}/opcode`
 
 // Transcompiled contracts have their EVM1 memory start at this WASM memory location
-const EVM_MEMORY_OFFSET = 32768
+const EVM_MEMORY_OFFSET = 33832
 
 let testFiles = fs.readdirSync(dir).filter((name) => name.endsWith('.json'))
 

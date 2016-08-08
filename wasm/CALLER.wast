@@ -6,7 +6,7 @@
   ;; there's no input item for us to overwrite
   (set_local $sp (i32.add (get_local $sp) (i32.const 32)))
 
-  (set_local $scratch (i32.const 32768))
+  (set_local $scratch (i32.const 32776))
 
   ;; clear the 3rd 64bit chunk so we don't need to mask it later
   (i64.store (i32.add (get_local $scratch) (i32.const 16)) (i64.const 0))
