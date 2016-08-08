@@ -91,5 +91,8 @@
        (i32.mul (get_local $newWordCount) (i32.const 3))
        (i32.div_u (i32.mul (get_local $newWordCount) (get_local $newWordCount)) (i32.const 512))))
 
+  (i32.store (get_local $wordCountLoc) (get_local $newWordCount))
+  (i32.store (get_local $prevMemCostLoc) (get_local $cost))
+
   (call_import $useGas (get_local $cost))
 )
