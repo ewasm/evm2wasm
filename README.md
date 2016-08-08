@@ -30,6 +30,12 @@ The eWASM contract memory layout is currently as follows:
 | - each stack entry is 256 bit
 | - stack is limited to 1024 entries
 +---------------------------------------------------
+| Word count (4 bytes)
+| (Number of 256 bit words stored in memory)
++---------------------------------------------------
+| Previous memory cost in word count (4 bytes)
+| (The cost charged for the last memory allocation)
++---------------------------------------------------
 | Reserved space for state operations (32 bytes)
 | - single 256 bit slot
 +---------------------------------------------------
