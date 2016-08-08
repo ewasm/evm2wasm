@@ -44,12 +44,11 @@ tape('testing EVM1 Ops', (t) => {
       // populate the memory
       if (test.memory) {
         Object.keys(test.memory.in).forEach((offset) => {
-          test.memory.in[offset].forEach((item, index) => {
+            item = test.memory.in[offset]
             offset |= 0
             offset += EVM_MEMORY_OFFSET
             item = hexToUint8Array(item)
-            setMemory(testInstance, item, offset + index * 32)
-          })
+            setMemory(testInstance, item, offset)
         })
       }
 

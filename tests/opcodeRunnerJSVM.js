@@ -61,7 +61,7 @@ tape('testing EVM1 Ops', (t) => {
       if (test.memory && test.memory.in) {
         for(let item in test.memory.in){
           item |= 0
-          const memIn = new Buffer(test.memory.in[item][0].slice(2), 'hex')
+          const memIn = new Buffer(test.memory.in[item].slice(2), 'hex')
           runState.memory.splice(item, 32, ...memIn)
 
         }
