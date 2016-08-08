@@ -26,7 +26,12 @@ tape('testing EVM1 Ops', (t) => {
       // populate the environment
       if (test.environment) {
         Object.keys(test.environment).forEach((key) => {
-          testEnvironment[key] = test.environment[key]
+          let value = test.environment[key]
+          if (key === 'caller')
+            value = hexToUint8Array(value, 20)
+          else
+            throw new Error('Unsupported environment variable')
+          testEnvironment[key] = value
         })
       }
 
