@@ -88,7 +88,7 @@ function buildTest (op, interface) {
 }
 
 function hexToUint8Array(item, length) {
-  return new Uint8Array(ethUtil.setLength(new Buffer(item.slice(2), 'hex'), 32)).reverse()
+  return new Uint8Array(ethUtil.setLength(new Buffer(item.slice(2), 'hex'), length || 32)).reverse()
 }
 
 function setMemory(instance, value, start) {
