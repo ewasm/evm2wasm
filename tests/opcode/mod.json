@@ -8,7 +8,7 @@
         "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
         "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
       ],
-      "out": ["0x00"]
+      "out": ["0x0000000000000000000000000000000000000000000000000000000000000000"]
     },
     "state": "running"
   }, {
@@ -18,9 +18,9 @@
     "stack": {
       "in": [
         "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
-        "0x00"
+        "0x0000000000000000000000000000000000000000000000000000000000000000"
       ],
-      "out": ["0x00"]
+      "out": ["0x0000000000000000000000000000000000000000000000000000000000000000"]
     },
     "state": "running"
   },{
@@ -29,10 +29,10 @@
     "description": "(2^256 - 1) mod 2",
     "stack": {
       "in": [
-        "0x02",
+        "0x0000000000000000000000000000000000000000000000000000000000000002",
         "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
       ],
-      "out": ["0x01"]
+      "out": ["0x0000000000000000000000000000000000000000000000000000000000000001"]
     },
     "state": "running"
   }, {
@@ -42,9 +42,9 @@
     "stack": {
       "in": [
         "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
-        "0x02"
+        "0x0000000000000000000000000000000000000000000000000000000000000002"
       ],
-      "out": ["0x02"]
+      "out": ["0x0000000000000000000000000000000000000000000000000000000000000002"]
     },
     "state": "running"
   }, {
@@ -53,10 +53,10 @@
     "description": "1 mod 2",
     "stack": {
       "in": [
-        "0x02",
-        "0x01"
+        "0x0000000000000000000000000000000000000000000000000000000000000002",
+        "0x0000000000000000000000000000000000000000000000000000000000000001"
       ],
-      "out": ["0x01"]
+      "out": ["0x0000000000000000000000000000000000000000000000000000000000000001"]
     },
     "state": "running"
   },{
