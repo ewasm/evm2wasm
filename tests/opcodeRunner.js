@@ -23,6 +23,18 @@ tape('testing EVM1 Ops', (t) => {
       // FIXME: have separate `t.test()` for better grouping
       t.comment(`testing ${test.op} ${test.description}`)
 
+      // populate the environment
+      if (test.environment) {
+        Object.keys(test.environment).forEach((key) => {
+          let value = test.environment[key]
+          if (key === 'caller')
+            value = hexToUint8Array(value, 20)
+          else
+            throw new Error('Unsupported environment variable')
+          testEnvironment[key] = value
+        })
+      }
+
       // populate the stack with predefined values
       test.stack.in.forEach((item, index) => {
         item = hexToUint8Array(item)
