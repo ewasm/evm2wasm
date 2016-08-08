@@ -44,7 +44,7 @@ tape('testing EVM1 Ops', (t) => {
       // populate the memory
       if (test.memory) {
         Object.keys(test.memory.in).forEach((offset) => {
-            item = test.memory.in[offset]
+            let item = test.memory.in[offset]
             offset |= 0
             offset += EVM_MEMORY_OFFSET
             item = hexToUint8Array(item)
