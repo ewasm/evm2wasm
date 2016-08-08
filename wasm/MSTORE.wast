@@ -68,8 +68,8 @@
   (set_local $length (i32.const 32))
 
   ;; TODO: dedicate memory for these globals
-  (set_local $wordCountLoc   (i32.const 32760))
-  (set_local $prevMemCostLoc (i32.const 32752))
+  (set_local $wordCountLoc   (i32.const 32768))
+  (set_local $prevMemCostLoc (i32.const 32772))
 
   (set_local $wordCount   (i32.load (get_local $wordCountLoc)))
   (set_local $prevMemCost (i32.load (get_local $prevMemCostLoc)))
