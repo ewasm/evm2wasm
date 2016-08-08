@@ -1,0 +1,20 @@
+[
+  {
+    "description": "tests mstore and msize roundtrip",
+    "source": [
+      "PUSH1",
+      "0x04",
+      "PUSH1",
+      "0x03",
+      "MSTORE",
+      "MSIZE"
+    ],
+    "code": "0x600460035259",
+    "result": {
+      "stack": [
+        "0x40"
+      ],
+      "memory": []
+    }
+  }
+]
