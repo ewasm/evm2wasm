@@ -1,0 +1,22 @@
+[
+  {
+    "description": "tests mstore8 and mload round trip",
+    "source": [
+      "PUSH2",
+      "0x04ff",
+      "PUSH1",
+      "0x03",
+      "MSTORE8",
+      "PUSH1",
+      "0x03",
+      "MLOAD"
+    ],
+    "code": "0x6104ff600353600351",
+    "result": {
+      "stack": [
+        "0xff00000000000000000000000000000000000000000000000000000000000000"
+      ],
+      "memory": []
+    }
+  }
+]

@@ -13,7 +13,8 @@ const depMap = new Map([
   ['EXP', ['ISZERO_32', 'MUL_256']],
   ['MUL', ['MUL_256']],
   ['ISZERO', ['ISZERO_32']],
-  ['MSTORE', ['MEMUSEGAS']]
+  ['MSTORE', ['MEMUSEGAS']],
+  ['MSTORE8', ['MEMUSEGAS']]
 ])
 
 const interfaceImportMap = {
