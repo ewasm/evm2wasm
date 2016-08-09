@@ -1,16 +1,21 @@
+# Code Tests
+The code tests run a small segments of code switch are designed to test the 
+effects of opcodes in combination with each other
+
 # Opcode Tests
+The opcode tests are design to test individual opcodes
 
 ## Schema
 ```
 [{
-  "op": The Opcode being tested,
+  "op": The Opcode being tested
   "value": The opcodes hex value
   "description": A short description of the test
-  in": {
+  "in": {
     "memory": {
       "index": 32 byte memory segment in hex
     },
-    "stack": [ the initial stack items in hex  ]
+    "stack": [ the initial stack  items in hex  ]
   },
   "out": {
     "stack": [the resulting stack items in hex],
