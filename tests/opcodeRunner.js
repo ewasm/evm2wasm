@@ -85,6 +85,10 @@ tape('testing EVM1 Ops', (t) => {
         const result = testEnvironment.returnValue
         t.equals(result.toString(), expectedItem.toString(), 'should have correct return value')
       }
+
+      if (test.out.gasUsed) {
+        t.equals(-testEnvironment.gasLimit, test.out.gasUsed, 'should have used the correct amount of gas')
+      }
     })
   })
   t.end()
