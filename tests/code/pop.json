@@ -1,0 +1,14 @@
+[
+  {
+    "description": "tests msize and pop",
+    "source": [
+      "MSIZE",
+      "POP"
+    ],
+    "code": "0x5950",
+    "result": {
+      "stack": [],
+      "memory": []
+    }
+  }
+]
