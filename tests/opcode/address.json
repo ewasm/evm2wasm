@@ -1,0 +1,18 @@
+[
+  {
+    "op": "ADDRESS",
+    "value": "0x30",
+    "description": "return 0x5d48c1018904a172886829bbbd9c6f4a2d06c47b",
+    "environment": {
+      "address": "0x5d48c1018904a172886829bbbd9c6f4a2d06c47b"
+    },
+    "in": {
+      "stack": []
+    },
+    "out": {
+      "stack": [
+        "0x0000000000000000000000005d48c1018904a172886829bbbd9c6f4a2d06c47b"
+      ]
+    }
+  }
+]
