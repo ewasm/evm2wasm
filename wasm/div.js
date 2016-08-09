@@ -13,5 +13,5 @@ function div (a, b) {
   return r
 }
 
-const r = div(new BN(MAX_INTEGER), 2)
+const r = div(19, 2)
 console.log(r.toString(16))

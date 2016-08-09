@@ -15,7 +15,7 @@ function div (a, b) {
   return r
 }
 
-const r = div(new BN(1), new BN(2))
+const r = div(new BN(19), new BN(2))
 console.log(r.toString(16))
 
 function fromSigned (num) {
