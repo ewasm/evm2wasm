@@ -94,11 +94,11 @@ tape('testing EVM1 Ops', (t) => {
   t.end()
 })
 
-function buildTest (op, interface) {
+function buildTest (op, ethInterface) {
   const funcs = compiler.resolveFunctions(new Set([op]))
   const linked = compiler.buildModule(funcs, [], [op])
   const wasm = compiler.compileWAST(linked)
-  return Kernel.codeHandler(wasm, interface)
+  return Kernel.codeHandler(wasm, ethInterface)
 }
 
 function hexToUint8Array(item, length) {
