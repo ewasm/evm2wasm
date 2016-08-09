@@ -11,6 +11,9 @@ The opcode tests are design to test individual opcodes
   "op": The Opcode being tested
   "value": The opcodes hex value
   "description": A short description of the test
+  "environment": {
+    "caller": the callers address
+  },
   "in": {
     "memory": {
       "index": 32 byte memory segment in hex

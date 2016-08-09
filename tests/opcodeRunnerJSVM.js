@@ -46,20 +46,22 @@ tape('testing EVM1 Ops', (t) => {
       t.comment(`testing ${test.op} ${test.description}`)
 
       // populate the stack with predefined values
-      const stack = test.stack.in.map((i) => new Buffer(i.slice(2), 'hex'))
+      const stack = test.in.stack.map((i) => new Buffer(i.slice(2), 'hex'))
 
       const runState = {
+        memoryWordCount: 0,
         memory: [],
         stack: stack,
         opCode: parseInt(test.value),
         highestMemCost: new BN(0),
-        gasLeft: new BN("100000000000000000")
+        gasLeft: new BN("100000000000000000"),
+        caller: test.environment.caller
       }
 
       // populate the memory
-      if (test.memory && test.memory.in) {
-        for(let item in test.memory.in){
-          const memIn = new Buffer(test.memory.in[item].slice(2), 'hex')
+      if (test.in.memory) {
+        for (let item in test.in.memory){
+          const memIn = new Buffer(test.in.memory[item].slice(2), 'hex')
           runState.memory.splice(item, 32, ...memIn)
         }
       }
@@ -67,7 +69,7 @@ tape('testing EVM1 Ops', (t) => {
       // Runs the opcode. 
       const noStack = new Set(['DUP', 'SWAP'])
       let args = []
-      if(noStack.has(test.op)){
+      if (noStack.has(test.op)) {
         args = [runState]
       } else {
         args = stack.slice()
@@ -80,17 +82,17 @@ tape('testing EVM1 Ops', (t) => {
         runState.stack.push(result)
       }
 
-      test.stack.out.forEach((item, index) => {
+      test.out.stack.forEach((item, index) => {
         t.equals('0x' + ethUtil.setLength(runState.stack[index], 32).toString('hex'), item, 'stack items should be equal')
       })
 
       // check the memory
-      if (test.memory) {
+      if (test.out.memory) {
         //TODO
       }
 
       // check for EVM return value
-      if (test.return) {
+      if (test.out.return) {
         //TODO
       }
     })

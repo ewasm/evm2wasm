@@ -22,6 +22,10 @@ files.forEach((file) => {
       test.out['memory'] = test.memory.out
       delete test.memory
     }
+
+    if(!test.environment){
+      test.environment = {}
+    }
   }
   console.log(file)
   fs.writeFileSync(__dirname + '/' + file, JSON.stringify(json, null, 2))

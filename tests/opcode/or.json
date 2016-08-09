@@ -13,7 +13,8 @@
       "stack": [
         "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
       ]
-    }
+    },
+    "environment": {}
   },
   {
     "op": "OR",
@@ -29,7 +30,8 @@
       "stack": [
         "0xcc33cc33cc33cc33cc33cc33cc33cc33cc33cc33cc33cc33cc33cc33cc33cc33"
       ]
-    }
+    },
+    "environment": {}
   },
   {
     "op": "OR",
@@ -45,6 +47,7 @@
       "stack": [
         "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
       ]
-    }
+    },
+    "environment": {}
   }
 ]
