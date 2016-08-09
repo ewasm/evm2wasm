@@ -27,6 +27,9 @@ const interfaceImportMap = {
   },
   'caller': {
     'inputs': [ 'i32' ]
+  },
+  'address': {
+    'inputs': [ 'i32' ]
   }
 }
 
