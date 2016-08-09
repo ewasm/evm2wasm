@@ -14,6 +14,7 @@
   (local $length2 i64)
   (local $length3 i64)
 
+  (local $cost i32)
   (local $contextOffset i32)
   (local $outputOffset i32)
 
@@ -46,6 +47,16 @@
 
   (set_local $contextOffset (i32.const 32808))
   (set_local $outputOffset (i32.const 33800))
+
+  ;; 30 + words * 6
+  (set_local $cost
+     (i32.add
+       (i32.const 30)
+       (i32.mul (i32.div_u (get_local $length) (i32.const 32)) (i32.const 6))
+     )
+  )
+
+  (call_import $useGas (get_local $cost))
 
   (call $KECCAK (get_local $contextOffset) (get_local $dataOffset) (get_local $length) (get_local $outputOffset))
 
