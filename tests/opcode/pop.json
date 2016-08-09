@@ -1,0 +1,15 @@
+[
+{
+  "op": "POP",
+  "value": "0x50",
+  "description": "one item on stack",
+  "stack": {
+    "in": [
+      "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+    ],
+    "out": [
+    ]
+  },
+  "state": "running"
+}
+]
