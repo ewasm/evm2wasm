@@ -175,7 +175,7 @@ function buildJumpMap (segments) {
   let brTable = '(block $0 (br_table'
 
   segments.forEach((seg, index) => {
-    brTable += ' $' + index
+    brTable += ' $' + (index + 1)
     wasm = `(if (i32.eq (get_local $jump_dest) (i32.const ${seg[1]}))
                 (then (i32.const ${index}))
                 (else ${wasm}))`
