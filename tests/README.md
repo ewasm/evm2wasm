@@ -26,6 +26,7 @@ The opcode tests are design to test individual opcodes
       "index": 32 byte memory segment in hex
     },
     "return": the resulting return value if any
+    "cacluatedGasUsed": the gas used by the operation not including it base gas cost 
   }
 }]
 ```

@@ -47,6 +47,7 @@ tape('testing EVM1 Ops', (t) => {
 
       // populate the stack with predefined values
       const stack = test.in.stack.map((i) => new Buffer(i.slice(2), 'hex'))
+      const startGas = '100000000000000000'
 
       const runState = {
         memoryWordCount: 0,
@@ -54,7 +55,7 @@ tape('testing EVM1 Ops', (t) => {
         stack: stack,
         opCode: parseInt(test.value),
         highestMemCost: new BN(0),
-        gasLeft: new BN("100000000000000000"),
+        gasLeft: new BN(startGas),
         caller: test.environment.caller
       }
 
@@ -66,7 +67,7 @@ tape('testing EVM1 Ops', (t) => {
         }
       }
 
-      // Runs the opcode. 
+      // Runs the opcode.
       const noStack = new Set(['DUP', 'SWAP'])
       let args = []
       if (noStack.has(test.op)) {
@@ -80,6 +81,12 @@ tape('testing EVM1 Ops', (t) => {
       const result = opFunc[test.op](...args)
       if (result) {
         runState.stack.push(result)
+      }
+
+      // console.log('gasUssed: ' + new BN(startGas).sub(runState.gasLeft));
+      // check that gasUsed
+      if (test.out.gasUsed){
+        t.equals(new BN(startGas).sub(runState.gasLeft).toNumber(), test.out.gasUsed, 'should use the correct amount of gas');
       }
 
       test.out.stack.forEach((item, index) => {
