@@ -57,7 +57,7 @@ tape('testing EVM1 Ops', (t) => {
       // that the sp is pointing to memory segment holding the last stack item
       let sp = (test.in.stack.length - 1) * 32 
       sp = testInstance.exports[test.op](...(test.params || []), sp) + 32
-      t.equal(sp / 32, test.out.stack.length, 'should have corrent number of items on the stack')
+      t.equal(sp / 32, test.out.stack.length, 'should have correct number of items on the stack')
       sp = 0
 
       // compare the output stack against the predefined values
