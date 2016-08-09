@@ -3,75 +3,96 @@
     "op": "DIV",
     "value": "0x04",
     "description": "2^255 / 2^255",
-    "stack": {
-      "in": [
+    "in": {
+      "stack": [
         "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
         "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
-      ],
-      "out": ["0x0000000000000000000000000000000000000000000000000000000000000001"]
+      ]
     },
-    "state": "running"
-  }, {
+    "out": {
+      "stack": [
+        "0x0000000000000000000000000000000000000000000000000000000000000001"
+      ]
+    }
+  },
+  {
     "op": "DIV",
     "value": "0x04",
     "description": "2^255 / 0",
-    "stack": {
-      "in": [
+    "in": {
+      "stack": [
         "0x0000000000000000000000000000000000000000000000000000000000000000",
         "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
-      ],
-      "out": ["0x0000000000000000000000000000000000000000000000000000000000000000"]
+      ]
     },
-    "state": "running"
-  },{
+    "out": {
+      "stack": [
+        "0x0000000000000000000000000000000000000000000000000000000000000000"
+      ]
+    }
+  },
+  {
     "op": "DIV",
     "value": "0x04",
     "description": "2^255 / 2",
-    "stack": {
-      "in": [
+    "in": {
+      "stack": [
         "0x0000000000000000000000000000000000000000000000000000000000000002",
         "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
-      ],
-      "out": ["0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"]
+      ]
     },
-    "state": "running"
-  }, {
+    "out": {
+      "stack": [
+        "0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+      ]
+    }
+  },
+  {
     "op": "DIV",
     "value": "0x04",
     "description": "2 / 2^255",
-    "stack": {
-      "in": [
+    "in": {
+      "stack": [
         "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
         "0x0000000000000000000000000000000000000000000000000000000000000002"
-      ],
-      "out": ["0x0000000000000000000000000000000000000000000000000000000000000000"]
+      ]
     },
-    "state": "running"
-  }, {
+    "out": {
+      "stack": [
+        "0x0000000000000000000000000000000000000000000000000000000000000000"
+      ]
+    }
+  },
+  {
     "op": "DIV",
     "value": "0x04",
     "description": "1/2",
-    "stack": {
-      "in": [
+    "in": {
+      "stack": [
         "0x0000000000000000000000000000000000000000000000000000000000000002",
         "0x0000000000000000000000000000000000000000000000000000000000000001"
-      ],
-      "out": ["0x0000000000000000000000000000000000000000000000000000000000000000"]
+      ]
     },
-    "state": "running"
+    "out": {
+      "stack": [
+        "0x0000000000000000000000000000000000000000000000000000000000000000"
+      ]
+    }
   },
-   {
+  {
     "op": "DIV",
     "value": "0x04",
     "description": "19/2",
-    "stack": {
-      "in": [
+    "in": {
+      "stack": [
         "0x0000000000000000000000000000000000000000000000000000000000000002",
         "0x0000000000000000000000000000000000000000000000000000000000000013"
-      ],
-      "out": ["0x0000000000000000000000000000000000000000000000000000000000000009"]
+      ]
     },
-    "state": "running"
+    "out": {
+      "stack": [
+        "0x0000000000000000000000000000000000000000000000000000000000000009"
+      ]
+    }
   }
-
 ]

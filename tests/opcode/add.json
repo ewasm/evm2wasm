@@ -1,40 +1,50 @@
-[{
-  "op": "ADD",
-  "value": "0x01",
-  "description": "2^255 + 2^255",
-  "in": {
-    "stack": [
-      "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
-      "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
-    ]
+[
+  {
+    "op": "ADD",
+    "value": "0x01",
+    "description": "2^255 + 2^255",
+    "in": {
+      "stack": [
+        "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+      ]
+    },
+    "out": {
+      "stack": [
+        "0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe"
+      ]
+    }
   },
-  "out": {
-    "stack": ["0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe"]
-  }
-}, {
-  "op": "ADD",
-  "value": "0x01",
-  "description": "2^255 + 0",
-  "in": {
-    "stack": [
-      "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
-      "0x0000000000000000000000000000000000000000000000000000000000000000"
-    ]
+  {
+    "op": "ADD",
+    "value": "0x01",
+    "description": "2^255 + 0",
+    "in": {
+      "stack": [
+        "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "0x0000000000000000000000000000000000000000000000000000000000000000"
+      ]
+    },
+    "out": {
+      "stack": [
+        "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+      ]
+    }
   },
-  "out": {
-    "stack": ["0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"]
+  {
+    "op": "ADD",
+    "value": "0x01",
+    "description": "2 + 2",
+    "in": {
+      "stack": [
+        "0x0000000000000000000000000000000000000000000000000000000000000002",
+        "0x0000000000000000000000000000000000000000000000000000000000000002"
+      ]
+    },
+    "out": {
+      "stack": [
+        "0x0000000000000000000000000000000000000000000000000000000000000004"
+      ]
+    }
   }
-}, {
-  "op": "ADD",
-  "value": "0x01",
-  "description": "2 + 2",
-  "in": {
-    "stack": [
-      "0x0000000000000000000000000000000000000000000000000000000000000002",
-      "0x0000000000000000000000000000000000000000000000000000000000000002"
-    ]
-  },
-  "out": {
-    "stack": ["0x0000000000000000000000000000000000000000000000000000000000000004"]
-  }
-}]
+]

@@ -3,74 +3,96 @@
     "op": "EXP",
     "value": "0x0a",
     "description": "(2^256 - 1) ^ (2^256 - 1)",
-    "stack": {
-      "in": [
+    "in": {
+      "stack": [
         "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
         "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
-      ],
-      "out": ["0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"]
+      ]
     },
-    "state": "running"
-  }, {
+    "out": {
+      "stack": [
+        "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+      ]
+    }
+  },
+  {
     "op": "EXP",
     "value": "0x0a",
     "description": "(2^256 -1) ^ 0",
-    "stack": {
-      "in": [
+    "in": {
+      "stack": [
         "0x0000000000000000000000000000000000000000000000000000000000000000",
         "0xfhttp://www.comp.nus.edu.sg/~loiluu/#fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
-      ],
-      "out": ["0x0000000000000000000000000000000000000000000000000000000000000001"]
+      ]
     },
-    "state": "running"
-  },{
+    "out": {
+      "stack": [
+        "0x0000000000000000000000000000000000000000000000000000000000000001"
+      ]
+    }
+  },
+  {
     "op": "EXP",
     "value": "0x0a",
     "description": "(2^256 - 1) ^ 2",
-
-    "stack": {
-      "in": [
+    "in": {
+      "stack": [
         "0x0000000000000000000000000000000000000000000000000000000000000002",
         "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
-      ],
-      "out": ["0x0000000000000000000000000000000000000000000000000000000000000001"]
+      ]
     },
-    "state": "running"
-  }, {
+    "out": {
+      "stack": [
+        "0x0000000000000000000000000000000000000000000000000000000000000001"
+      ]
+    }
+  },
+  {
     "op": "EXP",
     "value": "0x0a",
     "description": "2 ^ (2^256 - 1)",
-    "stack": {
-      "in": [
+    "in": {
+      "stack": [
         "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
         "0x0000000000000000000000000000000000000000000000000000000000000002"
-      ],
-      "out": ["0x0000000000000000000000000000000000000000000000000000000000000000"]
+      ]
     },
-    "state": "running"
-  }, {
+    "out": {
+      "stack": [
+        "0x0000000000000000000000000000000000000000000000000000000000000000"
+      ]
+    }
+  },
+  {
     "op": "EXP",
     "value": "0x0a",
     "description": "1 ^ 2",
-    "stack": {
-      "in": [
+    "in": {
+      "stack": [
         "0x0000000000000000000000000000000000000000000000000000000000000002",
         "0x0000000000000000000000000000000000000000000000000000000000000001"
-      ],
-      "out": ["0x0000000000000000000000000000000000000000000000000000000000000001"]
+      ]
     },
-    "state": "running"
-  },{
+    "out": {
+      "stack": [
+        "0x0000000000000000000000000000000000000000000000000000000000000001"
+      ]
+    }
+  },
+  {
     "op": "EXP",
     "value": "0x0a",
     "description": "2 ^ 2",
-    "stack": {
-      "in": [
+    "in": {
+      "stack": [
         "0x0000000000000000000000000000000000000000000000000000000000000002",
         "0x0000000000000000000000000000000000000000000000000000000000000002"
-      ],
-      "out": ["0x0000000000000000000000000000000000000000000000000000000000000004"]
+      ]
     },
-    "state": "running"
+    "out": {
+      "stack": [
+        "0x0000000000000000000000000000000000000000000000000000000000000004"
+      ]
+    }
   }
 ]

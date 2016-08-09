@@ -1,62 +1,66 @@
 [
-{
-  "op": "AND",
-  "value": "0x16",
-  "description": "0xcc & 0x33",
-  "stack": {
-    "in": [
-      "0x3333333333333333333333333333333333333333333333333333333333333333",
-      "0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
-    ],
-    "out": [
-      "0x0000000000000000000000000000000000000000000000000000000000000000"
-    ]
+  {
+    "op": "AND",
+    "value": "0x16",
+    "description": "0xcc & 0x33",
+    "in": {
+      "stack": [
+        "0x3333333333333333333333333333333333333333333333333333333333333333",
+        "0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+      ]
+    },
+    "out": {
+      "stack": [
+        "0x0000000000000000000000000000000000000000000000000000000000000000"
+      ]
+    }
   },
-  "state": "running"
-},
-{
-  "op": "AND",
-  "value": "0x16",
-  "description": "0x33 & 0x33",
-  "stack": {
-    "in": [
-      "0x3333333333333333333333333333333333333333333333333333333333333333",
-      "0x3333333333333333333333333333333333333333333333333333333333333333"
-    ],
-    "out": [
-      "0x3333333333333333333333333333333333333333333333333333333333333333"
-    ]
+  {
+    "op": "AND",
+    "value": "0x16",
+    "description": "0x33 & 0x33",
+    "in": {
+      "stack": [
+        "0x3333333333333333333333333333333333333333333333333333333333333333",
+        "0x3333333333333333333333333333333333333333333333333333333333333333"
+      ]
+    },
+    "out": {
+      "stack": [
+        "0x3333333333333333333333333333333333333333333333333333333333333333"
+      ]
+    }
   },
-  "state": "running"
-},
-{
-  "op": "AND",
-  "value": "0x16",
-  "description": "0xff & 0xf0",
-  "stack": {
-    "in": [
-      "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
-      "0xf0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0"
-    ],
-    "out": [
-      "0xf0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0"
-    ]
+  {
+    "op": "AND",
+    "value": "0x16",
+    "description": "0xff & 0xf0",
+    "in": {
+      "stack": [
+        "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "0xf0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0"
+      ]
+    },
+    "out": {
+      "stack": [
+        "0xf0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0"
+      ]
+    }
   },
-  "state": "running"
-},
-{
-  "op": "AND",
-  "value": "0x16",
-  "description": "0xff & 0x00",
-  "stack": {
-    "in": [
-      "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
-      "0xffffffffffffffffffffffffffffffff00000000000000000000000000000000"
-    ],
-    "out": [
-      "0xffffffffffffffffffffffffffffffff00000000000000000000000000000000"
-    ]
-  },
-  "state": "running"
-}
+  {
+    "op": "AND",
+    "value": "0x16",
+    "description": "0xff & 0x00",
+    "in": {
+      "stack": [
+        "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "0xffffffffffffffffffffffffffffffff00000000000000000000000000000000"
+      ]
+    },
+    "out": {
+      "stack": [
+        "0xffffffffffffffffffffffffffffffff00000000000000000000000000000000"
+      ]
+    }
+  }
 ]

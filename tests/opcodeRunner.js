@@ -70,19 +70,18 @@ tape('testing EVM1 Ops', (t) => {
       // check the memory
       if (test.out.memory) {
         Object.keys(test.out.memory).forEach((offset) => {
-          test.out.memory[offset].forEach((item, index) => {
             offset |= 0
-            offset += EVM_MEMORY_OFFSET
+            const item = test.out.memory[offset]
             const expectedItem = hexToUint8Array(item)
-            const result = getMemory(testInstance, offset + index * 32, offset + index * 32 + expectedItem.length)
-            t.equals(result.toString(), expectedItem.toString(), `should have the correct memory slot at ${offset}:${index}`)
-          })
+            offset += EVM_MEMORY_OFFSET
+            const result = getMemory(testInstance, offset, offset + expectedItem.length)
+            t.equals(result.toString(), expectedItem.toString(), `should have the correct memory slot at ${offset}`)
         })
       }
 
       // check for EVM return value
       if (test.out.return) {
-        const expectedItem = hexToUint8Array(test.return)
+        const expectedItem = hexToUint8Array(test.out.return)
         const result = testEnvironment.returnValue
         t.equals(result.toString(), expectedItem.toString(), 'should have correct return value')
       }

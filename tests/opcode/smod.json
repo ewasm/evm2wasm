@@ -3,61 +3,80 @@
     "op": "SMOD",
     "value": "0x07",
     "description": "-1 mod -1",
-    "stack": {
-      "in": [
+    "in": {
+      "stack": [
         "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
         "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
-      ],
-      "out": ["0x0000000000000000000000000000000000000000000000000000000000000000"]
+      ]
     },
-    "state": "running"
-  }, {
+    "out": {
+      "stack": [
+        "0x0000000000000000000000000000000000000000000000000000000000000000"
+      ]
+    }
+  },
+  {
     "op": "SMOD",
     "value": "0x07",
     "description": "-1 mod 0",
-    "stack": {
-      "in": [
+    "in": {
+      "stack": [
         "0x0000000000000000000000000000000000000000000000000000000000000000",
         "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
-      ],
-      "out": ["0x0000000000000000000000000000000000000000000000000000000000000000"]
+      ]
     },
-    "state": "running"
-  },{
+    "out": {
+      "stack": [
+        "0x0000000000000000000000000000000000000000000000000000000000000000"
+      ]
+    }
+  },
+  {
     "op": "SMOD",
     "value": "0x07",
     "description": "-1 mod 2",
-    "stack": {
-      "in": [
+    "in": {
+      "stack": [
         "0x0000000000000000000000000000000000000000000000000000000000000002",
         "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
-      ],
-      "out": ["0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"]
+      ]
     },
-    "state": "running"
-  }, {
+    "out": {
+      "stack": [
+        "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+      ]
+    }
+  },
+  {
     "op": "SMOD",
     "value": "0x07",
     "description": "2 mod -1",
-    "stack": {
-      "in": [
+    "in": {
+      "stack": [
         "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
         "0x0000000000000000000000000000000000000000000000000000000000000002"
-      ],
-      "out": ["0x0000000000000000000000000000000000000000000000000000000000000000"]
+      ]
     },
-    "state": "running"
-  }, {
+    "out": {
+      "stack": [
+        "0x0000000000000000000000000000000000000000000000000000000000000000"
+      ]
+    }
+  },
+  {
     "op": "SMOD",
     "value": "0x07",
     "description": "1 mod 2",
-    "stack": {
-      "in": [
+    "in": {
+      "stack": [
         "0x0000000000000000000000000000000000000000000000000000000000000002",
         "0x0000000000000000000000000000000000000000000000000000000000000001"
-      ],
-      "out": ["0x0000000000000000000000000000000000000000000000000000000000000001"]
+      ]
     },
-    "state": "running"
+    "out": {
+      "stack": [
+        "0x0000000000000000000000000000000000000000000000000000000000000001"
+      ]
+    }
   }
 ]
