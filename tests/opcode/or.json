@@ -1,47 +1,50 @@
 [
-{
-  "op": "OR",
-  "value": "0x17",
-  "description": "0xcc... | 0x33...",
-  "stack": {
-    "in": [
-      "0x3333333333333333333333333333333333333333333333333333333333333333",
-      "0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
-    ],
-    "out": [
-      "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
-    ]
+  {
+    "op": "OR",
+    "value": "0x17",
+    "description": "0xcc... | 0x33...",
+    "in": {
+      "stack": [
+        "0x3333333333333333333333333333333333333333333333333333333333333333",
+        "0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+      ]
+    },
+    "out": {
+      "stack": [
+        "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+      ]
+    }
   },
-  "state": "running"
-},
-{
-  "op": "OR",
-  "value": "0x17",
-  "description": "0xcc00.. | 0x0033..",
-  "stack": {
-    "in": [
-      "0x0033003300330033003300330033003300330033003300330033003300330033",
-      "0xcc00cc00cc00cc00cc00cc00cc00cc00cc00cc00cc00cc00cc00cc00cc00cc00"
-    ],
-    "out": [
-      "0xcc33cc33cc33cc33cc33cc33cc33cc33cc33cc33cc33cc33cc33cc33cc33cc33"
-    ]
+  {
+    "op": "OR",
+    "value": "0x17",
+    "description": "0xcc00.. | 0x0033..",
+    "in": {
+      "stack": [
+        "0x0033003300330033003300330033003300330033003300330033003300330033",
+        "0xcc00cc00cc00cc00cc00cc00cc00cc00cc00cc00cc00cc00cc00cc00cc00cc00"
+      ]
+    },
+    "out": {
+      "stack": [
+        "0xcc33cc33cc33cc33cc33cc33cc33cc33cc33cc33cc33cc33cc33cc33cc33cc33"
+      ]
+    }
   },
-  "state": "running"
-},
-{
-  "op": "OR",
-  "value": "0x17",
-  "description": "0xaa | 0x00",
-  "stack": {
-    "in": [
-      "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa00000000000000000000000000000000",
-      "0x00000000000000000000000000000000aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-    ],
-    "out": [
-      "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-    ]
-  },
-  "state": "running"
-}
+  {
+    "op": "OR",
+    "value": "0x17",
+    "description": "0xaa | 0x00",
+    "in": {
+      "stack": [
+        "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa00000000000000000000000000000000",
+        "0x00000000000000000000000000000000aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      ]
+    },
+    "out": {
+      "stack": [
+        "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      ]
+    }
+  }
 ]

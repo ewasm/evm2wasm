@@ -42,7 +42,6 @@ tape('testing EVM1 Ops', (t) => {
   testFiles.forEach((path) => {
     let opTest = require(`${dir}/${path}`)
     opTest.forEach((test) => {
-
       // FIXME: have separate `t.test()` for better grouping
       t.comment(`testing ${test.op} ${test.description}`)
 
@@ -60,10 +59,8 @@ tape('testing EVM1 Ops', (t) => {
       // populate the memory
       if (test.memory && test.memory.in) {
         for(let item in test.memory.in){
-          item |= 0
-          const memIn = new Buffer(test.memory.in[item][0].slice(2), 'hex')
+          const memIn = new Buffer(test.memory.in[item].slice(2), 'hex')
           runState.memory.splice(item, 32, ...memIn)
-
         }
       }
 

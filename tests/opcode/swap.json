@@ -1,39 +1,44 @@
-[{
-  "op": "SWAP",
-  "value": "0x90",
-  "description": "SWAP0",
-  "params": [
-    0
-  ],
-  "stack": {
-    "in": [
-      "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
-      "0x4242000000000000000000000000000000000000000000000000000000004242"
+[
+  {
+    "op": "SWAP",
+    "value": "0x90",
+    "description": "SWAP0",
+    "params": [
+      0
     ],
-    "out": [
-      "0x4242000000000000000000000000000000000000000000000000000000004242",
-      "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
-    ]
+    "in": {
+      "stack": [
+        "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "0x4242000000000000000000000000000000000000000000000000000000004242"
+      ]
+    },
+    "out": {
+      "stack": [
+        "0x4242000000000000000000000000000000000000000000000000000000004242",
+        "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+      ]
+    }
   },
-  "state": "running"
-},{
-  "op": "SWAP",
-  "value": "0x91",
-  "description": "SWAP1",
-  "params": [
-    1
-  ],
-  "stack": {
-    "in": [
-      "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
-      "0x4242000000000000000000000000000000000000000000000000000000004242",
-      "0x0000000000000000000000000000000000000000000000000000000000000000"
+  {
+    "op": "SWAP",
+    "value": "0x91",
+    "description": "SWAP1",
+    "params": [
+      1
     ],
-    "out": [
-      "0x0000000000000000000000000000000000000000000000000000000000000000",
-      "0x4242000000000000000000000000000000000000000000000000000000004242",
-      "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
-    ]
-  },
-  "state": "running"
-}]
+    "in": {
+      "stack": [
+        "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "0x4242000000000000000000000000000000000000000000000000000000004242",
+        "0x0000000000000000000000000000000000000000000000000000000000000000"
+      ]
+    },
+    "out": {
+      "stack": [
+        "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "0x4242000000000000000000000000000000000000000000000000000000004242",
+        "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+      ]
+    }
+  }
+]

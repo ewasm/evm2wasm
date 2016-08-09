@@ -1,16 +1,18 @@
-[{
-  "op": "CALLER",
-  "value": "0x33",
-  "description": "return 0x5d48c1018904a172886829bbbd9c6f4a2d06c47b",
-  "environment": {
-    "caller": "0x5d48c1018904a172886829bbbd9c6f4a2d06c47b"
-  },
-  "stack": {
-    "in": [
-    ],
-    "out": [
-      "0x0000000000000000000000005d48c1018904a172886829bbbd9c6f4a2d06c47b"
-    ]
-  },
-  "state": "running"
-}]
+[
+  {
+    "op": "CALLER",
+    "value": "0x33",
+    "description": "return 0x5d48c1018904a172886829bbbd9c6f4a2d06c47b",
+    "environment": {
+      "caller": "0x5d48c1018904a172886829bbbd9c6f4a2d06c47b"
+    },
+    "in": {
+      "stack": []
+    },
+    "out": {
+      "stack": [
+        "0x0000000000000000000000005d48c1018904a172886829bbbd9c6f4a2d06c47b"
+      ]
+    }
+  }
+]

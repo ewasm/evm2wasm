@@ -3,74 +3,96 @@
     "op": "MOD",
     "value": "0x06",
     "description": "(2^255 - 1) mod (2^255 - 1)",
-    "stack": {
-      "in": [
+    "in": {
+      "stack": [
         "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
         "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
-      ],
-      "out": ["0x0000000000000000000000000000000000000000000000000000000000000000"]
+      ]
     },
-    "state": "running"
-  }, {
+    "out": {
+      "stack": [
+        "0x0000000000000000000000000000000000000000000000000000000000000000"
+      ]
+    }
+  },
+  {
     "op": "MOD",
     "value": "0x06",
     "description": "(2^255 -1) mod 0",
-    "stack": {
-      "in": [
+    "in": {
+      "stack": [
         "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
         "0x0000000000000000000000000000000000000000000000000000000000000000"
-      ],
-      "out": ["0x0000000000000000000000000000000000000000000000000000000000000000"]
+      ]
     },
-    "state": "running"
-  },{
+    "out": {
+      "stack": [
+        "0x0000000000000000000000000000000000000000000000000000000000000000"
+      ]
+    }
+  },
+  {
     "op": "MOD",
     "value": "0x06",
     "description": "(2^256 - 1) mod 2",
-    "stack": {
-      "in": [
+    "in": {
+      "stack": [
         "0x0000000000000000000000000000000000000000000000000000000000000002",
         "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
-      ],
-      "out": ["0x0000000000000000000000000000000000000000000000000000000000000001"]
+      ]
     },
-    "state": "running"
-  }, {
+    "out": {
+      "stack": [
+        "0x0000000000000000000000000000000000000000000000000000000000000001"
+      ]
+    }
+  },
+  {
     "op": "MOD",
     "value": "0x06",
     "description": "2 mod (2^256 - 1)",
-    "stack": {
-      "in": [
+    "in": {
+      "stack": [
         "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
         "0x0000000000000000000000000000000000000000000000000000000000000002"
-      ],
-      "out": ["0x0000000000000000000000000000000000000000000000000000000000000002"]
+      ]
     },
-    "state": "running"
-  }, {
+    "out": {
+      "stack": [
+        "0x0000000000000000000000000000000000000000000000000000000000000002"
+      ]
+    }
+  },
+  {
     "op": "MOD",
     "value": "0x06",
     "description": "1 mod 2",
-    "stack": {
-      "in": [
+    "in": {
+      "stack": [
         "0x0000000000000000000000000000000000000000000000000000000000000002",
         "0x0000000000000000000000000000000000000000000000000000000000000001"
-      ],
-      "out": ["0x0000000000000000000000000000000000000000000000000000000000000001"]
+      ]
     },
-    "state": "running"
-  },{
+    "out": {
+      "stack": [
+        "0x0000000000000000000000000000000000000000000000000000000000000001"
+      ]
+    }
+  },
+  {
     "op": "MOD",
     "value": "0x06",
     "description": "(2^256 -1) mod (2^256 - 2)",
-    "stack": {
-      "in": [
+    "in": {
+      "stack": [
         "0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe",
         "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
-      ],
-      "out": ["0x0000000000000000000000000000000000000000000000000000000000000001"]
+      ]
     },
-    "state": "running"
+    "out": {
+      "stack": [
+        "0x0000000000000000000000000000000000000000000000000000000000000001"
+      ]
+    }
   }
-
 ]
