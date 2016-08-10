@@ -1,5 +1,4 @@
 ;; MSTORE(word: sp[-1], offset: sp[-2])
-(import $print "debug" "print" (param i32))
 (func $MSTORE
   (param $sp i32)
   (result i32)
