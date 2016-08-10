@@ -91,15 +91,18 @@ exports.compileEVM = function (evmCode, stackTrace) {
       case 'PUSH':
         i++
         bytes = evmCode.slice(i, i + op.number)
-        let q = 0
-        for (; q < bytes.length; q += 8) {
-          const int64 = bytes2int64(bytes.slice(q, q + 8))
+        const bytesRounded = Math.ceil(bytes.length / 8) * 8
+
+        for (let q = bytesRounded; q > 0; q -= 8) {
+          const int64 = bytes2int64(bytes.slice(q - 8, q))
           wasmCode = `(i64.const ${int64})` + wasmCode
         }
+
         // padd the remaining of the word with 0
-        for (; q < 32; q += 8) {
+        for (let q = 32; q > bytesRounded; q -= 8) {
           wasmCode = '(i64.const 0)' + wasmCode
         }
+
         i += op.number - 1
         break
       case 'DUP':
