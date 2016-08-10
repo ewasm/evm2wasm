@@ -3,6 +3,7 @@
   (param $sp i32)
 
   (result i32)
+
   (local $sp_ref i32)
 
   (local $topa i64)

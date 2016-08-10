@@ -2,6 +2,7 @@
 (func $ADD
   (param $sp i32)
   (result i32)
+
   (local $a i64)
   (local $c i64)
   (local $d i64)

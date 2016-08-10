@@ -1,6 +1,7 @@
 (func $ADDMOD
   (param $sp i32)
   (result i32)
+
   (local $a i64)
   (local $b i64)
   (local $c i64)
@@ -198,6 +199,7 @@
   (param i64)
   (param i64)
   (result i32)
+
   (i64.eqz (i64.or (i64.or (i64.or (i64.or (get_local 0) (get_local 1)) (get_local 2)) (get_local 3)) (get_local 4)))
 )
 
@@ -215,6 +217,7 @@
   (param $b4 i64)
 
   (result i32)
+
   ;; a0 > b0 || (a0 == b0 && (a1 > b1 || (a1 == b1 && (a2 > b2 || (a2 == b2 && a3 >= b3 ) ))))
   (i32.or  (i64.gt_u (get_local $a0) (get_local $b0)) ;; a0 > b0
   (i32.and (i64.eq   (get_local $a0) (get_local $b0))

@@ -1,12 +1,12 @@
 ;; is zero
 (func $ISZERO
+  (param $sp i32)
+  (result i32)
+
   (local $a0 i64)
   (local $a1 i64)
   (local $a2 i64)
   (local $a3 i64)
-
-  (param $sp i32)
-  (result i32)
 
   ;; load args from the stack
   (set_local $a0 (i64.load (i32.add (get_local $sp) (i32.const 24))))

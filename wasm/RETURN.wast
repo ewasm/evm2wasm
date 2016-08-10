@@ -1,6 +1,8 @@
 ;; RETURN(length: sp[-1], offset: sp[-2])
 (func $RETURN
   (param $sp i32)
+  (result i32)
+
   ;;(param $memstart i32)
   (local $memstart i32)
   (local $offset i32)
@@ -13,7 +15,6 @@
   (local $length1 i64)
   (local $length2 i64)
   (local $length3 i64)
-  (result i32)
 
   (set_local $memstart (i32.const 33832))
 

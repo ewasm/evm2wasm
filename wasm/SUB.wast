@@ -1,6 +1,7 @@
 ;; Subtraction 0x03
 (func $SUB
   (param $sp i32)
+  (result i32)
 
   (local $a i64)
   (local $b i64)
@@ -14,8 +15,6 @@
 
   (local $carry i64)
   (local $temp i64)
-  (result i32)
-
 
   (set_local $a (i64.load (i32.add (get_local $sp) (i32.const 24))))
   (set_local $b (i64.load (i32.add (get_local $sp) (i32.const 16))))

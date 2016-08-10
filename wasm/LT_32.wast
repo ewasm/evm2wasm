@@ -10,6 +10,7 @@
   (param $b3 i64)
 
   (result i32)
+
   ;; a0 < b0 || (a0 == b0 && (a1 < b1 || (a1 == b1 && (a2 < b2 || (a2 == b2 && a3 < b3 ) ))))
   (i32.or  (i64.lt_u (get_local $a0) (get_local $b0)) ;; a0 < b0
   (i32.and (i64.eq   (get_local $a0) (get_local $b0)) ;; a0 == b0

@@ -1,7 +1,8 @@
 (func $CALLER
   (param $sp i32)
-  (local $scratch i32)
   (result i32)
+
+  (local $scratch i32)
 
   ;; there's no input item for us to overwrite
   (set_local $sp (i32.add (get_local $sp) (i32.const 32)))

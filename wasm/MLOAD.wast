@@ -1,6 +1,8 @@
 ;; MLOAD(offset: sp[-2])
 (func $MLOAD
   (param $sp i32)
+  (result i32)
+
   ;;(param $memstart i32)
   (local $memstart i32)
   (local $offset i32)
@@ -8,7 +10,6 @@
   (local $offset1 i64)
   (local $offset2 i64)
   (local $offset3 i64)
-  (result i32)
 
   (set_local $memstart (i32.const 33832))
 
