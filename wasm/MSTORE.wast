@@ -4,7 +4,6 @@
   (param $sp i32)
   (result i32)
 
-  ;;(param $memstart i32)
   (local $memstart i32)
   (local $offset i32)
   
