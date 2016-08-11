@@ -1,0 +1,19 @@
+[
+  {
+    "description": "6/2",
+    "source": [
+      "PUSH1",
+      "0x02",
+      "PUSH1",
+      "0x06",
+      "DIV"
+    ],
+    "code": "0x6002600604",
+    "result": {
+      "stack": [
+        "0x03"
+      ],
+      "memory": []
+    }
+  }
+]
