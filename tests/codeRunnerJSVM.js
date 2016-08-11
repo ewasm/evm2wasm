@@ -13,14 +13,17 @@ tape('testing js VM', (t) => {
     async.eachSeries(codeTests, (test, cb1) => {
       t.comment(test.description)
       const vm = new VM()
+      vm.on('step', (info) => {
+        console.log(info.opcode.name);
+      })
       vm.runCode({
         code: new Buffer(test.code.slice(2), 'hex'),
         gasLimit: new BN(90000)
       }, (err, results) => {
         // check the results
         const stack = results.runState.stack
-        stack.forEach((item, index) => {
-          t.equals('0x' + item.toString('hex'), test.result.stack[index])
+        test.result.stack.forEach((item, index) => {
+          t.equals('0x' + stack[index].toString('hex'), item)
         })
         cb1()
       })
