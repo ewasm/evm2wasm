@@ -58,8 +58,13 @@ tape('testing EVM1 Ops', (t) => {
       // Runs the opcode. An empty stack must start with the stack pointer at -8.
       // also we have to add 8 to the resulting sp to accommodate for the fact
       // that the sp is pointing to memory segment holding the last stack item
-      let sp = (test.in.stack.length - 1) * 32 
-      sp = testInstance.exports[test.op](...(test.params || []), sp) + 32
+      let sp = (test.in.stack.length - 1) * 32
+
+      try {
+        sp = testInstance.exports[test.op](...(test.params || []), sp) + 32
+      } catch(e) {
+        t.fail('WASM exception: ' + e)
+      }
 
       if (isNaN(sp)) {
         t.fail('methods should return the stack pointer')

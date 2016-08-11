@@ -12,7 +12,13 @@ tape('testing transcompiler', (t) => {
     let codeTests = require(dir + path)
     codeTests.forEach((test) => {
       t.comment(test.description)
-      const testInstance = buildTest(test.code)
+      let testInstance
+      try {
+        testInstance = buildTest(test.code)
+      } catch (e) {
+        t.fail('WASM exception: ' + e)
+        return
+      }
       // check the results
       test.result.stack.forEach((item, index) => {
         const sp = index * 32
