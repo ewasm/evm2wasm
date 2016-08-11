@@ -40,9 +40,17 @@ The eWASM contract memory layout is currently as follows:
 +---------------------------------------------------
 | Reserved space for the SHA3 context (1024 bytes)
 +---------------------------------------------------
+| Length of original EVM bytecode (4 bytes)
+| (This is needed for CODECOPY and CODESIZE)
++---------------------------------------------------
+| Copy of original EVM bytecode (variable size)
+| (This is needed for CODECOPY)
++---------------------------------------------------
 | Contract memory starts here ("unlimited" in size)
 `---------------------------------------------------
 ```
+
+NOTE: the memory layout will change when [*global variables*](https://github.com/WebAssembly/design/blob/master/AstSemantics.md#global-variables) are introduced in WebAssembly.
 
 ### Gas metering
 
