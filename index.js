@@ -54,10 +54,11 @@ exports.compileEVM = function (evmCode, stackTrace) {
   const opcodesUsed = new Set()
   const opcodesIgnore = new Set(['JUMP', 'JUMPI', 'JUMPDEST', 'STOP', 'RETURN'])
   const initCode = '(get_local $sp)'
-  let wasmCode = initCode
   const segments = []
+  let wasmCode = initCode
   let segNumber = 0
   let gasCount = 0
+  let jumpFound = false
 
   for (let i = 0; i < evmCode.length; i++) {
     const opint = evmCode[i]
@@ -66,13 +67,18 @@ exports.compileEVM = function (evmCode, stackTrace) {
     let bytes
     switch (op.name) {
       case 'JUMP':
-        wasmCode = `(set_local $sp ${wasmCode})
+        jumpFound = true
+        wasmCode = `;; jump
+                    (set_local $sp ${wasmCode})
                     (set_local $jump_dest (i32.load (get_local $sp)))
                     (set_local $sp (i32.sub (get_local $sp) (i32.const 32)))
                     (br $loop)`
+        i = findNextJumpDest(evmCode, i)
         break
       case 'JUMPI':
-        wasmCode = `(set_local $sp ${wasmCode})
+        jumpFound = true
+        wasmCode = ` ;; jumpi
+                    (set_local $sp ${wasmCode})
                     (set_local $jump_dest (i32.load (get_local $sp)))
                     (set_local $sp (i32.sub (get_local $sp) (i32.const 32)))
                     (set_local $scratch (i64.or
@@ -129,12 +135,20 @@ exports.compileEVM = function (evmCode, stackTrace) {
         break
       case 'STOP':
         wasmCode = `${wasmCode} (br $done)`
-        i = findNextJumpDest(evmCode, i)
+        if (jumpFound) {
+          i = findNextJumpDest(evmCode, i)
+        } else {
+          i = evmCode.length
+        }
         break
       case 'RETURN':
         wasmCode = `\n(call $${op.name} ${wasmCode}) (br $done)`
         opcodesUsed.add(op.name)
-        i = findNextJumpDest(evmCode, i)
+        if (jumpFound) {
+          i = findNextJumpDest(evmCode, i)
+        } else {
+          i = evmCode.length
+        }
         break
       case 'INVALID':
         throw new Error('Invalid opcode ' + evmCode[i].toString(16))
