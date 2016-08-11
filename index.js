@@ -76,7 +76,7 @@ exports.compileEVM = function (evmCode, stackTrace) {
         i = findNextJumpDest(evmCode, i)
         break
       case 'JUMPI':
-        // FIXME: br_if should check load the whole item from stack (256bit) and see if it is non-null and return as i32
+        jumpFound = true
         wasmCode = `(block
                     (set_local $sp ${wasmCode})
                     (set_local $jump_dest (i32.load (get_local $sp)))
@@ -93,7 +93,7 @@ exports.compileEVM = function (evmCode, stackTrace) {
                     ))
                     (set_local $sp (i32.sub (get_local $sp) (i32.const 32)))
                     (br_if $loop (i32.eqz (i64.eqz (get_local $scratch))))
-                    (return (get_local $sp))
+                    (get_local $sp)
                     )`
         break
       case 'JUMPDEST':
@@ -208,7 +208,7 @@ function buildJumpMap (segments) {
   let brTable = '(block $0 (br_table'
 
   segments.forEach((seg, index) => {
-    brTable += ' $' + (index + 1)
+    brTable += ' $' + index
     wasm = `(if (i32.eq (get_local $jump_dest) (i32.const ${seg[1]}))
                 (then (i32.const ${index}))
                 (else ${wasm}))`
