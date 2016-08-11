@@ -49,7 +49,7 @@ exports.compileWAST = function (wast) {
 // compile segments
 exports.compileEVM = function (evmCode, stackTrace) {
   const opcodesUsed = new Set()
-  const opcodesIgnore = new Set(['JUMP', 'JUMPI', 'JUMPDEST', 'STOP'])
+  const opcodesIgnore = new Set(['JUMP', 'JUMPI', 'JUMPDEST', 'STOP', 'RETURN'])
   const initCode = '(get_local $sp)'
   let wasmCode = initCode
   const segments = []
@@ -89,6 +89,7 @@ exports.compileEVM = function (evmCode, stackTrace) {
         i += op.number
         break
       case 'PUSH':
+        // TODO clean up i
         i++
         bytes = evmCode.slice(i, i + op.number)
         const bytesRounded = Math.ceil(bytes.length / 8) * 8
@@ -115,6 +116,11 @@ exports.compileEVM = function (evmCode, stackTrace) {
         break
       case 'STOP':
         wasmCode = `${wasmCode} (br $done)`
+        break
+      case 'RETURN':
+        wasmCode = `\n(call $${op.name} ${wasmCode}) (br $done)`
+        opcodesUsed.add(op.name)
+        i = findNextJumpDest(wasmCode, i)
         break
       case 'INVALID':
         throw new Error('Invalid opcode ' + evmCode[i].toString(16))
@@ -180,6 +186,21 @@ function buildJumpMap (segments) {
 
   brTable += wasm + '))'
   return brTable
+}
+
+function findNextJumpDest (evmCode, i) {
+  for (; i < evmCode.length; i++) {
+    const opint = evmCode[i]
+    const op = opcodes(opint)
+    switch (op.name) {
+      case 'PUSH':
+        i += op.number
+        break
+      case 'JUMPDEST':
+        return i
+    }
+  }
+  return i
 }
 
 // converts 8 bytes into a int 64
