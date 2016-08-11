@@ -28,7 +28,7 @@ The eWASM contract memory layout is currently as follows:
 +---------------------------------------------------
 | Reserved space for the stack (32768 bytes)
 | - each stack entry is 256 bit
-| - stack is limited to 1024 entries
+| - the stack is limited to 1024 entries
 +---------------------------------------------------
 | Word count (4 bytes)
 | (Number of 256 bit words stored in memory)
@@ -37,10 +37,8 @@ The eWASM contract memory layout is currently as follows:
 | (The cost charged for the last memory allocation)
 +---------------------------------------------------
 | Scratch space (32 bytes)
-| - single 256 bit slot
 +---------------------------------------------------
-| Reserved space for SHA3 (1024 bytes)
-| - 1024 bytes for the SHA3 context
+| Reserved space for the SHA3 context (1024 bytes)
 +---------------------------------------------------
 | Contract memory starts here ("unlimited" in size)
 `---------------------------------------------------
