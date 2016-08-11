@@ -28,7 +28,6 @@
   (set_local $offsetTop (i64.or (get_local $offset1) (i64.or (get_local $offset2) (get_local $offset3))))
 
   ;; clean the stack
-  (i64.store          (get_local $sp)                 (i64.const 0))
   (i64.store (i32.add (get_local $sp) (i32.const 8))  (i64.const 0))
   (i64.store (i32.add (get_local $sp) (i32.const 16)) (i64.const 0))
   (i64.store (i32.add (get_local $sp) (i32.const 24)) (i64.const 0))
@@ -44,6 +43,10 @@
 
     (then
       (i64.store (get_local $sp) (i64.load8_u (i32.add (get_local $scratch) (i32.wrap/i64 (get_local $offset0)))))
+    )
+
+    (else
+      (i64.store (get_local $sp) (i64.const 0))
     )
   )
 
