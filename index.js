@@ -116,11 +116,12 @@ exports.compileEVM = function (evmCode, stackTrace) {
         break
       case 'STOP':
         wasmCode = `${wasmCode} (br $done)`
+        i = findNextJumpDest(evmCode, i)
         break
       case 'RETURN':
         wasmCode = `\n(call $${op.name} ${wasmCode}) (br $done)`
         opcodesUsed.add(op.name)
-        i = findNextJumpDest(wasmCode, i)
+        i = findNextJumpDest(evmCode, i)
         break
       case 'INVALID':
         throw new Error('Invalid opcode ' + evmCode[i].toString(16))
@@ -199,10 +200,10 @@ function findNextJumpDest (evmCode, i) {
         i += op.number
         break
       case 'JUMPDEST':
-        return i
+        return --i
     }
   }
-  return i
+  return --i
 }
 
 // converts 8 bytes into a int 64
