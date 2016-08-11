@@ -72,11 +72,21 @@ exports.compileEVM = function (evmCode, stackTrace) {
                     (br $loop)`
         break
       case 'JUMPI':
-        // FIXME: br_if should check load the whole item from stack (256bit) and see if it is non-null and return as i32
         wasmCode = `(set_local $sp ${wasmCode})
                     (set_local $jump_dest (i32.load (get_local $sp)))
-                    (set_local $sp (i32.sub (get_local $sp) (i32.const 64)))
-                    (br_if $loop (i32.load (i32.add (get_local $sp) (i32.const 32))))`
+                    (set_local $sp (i32.sub (get_local $sp) (i32.const 32)))
+                    (set_local $scratch (i64.or
+                      (i64.load (i32.add (get_local $sp) (i32.const 0)))
+                      (i64.or
+                        (i64.load (i32.add (get_local $sp) (i32.const 8)))
+                        (i64.or
+                          (i64.load (i32.add (get_local $sp) (i32.const 16)))
+                          (i64.load (i32.add (get_local $sp) (i32.const 24)))
+                        )
+                      )
+                    ))
+                    (set_local $sp (i32.sub (get_local $sp) (i32.const 32)))
+                    (br_if $loop (i32.eqz (i32.eqz (get_local $scratch))))`
         break
       case 'JUMPDEST':
         addSegement()
@@ -169,6 +179,7 @@ function assmebleSegments (segments) {
              ${seg[0]})`
   })
   return `(func $main 
+           (local $scratch i64)
            (local $sp i32) 
            (local $jump_dest i32)
            (set_local $sp (i32.const -32)) 
