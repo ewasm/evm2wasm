@@ -56,7 +56,8 @@ tape('testing EVM1 Ops', (t) => {
         opCode: parseInt(test.value),
         highestMemCost: new BN(0),
         gasLeft: new BN(startGas),
-        caller: test.environment.caller
+        caller: test.environment.caller,
+        callData: ethUtil.toBuffer(test.environment.callData)
       }
 
       // populate the memory
