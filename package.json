@@ -31,5 +31,8 @@
     "wasm",
     "ewasm",
     "transcompiler"
-  ]
+  ],
+  "dependencies": {
+    "ethereumjs-util": "^4.5.0"
+  }
 }

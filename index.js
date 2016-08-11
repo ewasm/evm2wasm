@@ -52,7 +52,7 @@ exports.compileWAST = function (wast) {
 // compile segments
 exports.compileEVM = function (evmCode, stackTrace) {
   const opcodesUsed = new Set()
-  const opcodesIgnore = new Set(['JUMP', 'JUMPI', 'JUMPDEST', 'STOP'])
+  const opcodesIgnore = new Set(['JUMP', 'JUMPI', 'JUMPDEST', 'STOP', 'RETURN'])
   const initCode = '(get_local $sp)'
   let wasmCode = initCode
   const segments = []
@@ -92,8 +92,9 @@ exports.compileEVM = function (evmCode, stackTrace) {
         i += op.number
         break
       case 'PUSH':
+        // TODO clean up i
         i++
-        bytes = evmCode.slice(i, i + op.number)
+        bytes = evmCode.slice(i, i += op.number)
         const bytesRounded = Math.ceil(bytes.length / 8) * 8
 
         for (let q = bytesRounded; q > 0; q -= 8) {
@@ -106,7 +107,7 @@ exports.compileEVM = function (evmCode, stackTrace) {
           wasmCode = '(i64.const 0)' + wasmCode
         }
 
-        i += op.number - 1
+        i--
         break
       case 'DUP':
         // adds the number on the stack to DUP
@@ -118,6 +119,12 @@ exports.compileEVM = function (evmCode, stackTrace) {
         break
       case 'STOP':
         wasmCode = `${wasmCode} (br $done)`
+        i = findNextJumpDest(evmCode, i)
+        break
+      case 'RETURN':
+        wasmCode = `\n(call $${op.name} ${wasmCode}) (br $done)`
+        opcodesUsed.add(op.name)
+        i = findNextJumpDest(evmCode, i)
         break
       case 'INVALID':
         throw new Error('Invalid opcode ' + evmCode[i].toString(16))
@@ -153,7 +160,6 @@ exports.compileEVM = function (evmCode, stackTrace) {
   }
 }
 
-
 function assmebleSegments (segments) {
   let wasm = buildJumpMap(segments)
 
@@ -183,6 +189,24 @@ function buildJumpMap (segments) {
 
   brTable += wasm + '))'
   return brTable
+}
+
+// returns the index of the next jump destion opcode in given EVM code in an
+// array and a starting index
+function findNextJumpDest (evmCode, i) {
+  for (; i < evmCode.length; i++) {
+    const opint = evmCode[i]
+    const op = opcodes(opint)
+    switch (op.name) {
+      case 'PUSH':
+        // skip add how many bytes where pushed
+        i += op.number
+        break
+      case 'JUMPDEST':
+        return --i
+    }
+  }
+  return --i
 }
 
 // converts 8 bytes into a int 64
