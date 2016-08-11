@@ -1,0 +1,26 @@
+[
+  {
+    "description": "test JUMPI",
+    "source": [
+      "PUSH1",
+      "0x01",
+      "PUSH1",
+      "0x06",
+      "JUMPI",
+      "STOP",
+      "JUMPDEST",
+      "PUSH1",
+      "0x03",
+      "PUSH1",
+      "0x03",
+      "MUL"
+    ],
+    "code": "0x6001600657005b6003600302",
+    "result": {
+      "stack": [
+        "0x09"
+      ],
+      "memory": []
+    }
+  }
+]

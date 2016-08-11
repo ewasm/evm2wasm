@@ -67,16 +67,16 @@ exports.compileEVM = function (evmCode, stackTrace) {
     switch (op.name) {
       case 'JUMP':
         wasmCode = `(set_local $sp ${wasmCode})
+                    (set_local $jump_dest (i32.load (get_local $sp)))
                     (set_local $sp (i32.sub (get_local $sp) (i32.const 32)))
-                    (set_local $jump_dest (i32.load (i32.add (get_local $sp) (i32.const 32))))
                     (br $loop)`
         break
       case 'JUMPI':
         // FIXME: br_if should check load the whole item from stack (256bit) and see if it is non-null and return as i32
         wasmCode = `(set_local $sp ${wasmCode})
-                    (set_local $sp (i32.sub (get_local $sp) (i32.const 32)))
-                    (set_local $jump_dest (i32.load (i32.add (get_local $sp) (i32.const 32))))
-                    (br_if $loop (i32.load (get_local $sp)))`
+                    (set_local $jump_dest (i32.load (get_local $sp)))
+                    (set_local $sp (i32.sub (get_local $sp) (i32.const 64)))
+                    (br_if $loop (i32.load (i32.add (get_local $sp) (i32.const 32))))`
         break
       case 'JUMPDEST':
         addSegement()
