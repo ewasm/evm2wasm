@@ -238,7 +238,7 @@ exports.buildInterfaceImports = function () {
     }
 
     if (options.output) {
-      importStr += ` (param ${options.output})`
+      importStr += ` (result ${options.output})`
     }
 
     importStr += `)\n`
