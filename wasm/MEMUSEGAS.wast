@@ -3,6 +3,7 @@
   (local $length i32)
 
   (local $cost i32)
+  (local $pages i32)
 
   ;; what was charged for the last memory allocation
   (local $prevMemCost i32)
@@ -48,4 +49,20 @@
   (i32.store (get_local $prevMemCostLoc) (get_local $cost))
 
   (call_import $useGas (get_local $cost))
+
+  ;; grow actual memory
+  ;; the first 31704 bytes are guaranteed to be available
+  ;; adjust for 32 bytes (the maximal size of MSTORE write)
+  (if (i32.gt_u (get_local $offset) (i32.const 31672))
+    (then
+      ;; FIXME: not available in 0xa
+      ;;(set_local $pages (current_memory))
+      (set_local $pages (grow_memory (i32.const 0)))
+
+      ;; extra pages needed: (($offset - 31672) / 65536) - $pages
+      (set_local $pages (i32.sub (i32.div_u (i32.sub (get_local $offset) (i32.const 31672)) (i32.const 65536)) (get_local $pages)))
+
+      (grow_memory (get_local $pages))
+    )
+  )
 )
