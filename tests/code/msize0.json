@@ -1,0 +1,15 @@
+[
+  {
+    "description": "tests empty msize",
+    "source": [
+      "MSIZE"
+    ],
+    "code": "0x59",
+    "result": {
+      "stack": [
+        "0x00"
+      ],
+      "memory": []
+    }
+  }
+]

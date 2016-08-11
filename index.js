@@ -293,7 +293,7 @@ exports.buildModule = function buildModule (funcs, imports=[], exports=[]) {
   let importStr = this.buildInterfaceImports()
   return `(module
           ${importStr}
-          (memory 1 1)
+          (memory 1)
           (export "memory" memory)
             ${funcStr}
           )`
