@@ -91,7 +91,7 @@ exports.compileEVM = function (evmCode, stackTrace) {
       case 'PUSH':
         // TODO clean up i
         i++
-        bytes = evmCode.slice(i, i + op.number)
+        bytes = evmCode.slice(i, i += op.number)
         const bytesRounded = Math.ceil(bytes.length / 8) * 8
 
         for (let q = bytesRounded; q > 0; q -= 8) {
@@ -104,7 +104,7 @@ exports.compileEVM = function (evmCode, stackTrace) {
           wasmCode = '(i64.const 0)' + wasmCode
         }
 
-        i += op.number - 1
+        i--
         break
       case 'DUP':
         // adds the number on the stack to DUP
@@ -156,7 +156,6 @@ exports.compileEVM = function (evmCode, stackTrace) {
   }
 }
 
-
 function assmebleSegments (segments) {
   let wasm = buildJumpMap(segments)
 
@@ -188,12 +187,15 @@ function buildJumpMap (segments) {
   return brTable
 }
 
+// returns the index of the next jump destion opcode in given EVM code in an
+// array and a starting index
 function findNextJumpDest (evmCode, i) {
   for (; i < evmCode.length; i++) {
     const opint = evmCode[i]
     const op = opcodes(opint)
     switch (op.name) {
       case 'PUSH':
+        // skip add how many bytes where pushed
         i += op.number
         break
       case 'JUMPDEST':
