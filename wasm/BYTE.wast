@@ -3,11 +3,6 @@
   (param $sp i32)
   (result i32)
 
-  (local $word0 i64)
-  (local $word1 i64)
-  (local $word2 i64)
-  (local $word3 i64)
-
   (local $offset0 i64)
   (local $offset1 i64)
   (local $offset2 i64)
@@ -29,11 +24,6 @@
   (i64.store (i32.add (get_local $scratch) (i32.const 16)) (i64.load (i32.add (get_local $sp) (i32.const 16))))
   (i64.store (i32.add (get_local $scratch) (i32.const 8))  (i64.load (i32.add (get_local $sp) (i32.const 8))))
   (i64.store          (get_local $scratch)                 (i64.load          (get_local $sp)))
-
-  (set_local $word3 (i64.load (i32.add (get_local $sp) (i32.const 24))))
-  (set_local $word2 (i64.load (i32.add (get_local $sp) (i32.const 16))))
-  (set_local $word1 (i64.load (i32.add (get_local $sp) (i32.const  8))))
-  (set_local $word0 (i64.load          (get_local $sp)))
 
   (set_local $offsetTop (i64.or (get_local $offset1) (i64.or (get_local $offset2) (get_local $offset3))))
 
