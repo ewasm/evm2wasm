@@ -86,7 +86,7 @@ exports.compileEVM = function (evmCode, stackTrace) {
                       )
                     ))
                     (set_local $sp (i32.sub (get_local $sp) (i32.const 32)))
-                    (br_if $loop (i32.eqz (i32.eqz (get_local $scratch))))`
+                    (br_if $loop (i32.eqz (i64.eqz (get_local $scratch))))`
         break
       case 'JUMPDEST':
         addSegement()
