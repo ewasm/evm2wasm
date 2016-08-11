@@ -32,6 +32,9 @@ const interfaceImportMap = {
   },
   'address': {
     'inputs': [ 'i32' ]
+  },
+  'callDataSize': {
+    'output': 'i32'
   }
 }
 
@@ -235,7 +238,7 @@ exports.buildInterfaceImports = function () {
     }
 
     if (options.output) {
-      importStr += ` (param ${options.output})`
+      importStr += ` (result ${options.output})`
     }
 
     importStr += `)\n`

@@ -29,6 +29,9 @@ tape('testing EVM1 Ops', (t) => {
           let value = test.environment[key]
           if (key === 'caller' || key === 'address')
             value = hexToUint8Array(value, 20)
+          else if (key === 'callData')
+            // NOTE: no padding needed
+            value = hexToUint8Array(value, (value.length - 2) / 2)
           else
             throw new Error('Unsupported environment variable')
           testEnvironment[key] = value
