@@ -4,12 +4,21 @@ const evm2wasm = require('../index.js')
 const ethUtil = require('ethereumjs-util')
 const Kernel = require('ewasm-kernel')
 
+const argv = require('minimist')(process.argv.slice(2))
+
 const dir = `${__dirname}/code/`
 let testFiles = fs.readdirSync(dir).filter((name) => name.endsWith('.json'))
 
+// run a single file
+if (argv.file) {
+  testFiles = [argv.file]
+}
+
 tape('testing transcompiler', (t) => {
   testFiles.forEach((path) => {
+    t.comment(path)
     let codeTests = require(dir + path)
+
     codeTests.forEach((test) => {
       t.comment(test.description)
       const testInstance = buildTest(test.code)

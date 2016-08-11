@@ -32,6 +32,9 @@ const interfaceImportMap = {
   },
   'address': {
     'inputs': [ 'i32' ]
+  },
+  'callDataSize': {
+    'output': 'i32'
   }
 }
 
@@ -49,12 +52,13 @@ exports.compileWAST = function (wast) {
 // compile segments
 exports.compileEVM = function (evmCode, stackTrace) {
   const opcodesUsed = new Set()
-  const opcodesIgnore = new Set(['JUMP', 'JUMPI', 'JUMPDEST', 'STOP'])
+  const opcodesIgnore = new Set(['JUMP', 'JUMPI', 'JUMPDEST', 'STOP', 'RETURN'])
   const initCode = '(get_local $sp)'
-  let wasmCode = initCode
   const segments = []
+  let wasmCode = initCode
   let segNumber = 0
   let gasCount = 0
+  let jumpFound = false
 
   for (let i = 0; i < evmCode.length; i++) {
     const opint = evmCode[i]
@@ -63,21 +67,32 @@ exports.compileEVM = function (evmCode, stackTrace) {
     let bytes
     switch (op.name) {
       case 'JUMP':
-        wasmCode = `(block
-                    (set_local $sp ${wasmCode})
-                    (set_local $sp (i32.sub (get_local $sp) (i32.const 32)))
-                    (set_local $jump_dest (i32.load (i32.add (get_local $sp) (i32.const 32))))
-                    (br $loop)
-                    (return (get_local $sp))
-                    )`
+        jumpFound = true
+        wasmCode = `;; jump
+                      (set_local $sp ${wasmCode})
+                      (set_local $jump_dest (i32.load (get_local $sp)))
+                      (set_local $sp (i32.sub (get_local $sp) (i32.const 32)))
+                      (br $loop)`
+        i = findNextJumpDest(evmCode, i)
         break
       case 'JUMPI':
         // FIXME: br_if should check load the whole item from stack (256bit) and see if it is non-null and return as i32
         wasmCode = `(block
                     (set_local $sp ${wasmCode})
+                    (set_local $jump_dest (i32.load (get_local $sp)))
                     (set_local $sp (i32.sub (get_local $sp) (i32.const 32)))
-                    (set_local $jump_dest (i32.load (i32.add (get_local $sp) (i32.const 32))))
-                    (br_if $loop (i32.load (get_local $sp)))
+                    (set_local $scratch (i64.or
+                      (i64.load (i32.add (get_local $sp) (i32.const 0)))
+                      (i64.or
+                        (i64.load (i32.add (get_local $sp) (i32.const 8)))
+                        (i64.or
+                          (i64.load (i32.add (get_local $sp) (i32.const 16)))
+                          (i64.load (i32.add (get_local $sp) (i32.const 24)))
+                        )
+                      )
+                    ))
+                    (set_local $sp (i32.sub (get_local $sp) (i32.const 32)))
+                    (br_if $loop (i32.eqz (i64.eqz (get_local $scratch))))
                     (return (get_local $sp))
                     )`
         break
@@ -95,18 +110,22 @@ exports.compileEVM = function (evmCode, stackTrace) {
         i += op.number
         break
       case 'PUSH':
+        // TODO clean up i
         i++
-        bytes = evmCode.slice(i, i + op.number)
-        let q = 0
-        for (; q < bytes.length; q += 8) {
-          const int64 = bytes2int64(bytes.slice(q, q + 8))
+        bytes = evmCode.slice(i, i += op.number)
+        const bytesRounded = Math.ceil(bytes.length / 8) * 8
+
+        for (let q = bytesRounded; q > 0; q -= 8) {
+          const int64 = bytes2int64(bytes.slice(q - 8, q))
           wasmCode = `(i64.const ${int64})` + wasmCode
         }
+
         // padd the remaining of the word with 0
-        for (; q < 32; q += 8) {
+        for (let q = 32; q > bytesRounded; q -= 8) {
           wasmCode = '(i64.const 0)' + wasmCode
         }
-        i += op.number - 1
+
+        i--
         break
       case 'DUP':
         // adds the number on the stack to DUP
@@ -118,6 +137,20 @@ exports.compileEVM = function (evmCode, stackTrace) {
         break
       case 'STOP':
         wasmCode = `${wasmCode} (br $done)`
+        if (jumpFound) {
+          i = findNextJumpDest(evmCode, i)
+        } else {
+          i = evmCode.length
+        }
+        break
+      case 'RETURN':
+        wasmCode = `\n(call $${op.name} ${wasmCode}) (br $done)`
+        opcodesUsed.add(op.name)
+        if (jumpFound) {
+          i = findNextJumpDest(evmCode, i)
+        } else {
+          i = evmCode.length
+        }
         break
       case 'INVALID':
         throw new Error('Invalid opcode ' + evmCode[i].toString(16))
@@ -153,7 +186,6 @@ exports.compileEVM = function (evmCode, stackTrace) {
   }
 }
 
-
 function assmebleSegments (segments) {
   let wasm = buildJumpMap(segments)
 
@@ -163,6 +195,7 @@ function assmebleSegments (segments) {
              ${seg[0]})`
   })
   return `(func $main 
+           (local $scratch i64)
            (local $sp i32) 
            (local $jump_dest i32)
            (set_local $sp (i32.const -32)) 
@@ -183,6 +216,24 @@ function buildJumpMap (segments) {
 
   brTable += wasm + '))'
   return brTable
+}
+
+// returns the index of the next jump destion opcode in given EVM code in an
+// array and a starting index
+function findNextJumpDest (evmCode, i) {
+  for (; i < evmCode.length; i++) {
+    const opint = evmCode[i]
+    const op = opcodes(opint)
+    switch (op.name) {
+      case 'PUSH':
+        // skip add how many bytes where pushed
+        i += op.number
+        break
+      case 'JUMPDEST':
+        return --i
+    }
+  }
+  return --i
 }
 
 // converts 8 bytes into a int 64
@@ -238,7 +289,7 @@ exports.buildInterfaceImports = function () {
     }
 
     if (options.output) {
-      importStr += ` (param ${options.output})`
+      importStr += ` (result ${options.output})`
     }
 
     importStr += `)\n`

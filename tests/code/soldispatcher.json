@@ -1,0 +1,28 @@
+[
+  {
+    "description": "test solidity dispatcher preamble",
+    "source": [
+      "PUSH1",
+      "0x60",
+      "PUSH1",
+      "0x40",
+      "JUMPI",
+      "PUSH1",
+      "0x0d",
+      "JUMP",
+      "JUMPDEST",
+      "PUSH1",
+      "0x13",
+      "JUMPDEST",
+      "JUMPDEST",
+      "JUMP",
+      "JUMPDEST",
+      "STOP"
+    ],
+    "code": "0x6060604057600d565b60135b5b565b00",
+    "result": {
+      "stack": [],
+      "memory": []
+    }
+  }
+]

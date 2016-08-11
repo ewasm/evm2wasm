@@ -1,5 +1,4 @@
 ;; division 0x04
-(import $print64 "debug" "print" (param i64))
 (func $DIV
   (param $sp i32)
   (result i32)
