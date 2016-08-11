@@ -57,6 +57,15 @@ tape('testing EVM1 Ops', (t) => {
       // that the sp is pointing to memory segment holding the last stack item
       let sp = (test.in.stack.length - 1) * 32 
       sp = testInstance.exports[test.op](...(test.params || []), sp) + 32
+
+      if (isNaN(sp)) {
+        t.fail('methods should return the stack pointer')
+      }
+
+      if (sp % 32) {
+        t.fail('stack must be a multiple of 32 bytes')
+      }
+
       t.equal(sp / 32, test.out.stack.length, 'should have correct number of items on the stack')
       sp = 0
 
