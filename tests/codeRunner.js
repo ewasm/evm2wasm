@@ -3,7 +3,6 @@ const tape = require('tape')
 const evm2wasm = require('../index.js')
 const ethUtil = require('ethereumjs-util')
 const Kernel = require('ewasm-kernel')
-
 const argv = require('minimist')(process.argv.slice(2))
 
 const dir = `${__dirname}/code/`

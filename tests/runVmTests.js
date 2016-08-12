@@ -31,12 +31,13 @@ function checkResults (testData, t, instance, environment) {
   if (testsStorage) {
     for (let testKey in testsStorage) {
       const testValue = testsStorage[testKey]
-      const key = testKey.slice(2)
+      const key = new Buffer(testKey.slice(2), 'hex').reverse().toString('hex')
       let value = environment.state.get(key)
       if (value) {
         value = '0x' + new Buffer(value.reverse()).toString('hex')
       }
-      t.equals(value, testValue, 'should have correct storage value')
+
+      t.equals(value, testValue, `should have correct storage value at key ${key}`)
     }
   }
 }

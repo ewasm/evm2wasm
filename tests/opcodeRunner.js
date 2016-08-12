@@ -5,12 +5,18 @@ const KernelInterface = require('ewasm-kernel/interface.js')
 const KernelEnvironment = require('ewasm-kernel/environment.js')
 const ethUtil = require('ethereumjs-util')
 const compiler = require('../index.js')
+const argv = require('minimist')(process.argv.slice(2))
 const dir = `${__dirname}/opcode`
 
 // Transcompiled contracts have their EVM1 memory start at this WASM memory location
 const EVM_MEMORY_OFFSET = 33832
 
 let testFiles = fs.readdirSync(dir).filter((name) => name.endsWith('.json'))
+
+// run a single file
+if (argv.file) {
+  testFiles = [argv.file]
+}
 
 tape('testing EVM1 Ops', (t) => {
   testFiles.forEach((path) => {
