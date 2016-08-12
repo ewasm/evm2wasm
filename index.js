@@ -35,6 +35,12 @@ const interfaceImportMap = {
   },
   'callDataSize': {
     'output': 'i32'
+  },
+  'callDataCopy': {
+    'inputs': ['i32', 'i32', 'i32']
+  },
+  'sload': {
+    'inputs': ['i32', 'i32']
   }
 }
 
