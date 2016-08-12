@@ -93,12 +93,12 @@ tape('testing EVM1 Ops', (t) => {
       // check the memory
       if (test.out.memory) {
         Object.keys(test.out.memory).forEach((offset) => {
-            offset |= 0
-            const item = test.out.memory[offset]
-            const expectedItem = hexToUint8Array(item)
-            offset += EVM_MEMORY_OFFSET
-            const result = getMemory(testInstance, offset, offset + expectedItem.length)
-            t.equals(result.toString(), expectedItem.toString(), `should have the correct memory slot at ${offset}`)
+          offset |= 0
+          const item = test.out.memory[offset]
+          const expectedItem = hexToUint8Array(item)
+          offset += EVM_MEMORY_OFFSET
+          const result = getMemory(testInstance, offset, offset + expectedItem.length)
+          t.equals(result.toString(), expectedItem.toString(), `should have the correct memory slot at ${offset}`)
         })
       }
 
@@ -110,7 +110,7 @@ tape('testing EVM1 Ops', (t) => {
       }
 
       if (test.out.gasUsed) {
-        t.equals(-testEnvironment.gasLimit, test.out.gasUsed, 'should have used the correct amount of gas')
+        t.equals(1000000 - testEnvironment.gasLimit, test.out.gasUsed, 'should have used the correct amount of gas')
       }
     })
   })
