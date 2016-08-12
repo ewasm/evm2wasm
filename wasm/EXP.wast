@@ -1,5 +1,4 @@
 ;; Exponential 0x0a
-(import $print "debug" "print" (param f32))
 (func $EXP
   (param $sp i32)
   (result i32)
@@ -60,10 +59,10 @@
       )
     )
     ;; exp = exp.shrn(1)
-    (set_local $exp0 (i64.shr_u (get_local $exp0) (i64.const 1)))
-    (set_local $exp1 (i64.add (i64.shr_u (get_local $exp1) (i64.const 1)) (i64.shl (get_local $exp0) (i64.const 63))))
-    (set_local $exp2 (i64.add (i64.shr_u (get_local $exp2) (i64.const 1)) (i64.shl (get_local $exp1) (i64.const 63))))
     (set_local $exp3 (i64.add (i64.shr_u (get_local $exp3) (i64.const 1)) (i64.shl (get_local $exp2) (i64.const 63))))
+    (set_local $exp2 (i64.add (i64.shr_u (get_local $exp2) (i64.const 1)) (i64.shl (get_local $exp1) (i64.const 63))))
+    (set_local $exp1 (i64.add (i64.shr_u (get_local $exp1) (i64.const 1)) (i64.shl (get_local $exp0) (i64.const 63))))
+    (set_local $exp0 (i64.shr_u (get_local $exp0) (i64.const 1)))
 
     ;; base = base.mul(base).mod(TWO_POW256)
     (call $MUL_256 (get_local $base0) (get_local $base1) (get_local $base2) (get_local $base3) (get_local $base0) (get_local $base1) (get_local $base2) (get_local $base3) (i32.add (get_local $sp) (i32.const 24)))
