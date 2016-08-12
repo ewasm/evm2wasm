@@ -8,7 +8,7 @@ const Interface = require('ewasm-kernel/interface')
 const evm2wasm = require('../index.js')
 
 function runner (testData, t, cb) {
-  const code = new Buffer(testData.exec.code.slice(2), 'hex')
+  const code = Buffer.from(testData.exec.code.slice(2), 'hex')
   const evm = evm2wasm.compile(code, argv.trace)
   const enviroment = setupEnviroment(testData)
   const ethInterface = new Interface(enviroment)
@@ -20,6 +20,8 @@ function runner (testData, t, cb) {
 function setupEnviroment (testData) {
   const env = new Environment()
   env.gasLimit = parseInt(testData.exec.gas.slice(2), 16)
+  console.log(testData.exec.data);
+  env.callData = Buffer.from(testData.exec.data.slice(2), 'hex')
   return env
 }
 
