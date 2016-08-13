@@ -2,6 +2,7 @@ const BN = require('bn.js')
 const fs = require('fs')
 const cp = require('child_process')
 const opcodes = require('./opcodes.js')
+const path = require('path')
 
 // map to track dependant WASM functions
 const depMap = new Map([
@@ -225,9 +226,8 @@ function buildJumpMap (segments) {
   let brTable = '(block $0 (br_table'
 
   segments.filter((seg) => seg[2]).forEach((seg, index) => {
-
-      brTable += ' $' + index
-      wasm = `(if (i32.eq (get_local $jump_dest) (i32.const ${seg[1]}))
+    brTable += ' $' + index
+    wasm = `(if (i32.eq (get_local $jump_dest) (i32.const ${seg[1]}))
                   (then (i32.const ${index}))
                   (else ${wasm}))`
   })
@@ -273,17 +273,17 @@ exports.resolveFunctionDeps = function resolveFunctionDeps (funcSet) {
   return funcs
 }
 
-exports.resolveFunctions = function resolveFunctions (funcSet, dir='/wasm/') {
+exports.resolveFunctions = function resolveFunctions (funcSet, dir = '/wasm/') {
   let funcs = []
   for (let func of exports.resolveFunctionDeps(funcSet)) {
-    const wastPath = __dirname + dir + func + '.wast'
+    const wastPath = path.join(__dirname, dir, func) + '.wast'
     try {
       const wast = fs.readFileSync(wastPath)
       funcs.push(wast.toString())
     } catch (e) {
       // FIXME: remove this once every opcode is implemented
       //        (though it should not cause any issues)
-      console.error("Inserting MISSING opcode", func)
+      console.error('Inserting MISSING opcode', func)
       funcs.push(`(func $${func} (param $sp i32) (result i32) (unreachable))`)
     }
   }
@@ -299,11 +299,11 @@ exports.buildInterfaceImports = function () {
     importStr += `(import $${key} "ethereum" "${key}"`
 
     if (options.inputs) {
-      importStr += ` (param `
+      importStr += ' (param '
       for (let input of options.inputs) {
         importStr += `${input} `
       }
-      importStr += `)`
+      importStr += ')'
     }
 
     if (options.output) {
@@ -316,7 +316,7 @@ exports.buildInterfaceImports = function () {
   return importStr
 }
 
-exports.buildModule = function buildModule (funcs, imports=[], exports=[]) {
+exports.buildModule = function buildModule (funcs, imports = [], exports = []) {
   let funcStr = ''
   for (let func of funcs) {
     funcStr += func
@@ -332,18 +332,3 @@ exports.buildModule = function buildModule (funcs, imports=[], exports=[]) {
             ${funcStr}
           )`
 }
-
-// remap code hashes
-// pull original code; if code is not wasm try to convert it. Transpiler will
-// need to be written in wasm
-// TRADE OFF 
-//  if you have polifilly 
-//
-// transcompiling create code; can be done at runtime.
-// how to store old code? just use prefix
-// store the old code in mem storage. 
-//  how to protect?
-//   use a longer or shorter path then the current contracts have access to
-//   transcompiler contract
-//    which then get the code and run its
-//    extra cost first time calling it

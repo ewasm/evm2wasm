@@ -12,9 +12,9 @@ function runner (testData, t, cb) {
   const evm = evm2wasm.compile(code, argv.trace)
   const enviroment = setupEnviroment(testData)
   const ethInterface = new Interface(enviroment)
-  
+
   try {
-    instance = Kernel.codeHandler(evm, ethInterface)
+    const instance = Kernel.codeHandler(evm, ethInterface)
     checkResults(testData, t, instance, enviroment)
   } catch (e) {
     t.comment(e)

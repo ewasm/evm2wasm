@@ -11,11 +11,11 @@ const instance = Kernal.codeHandler(opsWasm)
 let sp = instance.exports.main()
 
 sp = 64
-for (;sp > -32 ; sp -= 32) {
+for (;sp > -32; sp -= 32) {
   const item = getMemory(instance, sp, sp + 32)
   console.log(new Buffer(item).toString('hex'))
 }
 
-function getMemory(instance, start, end) {
+function getMemory (instance, start, end) {
   return new Uint8Array(instance.exports.memory).slice(start, end)
 }

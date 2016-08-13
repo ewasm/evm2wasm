@@ -22,7 +22,7 @@ tape('testing transcompiler', (t) => {
     codeTests.forEach((test) => {
       t.comment(test.description)
 
-      const environment = new Enviroment() 
+      const environment = new Enviroment()
       const startGas = environment.gasLimit
       const ethInterface = new Interface(environment)
       let testInstance

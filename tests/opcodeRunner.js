@@ -33,13 +33,14 @@ tape('testing EVM1 Ops', (t) => {
       if (test.environment) {
         Object.keys(test.environment).forEach((key) => {
           let value = test.environment[key]
-          if (key === 'caller' || key === 'address')
+          if (key === 'caller' || key === 'address') {
             value = hexToUint8Array(value, 20)
-          else if (key === 'callData')
+          } else if (key === 'callData') {
             // NOTE: no padding needed
             value = hexToUint8Array(value, (value.length - 2) / 2)
-          else
+          } else {
             throw new Error('Unsupported environment variable')
+          }
           testEnvironment[key] = value
         })
       }
@@ -53,11 +54,11 @@ tape('testing EVM1 Ops', (t) => {
       // populate the memory
       if (test.in.memory) {
         Object.keys(test.in.memory).forEach((offset) => {
-            let item = test.in.memory[offset]
-            offset |= 0
-            offset += EVM_MEMORY_OFFSET
-            item = hexToUint8Array(item)
-            setMemory(testInstance, item, offset)
+          let item = test.in.memory[offset]
+          offset |= 0
+          offset += EVM_MEMORY_OFFSET
+          item = hexToUint8Array(item)
+          setMemory(testInstance, item, offset)
         })
       }
 
@@ -68,7 +69,7 @@ tape('testing EVM1 Ops', (t) => {
 
       try {
         sp = testInstance.exports[test.op](...(test.params || []), sp) + 32
-      } catch(e) {
+      } catch (e) {
         t.fail('WASM exception: ' + e)
       }
 
@@ -124,14 +125,14 @@ function buildTest (op, ethInterface) {
   return Kernel.codeHandler(wasm, ethInterface)
 }
 
-function hexToUint8Array(item, length) {
+function hexToUint8Array (item, length) {
   return new Uint8Array(ethUtil.setLength(new Buffer(item.slice(2), 'hex'), length || 32)).reverse()
 }
 
-function setMemory(instance, value, start) {
+function setMemory (instance, value, start) {
   new Uint8Array(instance.exports.memory).set(value, start)
 }
 
-function getMemory(instance, start, end) {
+function getMemory (instance, start, end) {
   return new Uint8Array(instance.exports.memory).slice(start, end)
 }
