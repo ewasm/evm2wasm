@@ -3,6 +3,8 @@ const tape = require('tape')
 const evm2wasm = require('../index.js')
 const ethUtil = require('ethereumjs-util')
 const Kernel = require('ewasm-kernel')
+const Enviroment = require('ewasm-kernel/environment')
+const Interface = require('ewasm-kernel/interface')
 const argv = require('minimist')(process.argv.slice(2))
 
 const dir = `${__dirname}/code/`
@@ -17,16 +19,23 @@ tape('testing transcompiler', (t) => {
   testFiles.forEach((path) => {
     t.comment(path)
     let codeTests = require(dir + path)
-
     codeTests.forEach((test) => {
       t.comment(test.description)
+
+      const environment = new Enviroment() 
+      const startGas = environment.gasLimit
+      const ethInterface = new Interface(environment)
       let testInstance
       try {
-        testInstance = buildTest(test.code)
+        testInstance = buildTest(test.code, ethInterface)
       } catch (e) {
         t.fail('WASM exception: ' + e)
         return
       }
+      // check the gas used
+      const gasUsed = startGas - environment.gasLimit
+      t.equals(gasUsed, test.gasUsed, 'should have correct gas')
+
       // check the results
       test.result.stack.forEach((item, index) => {
         const sp = index * 32
@@ -39,8 +48,8 @@ tape('testing transcompiler', (t) => {
   t.end()
 })
 
-function buildTest (code) {
+function buildTest (code, env) {
   code = new Buffer(code.slice(2), 'hex')
   const compiled = evm2wasm.compile(code)
-  return Kernel.codeHandler(compiled)
+  return Kernel.codeHandler(compiled, env)
 }

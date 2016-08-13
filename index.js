@@ -101,11 +101,14 @@ exports.compileEVM = function (evmCode, stackTrace) {
                     (br_if $loop (i32.eqz (i64.eqz (get_local $scratch))))
                     (get_local $sp)
                     )`
+        addSegement(false)
+        wasmCode = initCode
         break
       case 'JUMPDEST':
         addSegement()
         segNumber = i
         wasmCode = initCode
+        gasCount++
         break
       case 'LOG':
         bytes = evmCode.slice(i, i + op.number * 8)
@@ -186,19 +189,27 @@ exports.compileEVM = function (evmCode, stackTrace) {
   funcMap.push(mainFunc)
   return exports.buildModule(funcMap)
 
-  function addSegement () {
+  function addSegement (isJumpDest = true) {
     wasmCode = `(call_import $useGas (i32.const ${gasCount})) ${wasmCode}`
-    segments.push([wasmCode, segNumber])
+    gasCount = 0
+    segments.push([wasmCode, segNumber, isJumpDest])
   }
 }
 
 function assmebleSegments (segments) {
   let wasm = buildJumpMap(segments)
+  let jumpSegOffset = 0
 
   segments.forEach((seg, index) => {
-    wasm = `(block $${index + 1} 
-             ${wasm}
-             ${seg[0]})`
+    if (seg[2]) {
+      wasm = `(block $${index + 1 - jumpSegOffset} 
+               ${wasm}
+               ${seg[0]})`
+    } else {
+      jumpSegOffset++
+      wasm = `${wasm}
+               ${seg[0]}`
+    }
   })
   return `(func $main 
            (local $scratch i64)
@@ -213,11 +224,12 @@ function buildJumpMap (segments) {
   let wasm = '(unreachable)'
   let brTable = '(block $0 (br_table'
 
-  segments.forEach((seg, index) => {
-    brTable += ' $' + index
-    wasm = `(if (i32.eq (get_local $jump_dest) (i32.const ${seg[1]}))
-                (then (i32.const ${index}))
-                (else ${wasm}))`
+  segments.filter((seg) => seg[2]).forEach((seg, index) => {
+
+      brTable += ' $' + index
+      wasm = `(if (i32.eq (get_local $jump_dest) (i32.const ${seg[1]}))
+                  (then (i32.const ${index}))
+                  (else ${wasm}))`
   })
 
   brTable += wasm + '))'

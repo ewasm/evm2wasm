@@ -9,6 +9,7 @@
     "result": {
       "stack": [],
       "memory": []
-    }
+    },
+    "gasUsed": 4
   }
 ]

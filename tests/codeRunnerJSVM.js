@@ -3,9 +3,15 @@ const tape  = require('tape')
 const VM    = require('ethereumjs-vm')
 const async = require('async')
 const BN    = require('bn.js')
+const argv = require('minimist')(process.argv.slice(2))
 
 const dir = './code/'
 let testFiles = fs.readdirSync(dir).filter((name) => name.endsWith('.json'))
+
+// run a single file
+if (argv.file) {
+  testFiles = [argv.file]
+}
 
 tape('testing js VM', (t) => {
   async.eachSeries(testFiles, (path, cb0) => {
@@ -20,6 +26,8 @@ tape('testing js VM', (t) => {
         code: new Buffer(test.code.slice(2), 'hex'),
         gasLimit: new BN(90000)
       }, (err, results) => {
+        console.log(results.gasUsed.toString());
+        test.gasUsed = results.gasUsed.toNumber()
         // check the results
         const stack = results.runState.stack
         test.result.stack.forEach((item, index) => {
@@ -27,6 +35,9 @@ tape('testing js VM', (t) => {
         })
         cb1()
       })
-    }, cb0)
+    }, () => {
+        fs.writeFileSync(dir + path, JSON.stringify(codeTests, null, 2))
+        cb0()
+    })
   }, t.end)
 })
