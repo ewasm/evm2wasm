@@ -65,7 +65,7 @@ const codes = {
   0x58: ['PC', 2, 0, 1, false],
   0x59: ['MSIZE', 2, 0, 1, false],
   0x5a: ['GAS', 2, 0, 1, false],
-  0x5b: ['JUMPDEST', 1, 0, 0, false],
+  0x5b: ['JUMPDEST', 0, 0, 0, false],
 
   // 0x60, range
   0x60: ['PUSH', 3, 0, 1, false],

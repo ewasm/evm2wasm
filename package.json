@@ -4,7 +4,8 @@
   "description": "This is a JS protope of a EVM to eWASM transcompiler",
   "main": "index.js",
   "scripts": {
-    "test": "node --expose-wasm ./tests/allRunner.js"
+    "test": "node --expose-wasm ./tests/allRunner.js",
+    "lint": "standard"
   },
   "author": "mjbecze <mjbecze@gmail.com>",
   "license": "MPL-2.0",
@@ -15,6 +16,7 @@
     "ethereumjs-vm": "^1.4.0",
     "ewasm-kernel": "git+https://github.com/ewasm/ewasm-kernel.git",
     "minimist": "^1.2.0",
+    "standard": "^7.1.2",
     "tape": "^4.6.0"
   },
   "repository": {
@@ -34,5 +36,11 @@
   ],
   "dependencies": {
     "ethereumjs-util": "^4.5.0"
+  },
+  "standard": {
+    "ignore": [
+      "/tools/",
+      "/wasm/"
+    ]
   }
 }

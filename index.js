@@ -2,8 +2,9 @@ const BN = require('bn.js')
 const fs = require('fs')
 const cp = require('child_process')
 const opcodes = require('./opcodes.js')
+const path = require('path')
 
-// map to track dependant WASM functions
+// map to track dependent WASM functions
 const depMap = new Map([
   ['MOD', ['ISZERO_32', 'GTE']],
   ['ADDMOD', ['MOD', 'ADD']],
@@ -17,6 +18,7 @@ const depMap = new Map([
   ['MSTORE8', ['MEMUSEGAS']]
 ])
 
+// this is used to generate the module's import table
 const interfaceImportMap = {
   'sstore': {
     'inputs': [ 'i32', 'i32' ]
@@ -44,33 +46,62 @@ const interfaceImportMap = {
   }
 }
 
-exports.compile = function (evmCode, stackTrace) {
+// compiles evmCode to wasm in the binary format
+// @param {Array} evmCode
+// @param {Boolean}  stackTrace set to true if you want a stacktrace
+exports.compile = function (evmCode, stackTrace = false) {
   const wast = exports.compileEVM(evmCode, stackTrace)
   return exports.compileWAST(wast)
 }
 
+// compiles wasm text format to binary
+// @param {String} wast
+// @return {buffer}
 exports.compileWAST = function (wast) {
   fs.writeFileSync('temp.wast', wast)
   cp.execSync(`${__dirname}/tools/sexpr-wasm-prototype/out/sexpr-wasm ./temp.wast -o ./temp.wasm`)
   return fs.readFileSync('./temp.wasm')
 }
 
-// compile segments
+// Transcompiles EVM code to ewasm in the sexpression text format. The EVM code 
+// is broken into segments and each instruction in those segments is replaced
+// with a `call` to wasm function that does the equivalent operation. Each
+// opcode function takes in and returns the stack pointer.
+//
+// Segments are sections of EVM code in between flow control
+// opcodes (JUMPI. JUMP).
+// All segments start at
+// * the beginning for EVM code
+// * a GAS opcode (TODO)
+// * a JUMPDEST opcode
+// * After a JUMPI opcode
+// @param {Integer[]} evmCode the evm byte code
+// @param {Boolean} stackTrace if `true` generates a stack trace
+// @return {String}
 exports.compileEVM = function (evmCode, stackTrace) {
+  // this keep track of the opcode we have found so far. This will be used to
+  // to figure out what .wast files to include
   const opcodesUsed = new Set()
+  // some opcodes don't have wast files
   const opcodesIgnore = new Set(['JUMP', 'JUMPI', 'JUMPDEST', 'STOP', 'RETURN'])
+  // this is the wasm code that each segment starts with
   const initCode = '(get_local $sp)'
+  // an array of found segments
   const segments = []
+  // the transcompiled EVM code
   let wasmCode = initCode
-  let segNumber = 0
+  // used to translate the local in EVM of JUMPDEST to a wasm block label
+  let jumpDestNum = 0
+  // keeps track of the gas that each section uses
   let gasCount = 0
+  // used for pruning dead code
   let jumpFound = false
 
   for (let i = 0; i < evmCode.length; i++) {
     const opint = evmCode[i]
     const op = opcodes(opint)
-    gasCount += op.fee
     let bytes
+    gasCount += op.fee
     switch (op.name) {
       case 'JUMP':
         jumpFound = true
@@ -101,11 +132,14 @@ exports.compileEVM = function (evmCode, stackTrace) {
                     (br_if $loop (i32.eqz (i64.eqz (get_local $scratch))))
                     (get_local $sp)
                     )`
+        addSegement(false)
+        wasmCode = initCode
         break
       case 'JUMPDEST':
         addSegement()
-        segNumber = i
+        jumpDestNum = i
         wasmCode = initCode
+        gasCount++
         break
       case 'LOG':
         bytes = evmCode.slice(i, i + op.number * 8)
@@ -116,7 +150,6 @@ exports.compileEVM = function (evmCode, stackTrace) {
         i += op.number
         break
       case 'PUSH':
-        // TODO clean up i
         i++
         bytes = evmCode.slice(i, i += op.number)
         const bytesRounded = Math.ceil(bytes.length / 8) * 8
@@ -126,11 +159,10 @@ exports.compileEVM = function (evmCode, stackTrace) {
           wasmCode = `(i64.const ${int64})` + wasmCode
         }
 
-        // padd the remaining of the word with 0
+        // pad the remaining of the word with 0
         for (let q = 32; q > bytesRounded; q -= 8) {
           wasmCode = '(i64.const 0)' + wasmCode
         }
-
         i--
         break
       case 'DUP':
@@ -171,6 +203,7 @@ exports.compileEVM = function (evmCode, stackTrace) {
       opcodesUsed.add(op.name)
     }
   }
+
   if (wasmCode !== '') {
     addSegement()
   }
@@ -186,19 +219,30 @@ exports.compileEVM = function (evmCode, stackTrace) {
   funcMap.push(mainFunc)
   return exports.buildModule(funcMap)
 
-  function addSegement () {
+  function addSegement (isJumpDest = true) {
     wasmCode = `(call_import $useGas (i32.const ${gasCount})) ${wasmCode}`
-    segments.push([wasmCode, segNumber])
+    gasCount = 0
+    segments.push([wasmCode, jumpDestNum, isJumpDest])
   }
 }
 
+// given an array for segments builds a wasm module from those segments
+// @param {Array} segments
+// @return {String}
 function assmebleSegments (segments) {
   let wasm = buildJumpMap(segments)
+  let jumpSegOffset = 0
 
   segments.forEach((seg, index) => {
-    wasm = `(block $${index + 1} 
-             ${wasm}
-             ${seg[0]})`
+    if (seg[2]) {
+      wasm = `(block $${index + 1 - jumpSegOffset} 
+               ${wasm}
+               ${seg[0]})`
+    } else {
+      jumpSegOffset++
+      wasm = `${wasm}
+               ${seg[0]}`
+    }
   })
   return `(func $main 
            (local $scratch i64)
@@ -209,23 +253,29 @@ function assmebleSegments (segments) {
             ${wasm}))`
 }
 
+// Builds the Jump map, which maps EVM jump location to a block label
+// @param {Array} segments
+// @return {String}
 function buildJumpMap (segments) {
   let wasm = '(unreachable)'
   let brTable = '(block $0 (br_table'
 
-  segments.forEach((seg, index) => {
+  segments.filter((seg) => seg[2]).forEach((seg, index) => {
     brTable += ' $' + index
     wasm = `(if (i32.eq (get_local $jump_dest) (i32.const ${seg[1]}))
-                (then (i32.const ${index}))
-                (else ${wasm}))`
+                  (then (i32.const ${index}))
+                  (else ${wasm}))`
   })
 
   brTable += wasm + '))'
   return brTable
 }
 
-// returns the index of the next jump destion opcode in given EVM code in an
+// returns the index of the next jump destination opcode in given EVM code in an
 // array and a starting index
+// @param {Array} evmCode
+// @param {Integer} index
+// @return {Integer}
 function findNextJumpDest (evmCode, i) {
   for (; i < evmCode.length; i++) {
     const opint = evmCode[i]
@@ -243,11 +293,16 @@ function findNextJumpDest (evmCode, i) {
 }
 
 // converts 8 bytes into a int 64
+// @param {Integer}
+// @return {String}
 function bytes2int64 (bytes) {
   return new BN(bytes).fromTwos(64).toString()
 }
 
 // Ensure that dependencies are only imported once (use the Set)
+// @param {Set} funcSet a set of wasm function that need to be linked to their
+// dependencies
+// @return {Set}
 exports.resolveFunctionDeps = function resolveFunctionDeps (funcSet) {
   let funcs = funcSet
   for (let func of funcSet) {
@@ -261,23 +316,29 @@ exports.resolveFunctionDeps = function resolveFunctionDeps (funcSet) {
   return funcs
 }
 
-exports.resolveFunctions = function resolveFunctions (funcSet, dir='/wasm/') {
+// given a set of wasm function this return an array for wasm equivalents
+// @param {Set} funcSet
+// @param {String} dir
+// @return {Array}
+exports.resolveFunctions = function resolveFunctions (funcSet, dir = '/wasm/') {
   let funcs = []
   for (let func of exports.resolveFunctionDeps(funcSet)) {
-    const wastPath = __dirname + dir + func + '.wast'
+    const wastPath = path.join(__dirname, dir, func) + '.wast'
     try {
       const wast = fs.readFileSync(wastPath)
       funcs.push(wast.toString())
     } catch (e) {
       // FIXME: remove this once every opcode is implemented
       //        (though it should not cause any issues)
-      console.error("Inserting MISSING opcode", func)
+      console.error('Inserting MISSING opcode', func)
       funcs.push(`(func $${func} (param $sp i32) (result i32) (unreachable))`)
     }
   }
   return funcs
 }
 
+// builds the import table
+// @return {String}
 exports.buildInterfaceImports = function () {
   let importStr = ''
 
@@ -287,11 +348,11 @@ exports.buildInterfaceImports = function () {
     importStr += `(import $${key} "ethereum" "${key}"`
 
     if (options.inputs) {
-      importStr += ` (param `
+      importStr += ' (param '
       for (let input of options.inputs) {
         importStr += `${input} `
       }
-      importStr += `)`
+      importStr += ')'
     }
 
     if (options.output) {
@@ -304,7 +365,12 @@ exports.buildInterfaceImports = function () {
   return importStr
 }
 
-exports.buildModule = function buildModule (funcs, imports=[], exports=[]) {
+// builds a wasm module
+// @param {Array} funcs the function to include in the module
+// @param {Array} imports the imports for the module's import table
+// @param {Array} exports the exports for the module's export table
+// @return {String}
+exports.buildModule = function buildModule (funcs, imports = [], exports = []) {
   let funcStr = ''
   for (let func of funcs) {
     funcStr += func
@@ -320,18 +386,3 @@ exports.buildModule = function buildModule (funcs, imports=[], exports=[]) {
             ${funcStr}
           )`
 }
-
-// remap code hashes
-// pull original code; if code is not wasm try to convert it. Transpiler will
-// need to be written in wasm
-// TRADE OFF 
-//  if you have polifilly 
-//
-// transcompiling create code; can be done at runtime.
-// how to store old code? just use prefix
-// store the old code in mem storage. 
-//  how to protect?
-//   use a longer or shorter path then the current contracts have access to
-//   transcompiler contract
-//    which then get the code and run its
-//    extra cost first time calling it

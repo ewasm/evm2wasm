@@ -1,10 +1,10 @@
 const fs = require('fs')
-const ethUtil = require('ethereumjs-util')
+const path = require('path')
 
 const files = fs.readdirSync(__dirname).filter((file) => file.endsWith('.json'))
 
 files.forEach((file) => {
-  const json = require(__dirname + '/' + file)
+  const json = require(path.join(__dirname, '/') + file)
   for (let testKey in json) {
     const test = json[testKey]
     delete test.state
@@ -23,10 +23,10 @@ files.forEach((file) => {
       delete test.memory
     }
 
-    if(!test.environment){
+    if (!test.environment) {
       test.environment = {}
     }
   }
   console.log(file)
-  fs.writeFileSync(__dirname + '/' + file, JSON.stringify(json, null, 2))
+  fs.writeFileSync(path.join(__dirname, '/') + file, JSON.stringify(json, null, 2))
 })

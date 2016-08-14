@@ -62,7 +62,7 @@ tape('testing EVM1 Ops', (t) => {
 
       // populate the memory
       if (test.in.memory) {
-        for (let item in test.in.memory){
+        for (let item in test.in.memory) {
           const memIn = new Buffer(test.in.memory[item].slice(2), 'hex')
           runState.memory.splice(item, 32, ...memIn)
         }
@@ -84,10 +84,9 @@ tape('testing EVM1 Ops', (t) => {
         runState.stack.push(result)
       }
 
-      // console.log('gasUssed: ' + new BN(startGas).sub(runState.gasLeft));
       // check that gasUsed
-      if (test.out.gasUsed){
-        t.equals(new BN(startGas).sub(runState.gasLeft).toNumber(), test.out.gasUsed, 'should use the correct amount of gas');
+      if (test.out.gasUsed) {
+        t.equals(new BN(startGas).sub(runState.gasLeft).toNumber(), test.out.gasUsed, 'should use the correct amount of gas')
       }
 
       test.out.stack.forEach((item, index) => {
@@ -96,12 +95,12 @@ tape('testing EVM1 Ops', (t) => {
 
       // check the memory
       if (test.out.memory) {
-        //TODO
+        // TODO
       }
 
       // check for EVM return value
       if (test.out.return) {
-        //TODO
+        // TODO
       }
     })
   })
