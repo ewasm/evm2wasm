@@ -1,0 +1,23 @@
+[
+  {
+    "description": "test to see if gas is being calucated correctly in cases where the same memory locaction is written to multiple times",
+    "source": [
+      "PUSH1",
+      "0x04",
+      "PUSH1",
+      "0x00",
+      "MSTORE",
+      "PUSH1",
+      "0x04",
+      "PUSH1",
+      "0x00",
+      "MSTORE"
+    ],
+    "code": "0x60046000526004600052",
+    "result": {
+      "stack": [],
+      "memory": []
+    },
+    "gasUsed": 21
+  }
+]

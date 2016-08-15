@@ -25,9 +25,9 @@ tape('testing js VM', (t) => {
         code: new Buffer(test.code.slice(2), 'hex'),
         gasLimit: new BN(90000)
       }, (err, results) => {
-        t.comment(err)
-        test.gasUsed = results.gasUsed.toNumber()
+        // test.gasUsed = results.gasUsed.toNumber()
           // check the results
+        console.log(test.gasUsed);
         const stack = results.runState.stack
         test.result.stack.forEach((item, index) => {
           t.equals('0x' + stack[index].toString('hex'), item)
@@ -35,7 +35,7 @@ tape('testing js VM', (t) => {
         cb1()
       })
     }, () => {
-      fs.writeFileSync(dir + path, JSON.stringify(codeTests, null, 2))
+      // fs.writeFileSync(dir + path, JSON.stringify(codeTests, null, 2))
       cb0()
     })
   }, t.end)

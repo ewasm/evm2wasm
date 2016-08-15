@@ -41,9 +41,11 @@
 
   ;; words * 3 + words ^2 / 512
   (set_local $cost
+    (i32.sub 
      (i32.add
        (i32.mul (get_local $newWordCount) (i32.const 3))
-       (i32.div_u (i32.mul (get_local $newWordCount) (get_local $newWordCount)) (i32.const 512))))
+       (i32.div_u (i32.mul (get_local $newWordCount) (get_local $newWordCount)) (i32.const 512)))
+     (get_local $prevMemCost)))
 
   (i32.store (get_local $wordCountLoc) (get_local $newWordCount))
   (i32.store (get_local $prevMemCostLoc) (get_local $cost))
