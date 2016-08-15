@@ -26,28 +26,28 @@
   (local $maskb i64)
   (local $maskc i64)
   (local $maskd i64)
-
-  (local $sign  i32)
   (local $carry i32)
   (local $temp  i64)
+  (local $temp2 i64)
+  (local $sign i32)
+
+  (set_local $maskd (i64.const 1))
 
   ;; load args from the stack
   (set_local $a (i64.load (i32.add (get_local $sp) (i32.const 24))))
   (set_local $b (i64.load (i32.add (get_local $sp) (i32.const 16))))
-  (set_local $c (i64.load (i32.add (get_local $sp) (i32.const  8))))
-  (set_local $d (i64.load          (get_local $sp)))
-  ;; decement the stack pointer
+  (set_local $c (i64.load (i32.add (get_local $sp) (i32.const 8))))
+  (set_local $d (i64.load (get_local $sp)))
+
   (set_local $sp (i32.sub (get_local $sp) (i32.const 32)))
 
   (set_local $a1 (i64.load (i32.add (get_local $sp) (i32.const 24))))
   (set_local $b1 (i64.load (i32.add (get_local $sp) (i32.const 16))))
-  (set_local $c1 (i64.load (i32.add (get_local $sp) (i32.const  8))))
-  (set_local $d1 (i64.load          (get_local $sp)))
+  (set_local $c1 (i64.load (i32.add (get_local $sp) (i32.const 8))))
+  (set_local $d1 (i64.load (get_local $sp)))
 
-
-  (set_local $maskd (i64.const 1))
   ;; get the resulting sign
-  (set_local $sign (i32.wrap/i64 (i64.shr_u (i64.xor (get_local $d1) (get_local $d)) (i64.const 63))))
+  (set_local $sign (i32.wrap/i64 (i64.shr_u (i64.xor (get_local $a1) (get_local $a)) (i64.const 63))))
 
   ;; convert to unsigned value
   (if (i64.eqz (i64.clz (get_local $a)))

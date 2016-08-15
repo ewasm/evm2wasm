@@ -100,5 +100,22 @@
       ]
     },
     "environment": {}
+  },
+  {
+    "op": "SDIV",
+    "value": "0x05",
+    "description": "sdiv_i256min",
+    "in": {
+      "stack": [
+        "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "0x8000000000000000000000000000000000000000000000000000000000000001"
+      ]
+    },
+    "out": {
+      "stack": [
+        "0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+      ]
+    },
+    "environment": {}
   }
 ]
