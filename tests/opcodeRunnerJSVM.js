@@ -35,8 +35,14 @@ const ethUtil = require('ethereumjs-util')
 const dir = `${__dirname}/opcode`
 const opFunc = require('ethereumjs-vm/lib/opFns.js')
 const BN = require('bn.js')
+const argv = require('minimist')(process.argv.slice(2))
 
 let testFiles = fs.readdirSync(dir).filter((name) => name.endsWith('.json'))
+
+// run a single file
+if (argv.file) {
+  testFiles = [argv.file]
+}
 
 tape('testing EVM1 Ops', (t) => {
   testFiles.forEach((path) => {

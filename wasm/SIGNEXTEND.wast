@@ -32,7 +32,6 @@
           (i64.eqz (get_local $a1)))
         (i64.eqz (get_local $a0)))
     (then
-      ;; shift left   256 - 8 * a3
       (set_local $t (i32.add (i32.wrap/i64 (get_local $a3)) (get_local $sp))) 
       (set_local $sign (i64.shr_s (i64.load8_s (get_local $t)) (i64.const 8)))
       (set_local $t (i32.add (get_local $t) (i32.const 1)))
