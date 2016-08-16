@@ -27,7 +27,8 @@ tape('testing js VM', (t) => {
       }, (err, results) => {
         // test.gasUsed = results.gasUsed.toNumber()
           // check the results
-        console.log(test.gasUsed);
+        // console.log(test.gasUsed);
+        console.log(err)
         const stack = results.runState.stack
         test.result.stack.forEach((item, index) => {
           t.equals('0x' + stack[index].toString('hex'), item)
