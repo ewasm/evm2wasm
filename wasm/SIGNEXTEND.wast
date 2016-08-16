@@ -1,5 +1,3 @@
-(import $print32 "debug" "print" (param i32))
-(import $print64 "debug" "print" (param i64))
 ;; sign extend
 (func $SIGNEXTEND
   (param $sp i32)
