@@ -15,5 +15,39 @@
       ]
     },
     "environment": {}
+  },
+  {
+    "op": "SIGNEXTEND",
+    "value": "0x0b",
+    "description": "signextend_BitIsNotSet",
+    "in": {
+      "stack": [
+        "0x0000000000000000000000000000000000000000000000000000000000122f6a",
+        "0x0000000000000000000000000000000000000000000000000000000000000000"
+      ]
+    },
+    "out": {
+      "stack": [
+        "0x000000000000000000000000000000000000000000000000000000000000006a"
+      ]
+    },
+    "environment": {}
+  },
+  {
+    "op": "SIGNEXTEND",
+    "value": "0x0b",
+    "description": "signextend_BitIsSetInHigherByte",
+    "in": {
+      "stack": [
+        "0x000000000000000000000000000000000000000000000000000000000012faf4",
+        "0x0000000000000000000000000000000000000000000000000000000000000001"
+      ]
+    },
+    "out": {
+      "stack": [
+        "0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffaf4"
+      ]
+    },
+    "environment": {}
   }
 ]
