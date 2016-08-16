@@ -63,7 +63,7 @@ exports.compileWAST = function (wast) {
   return fs.readFileSync('./temp.wasm')
 }
 
-// Transcompiles EVM code to ewasm in the sexpression text format. The EVM code 
+// Transcompiles EVM code to ewasm in the sexpression text format. The EVM code
 // is broken into segments and each instruction in those segments is replaced
 // with a `call` to wasm function that does the equivalent operation. Each
 // opcode function takes in and returns the stack pointer.
