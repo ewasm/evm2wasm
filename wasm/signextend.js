@@ -1,4 +1,4 @@
-  SIGNEXTEND: function (k, runState) {
+function (k, runState) {
     k = new BN(k)
     var extendOnes = false
 
