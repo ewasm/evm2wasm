@@ -30,7 +30,7 @@ const interfaceImportMap = {
     'inputs': [ 'i32', 'i32' ]
   },
   'blockHash': {
-    'inputs': [ 'i32' ]
+    'inputs': ['i32', 'i32']
   },
   'caller': {
     'inputs': [ 'i32' ]
