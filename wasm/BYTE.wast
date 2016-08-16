@@ -16,16 +16,16 @@
   (set_local $sp (i32.sub (get_local $sp) (i32.const 32)))
 
   (i64.store (get_local $sp) 
-    (select
-      (i64.load8_u (get_local $sp))
-      (i64.const 0)
+    (if
       (i32.and 
           (i32.and 
             (i32.and 
               (i64.lt_u (get_local $a3) (i64.const 32))
               (i64.eqz (get_local $a2))) 
             (i64.eqz (get_local $a1)))
-          (i64.eqz (get_local $a0)))))
+          (i64.eqz (get_local $a0)))
+      (i64.load8_u (i32.sub (i32.const 31)(i32.wrap/i64 (get_local $a3))))
+      (i64.const 0)))
 
   ;; zero out the rest of the stack
   (i64.store (i32.add (get_local $sp) (i32.const 24)) (i64.const 0))
