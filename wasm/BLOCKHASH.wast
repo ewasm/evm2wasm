@@ -19,7 +19,7 @@
         (i64.eqz (get_local $a0)))
     (then
       ;; to check that we are not overflowing 32 bits
-      (call_import $blockHash (i32.wrap/i64 (get_local $a3)) (get_local $sp)))
+      (call_import $getBlockHash (i32.wrap/i64 (get_local $a3)) (get_local $sp)))
     (else
       ;; zero out the rest of the stack
       (i64.store (i32.add (get_local $sp) (i32.const 24)) (i64.const 0))

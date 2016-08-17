@@ -5,7 +5,7 @@
   (set_local $sp (i32.add (get_local $sp) (i32.const 32)))
 
   ;; loads the caller into memory
-  (call_import $coinbase (get_local $sp))
+  (call_import $getBlockCoinbase(get_local $sp))
   ;; zero out the last 96 bits
   (i32.store (i32.add (get_local $sp) (i32.const 20)) (i32.const 0))
   (i64.store (i32.add (get_local $sp) (i32.const 24)) (i64.const 0))

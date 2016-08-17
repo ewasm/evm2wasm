@@ -20,8 +20,11 @@ const depMap = new Map([
 
 // this is used to generate the module's import table
 const interfaceImportMap = {
-  'sstore': {
+  'storageStore': {
     'inputs': [ 'i32', 'i32' ]
+  },
+  'storageLoad': {
+    'inputs': ['i32', 'i32']
   },
   'useGas': {
     'inputs': [ 'i32' ]
@@ -29,26 +32,23 @@ const interfaceImportMap = {
   'return': {
     'inputs': [ 'i32', 'i32' ]
   },
-  'blockHash': {
+  'getBlockHash': {
     'inputs': ['i32', 'i32']
   },
-  'caller': {
+  'getCaller': {
     'inputs': [ 'i32' ]
   },
-  'address': {
+  'getAddress': {
     'inputs': [ 'i32' ]
   },
-  'coinbase': {
+  'getBlockCoinbase': {
     'inputs': [ 'i32' ]
   },
-  'callDataSize': {
+  'getCallDataSize': {
     'output': 'i32'
   },
   'callDataCopy': {
     'inputs': ['i32', 'i32', 'i32']
-  },
-  'sload': {
-    'inputs': ['i32', 'i32']
   }
 }
 
