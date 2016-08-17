@@ -28,6 +28,7 @@ function setupEnviroment (testData) {
   env.gasLimit = parseInt(testData.exec.gas.slice(2), 16)
   env.callData = Buffer.from(testData.exec.data.slice(2), 'hex')
   env.block.header.number = testData.env.currentNumber
+  env.block.header.coinbase = new Buffer(testData.env.currentCoinbase, 'hex')
   return env
 }
 

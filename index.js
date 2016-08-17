@@ -38,6 +38,9 @@ const interfaceImportMap = {
   'address': {
     'inputs': [ 'i32' ]
   },
+  'coinbase': {
+    'inputs': [ 'i32' ]
+  },
   'callDataSize': {
     'output': 'i32'
   },
