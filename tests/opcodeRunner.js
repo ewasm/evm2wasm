@@ -37,7 +37,7 @@ tape('testing EVM1 Ops', (t) => {
             value = hexToUint8Array(value, 20)
           } else if (key === 'callData') {
             // NOTE: no padding needed
-            value = hexToUint8Array(value, (value.length - 2) / 2)
+            value = new Buffer(value.slice(2), 'hex')
           } else {
             throw new Error('Unsupported environment variable')
           }
