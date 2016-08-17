@@ -23,6 +23,9 @@ tape('testing transcompiler', (t) => {
       t.comment(test.description)
 
       const environment = new Enviroment()
+      if(test.environment.callData){
+        environment.callData = new Buffer(test.environment.callData.slice(2), 'hex')
+      }
       const startGas = environment.gasLimit
       const ethInterface = new Interface(environment)
       let testInstance

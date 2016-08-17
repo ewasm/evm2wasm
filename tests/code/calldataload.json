@@ -1,0 +1,19 @@
+[
+  {
+    "description": "basic test for callDataLoad",
+    "source": [
+      "PUSH1",
+      "0x00",
+      "CALLDATALOAD"
+    ],
+    "code": "0x600035",
+    "environment": {
+      "callData": "0x876543210000000000000000000000000000000000000000000000000000000000000001"
+    },
+    "result": {
+      "stack": ["0x8765432100000000000000000000000000000000000000000000000000000000"],
+      "memory": []
+    },
+    "gasUsed": 6
+  }
+]
