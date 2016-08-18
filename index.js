@@ -15,7 +15,9 @@ const depMap = new Map([
   ['MUL', ['MUL_256']],
   ['ISZERO', ['ISZERO_32']],
   ['MSTORE', ['MEMUSEGAS']],
-  ['MSTORE8', ['MEMUSEGAS']]
+  ['MSTORE8', ['MEMUSEGAS']],
+  ['CALLDATALOAD', ['bswap_64']],
+  ['DIFFICULTY', ['bswap_64']]
 ])
 
 // this is used to generate the module's import table
@@ -44,11 +46,23 @@ const interfaceImportMap = {
   'getBlockCoinbase': {
     'inputs': [ 'i32' ]
   },
+  'getBlockGasLimit': {
+    'output': 'i32'
+  },
+  'getBlockNumber': {
+    'output': 'i32'
+  },
+  'getBlockTimestamp': {
+    'output': 'i32'
+  },
   'getCallDataSize': {
     'output': 'i32'
   },
   'callDataCopy': {
     'inputs': ['i32', 'i32', 'i32']
+  },
+  'getBlockDifficulty': {
+    'output': 'i32'
   }
 }
 
