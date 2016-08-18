@@ -14,7 +14,12 @@
         "0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe"
       ]
     },
-    "environment": {}
+    "environment": {
+      "callData": "0x00",
+      "caller": "0x0000000000000000000000000000000000000000",
+      "address": "0x0000000000000000000000000000000000000000",
+      "coinbase": "0x0000000000000000000000000000000000000000"
+    }
   },
   {
     "op": "ADD",
@@ -31,7 +36,12 @@
         "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
       ]
     },
-    "environment": {}
+    "environment": {
+      "callData": "0x00",
+      "caller": "0x0000000000000000000000000000000000000000",
+      "address": "0x0000000000000000000000000000000000000000",
+      "coinbase": "0x0000000000000000000000000000000000000000"
+    }
   },
   {
     "op": "ADD",
@@ -48,6 +58,11 @@
         "0x0000000000000000000000000000000000000000000000000000000000000004"
       ]
     },
-    "environment": {}
+    "environment": {
+      "callData": "0x00",
+      "caller": "0x0000000000000000000000000000000000000000",
+      "address": "0x0000000000000000000000000000000000000000",
+      "coinbase": "0x0000000000000000000000000000000000000000"
+    }
   }
 ]
