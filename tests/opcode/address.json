@@ -4,7 +4,10 @@
     "value": "0x30",
     "description": "return 0x5d48c1018904a172886829bbbd9c6f4a2d06c47b",
     "environment": {
-      "address": "0x5d48c1018904a172886829bbbd9c6f4a2d06c47b"
+      "address": "0x5d48c1018904a172886829bbbd9c6f4a2d06c47b",
+      "callData": "0x00",
+      "caller": "0x0000000000000000000000000000000000000000",
+      "coinbase": "0x0000000000000000000000000000000000000000"
     },
     "in": {
       "stack": []

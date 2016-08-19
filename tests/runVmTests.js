@@ -29,6 +29,10 @@ function setupEnviroment (testData) {
   env.callData = Buffer.from(testData.exec.data.slice(2), 'hex')
   env.block.header.number = testData.env.currentNumber
   env.block.header.coinbase = new Buffer(testData.env.currentCoinbase, 'hex')
+  env.block.header.difficulty = new Buffer(testData.env.currentDifficulty.slice(2), 'hex')
+  env.block.header.gasLimit = new Buffer(testData.env.currentGasLimit.slice(2), 'hex')
+  env.block.header.number = new Buffer(testData.env.currentNumber.slice(2), 'hex')
+  env.block.header.timestamp = new Buffer(testData.env.currentTimestamp.slice(2), 'hex')
   return env
 }
 

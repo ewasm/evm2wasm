@@ -26,6 +26,22 @@ files.forEach((file) => {
     if (!test.environment) {
       test.environment = {}
     }
+
+    const evn = test.environment
+
+    if (!evn.callData) {
+      evn.callData = '0x00'
+    }
+
+    if (!evn.caller) {
+      evn.caller = '0x0000000000000000000000000000000000000000'
+    }
+    if (!evn.address) {
+      evn.address = '0x0000000000000000000000000000000000000000'
+    }
+    if (!evn.coinbase) {
+      evn.coinbase = '0x0000000000000000000000000000000000000000'
+    }
   }
   console.log(file)
   fs.writeFileSync(path.join(__dirname, '/') + file, JSON.stringify(json, null, 2))
