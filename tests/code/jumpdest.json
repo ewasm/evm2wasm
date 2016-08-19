@@ -1,0 +1,25 @@
+[
+  {
+    "description": "test jumpdest",
+    "source": [
+      "PUSH1",
+      "0x04",
+      "JUMP",
+      "STOP",
+      "JUMPDEST",
+      "PUSH1",
+      "0x03",
+      "PUSH1",
+      "0x03",
+      "ADD"
+    ],
+    "code": "0x600456005b6003600301",
+    "result": {
+      "stack": [
+        "0x06"
+      ],
+      "memory": []
+    },
+    "gasUsed": 21
+  }
+]

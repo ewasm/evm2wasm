@@ -17,7 +17,8 @@ const depMap = new Map([
   ['MSTORE', ['MEMUSEGAS']],
   ['MSTORE8', ['MEMUSEGAS']],
   ['CALLDATALOAD', ['bswap_64']],
-  ['COINBASE', ['bswap_64']]
+  ['COINBASE', ['bswap_64']],
+  ['BLOCKHASH', ['bswap_64']]
 ])
 
 // this is used to generate the module's import table
