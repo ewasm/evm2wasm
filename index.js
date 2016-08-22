@@ -18,7 +18,7 @@ const depMap = new Map([
   ['MSTORE8', ['MEMUSEGAS']],
   ['CALLDATALOAD', ['bswap_64']],
   ['COINBASE', ['bswap_64']],
-  ['BLOCKHASH', ['bswap_64']]
+  ['BLOCKHASH']
 ])
 
 // this is used to generate the module's import table
@@ -44,6 +44,9 @@ const interfaceImportMap = {
   'getAddress': {
     'inputs': [ 'i32' ]
   },
+  'getBlockDifficulty': {
+    'inputs': [ 'i32' ]
+  },
   'getBlockCoinbase': {
     'inputs': [ 'i32' ]
   },
@@ -62,8 +65,8 @@ const interfaceImportMap = {
   'callDataCopy': {
     'inputs': ['i32', 'i32', 'i32']
   },
-  'getBlockDifficulty': {
-    'output': 'i32'
+  'callDataCopy256': {
+    'inputs': ['i32', 'i32']
   }
 }
 

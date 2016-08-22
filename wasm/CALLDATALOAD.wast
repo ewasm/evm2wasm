@@ -2,7 +2,7 @@
   (param $sp i32)
   (result i32)
   (local $temp i64)
-  (call_import $callDataCopy (get_local $sp) (i32.load(get_local $sp)) (i32.const 32))
+  (call_import $callDataCopy256 (get_local $sp) (i32.load(get_local $sp)))
 
   (set_local $temp (call $bswap_64 (i64.load (get_local $sp))))
   (i64.store (get_local $sp) (call $bswap_64 (i64.load (i32.add (get_local $sp) (i32.const 24)))))
