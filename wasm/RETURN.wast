@@ -15,7 +15,7 @@
   (local $length2 i64)
   (local $length3 i64)
 
-  (set_local $memstart (i32.const 33832))
+  (set_local $memstart (i32.const 34048))
 
   ;; load args from the stack
   (set_local $offset0 (i64.load (i32.add (get_local $sp) (i32.const 24))))

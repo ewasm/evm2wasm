@@ -36,7 +36,7 @@ The eWASM contract memory layout is currently as follows:
 | Previous memory cost in word count (4 bytes)
 | (The cost charged for the last memory allocation)
 +---------------------------------------------------
-| Scratch space (32 bytes)
+| Scratch/reserved space (248 bytes)
 +---------------------------------------------------
 | Reserved space for the SHA3 context (1024 bytes)
 +---------------------------------------------------
