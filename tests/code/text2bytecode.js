@@ -147,7 +147,11 @@ fs.readdir('.', (err, filenames) => {
         if (opcode) {
           byteCode += opcode
         } else {
-          byteCode += op.slice(2)
+          let val = op.slice(2)
+          if (val.length % 2) {
+            val = '0' + val
+          }
+          byteCode += val
         }
       })
 
