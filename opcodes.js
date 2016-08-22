@@ -46,20 +46,20 @@ const codes = {
   0x3c: ['EXTCODECOPY', 20, 4, 0, true],
 
   // '0x40' range - block operations
-  0x40: ['BLOCKHASH', 20, 1, 1, true],
-  0x41: ['COINBASE', 2, 0, 1, true],
-  0x42: ['TIMESTAMP', 2, 0, 1, true],
-  0x43: ['NUMBER', 2, 0, 1, true],
-  0x44: ['DIFFICULTY', 2, 0, 1, true],
-  0x45: ['GASLIMIT', 2, 0, 1, true],
+  0x40: ['BLOCKHASH', 0, 1, 1, true],
+  0x41: ['COINBASE', 0, 0, 1, true],
+  0x42: ['TIMESTAMP', 0, 0, 1, true],
+  0x43: ['NUMBER', 0, 0, 1, true],
+  0x44: ['DIFFICULTY', 0, 0, 1, true],
+  0x45: ['GASLIMIT', 0, 0, 1, true],
 
   // 0x50 range - 'storage' and execution
   0x50: ['POP', 2, 1, 0, false],
   0x51: ['MLOAD', 3, 1, 1, false],
   0x52: ['MSTORE', 3, 2, 0, false],
   0x53: ['MSTORE8', 3, 2, 0, false],
-  0x54: ['SLOAD', 50, 1, 1, true],
-  0x55: ['SSTORE', 5000, 2, 0, true],
+  0x54: ['SLOAD', 0, 1, 1, true],
+  0x55: ['SSTORE', 0, 2, 0, true],
   0x56: ['JUMP', 8, 1, 0, false],
   0x57: ['JUMPI', 10, 2, 0, false],
   0x58: ['PC', 2, 0, 1, false],
