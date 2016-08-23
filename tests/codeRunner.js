@@ -23,7 +23,7 @@ tape('testing transcompiler', (t) => {
       t.comment(test.description)
 
       const environment = new Enviroment()
-      const startGas = environment.gasLimit
+      const startGas = environment.gasLeft
       const ethInterface = new Interface(environment)
       let testInstance
       try {
@@ -33,7 +33,7 @@ tape('testing transcompiler', (t) => {
         return
       }
       // check the gas used
-      const gasUsed = startGas - environment.gasLimit
+      const gasUsed = startGas - environment.gasLeft
       t.equals(gasUsed, test.gasUsed, 'should have correct gas')
 
       // check the results
