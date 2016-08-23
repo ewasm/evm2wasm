@@ -25,15 +25,22 @@ function runner (testData, t, cb) {
 
 function setupEnviroment (testData) {
   const env = new Environment()
+
   env.gasLeft = parseInt(testData.exec.gas.slice(2), 16)
   env.callData = Buffer.from(testData.exec.data.slice(2), 'hex')
+  // setup block
   env.block.header.number = testData.env.currentNumber
   env.block.header.coinbase = new Buffer(testData.env.currentCoinbase, 'hex')
   env.block.header.difficulty = testData.env.currentDifficulty
   env.block.header.gasLimit = new Buffer(testData.env.currentGasLimit.slice(2), 'hex')
   env.block.header.number = new Buffer(testData.env.currentNumber.slice(2), 'hex')
   env.block.header.timestamp = new Buffer(testData.env.currentTimestamp.slice(2), 'hex')
-  // console.log(env.block.header.difficulty);
+
+  for (let address in testData.pre) {
+    const account = testData.pre[address]
+    env.addAccount(address, account)
+  }
+
   return env
 }
 
