@@ -51,5 +51,5 @@ tape('testing transcompiler', (t) => {
 function buildTest (code, env) {
   code = new Buffer(code.slice(2), 'hex')
   const compiled = evm2wasm.compile(code)
-  return Kernel.codeHandler(compiled, env)
+  return new Kernel().codeHandler(compiled, env)
 }
