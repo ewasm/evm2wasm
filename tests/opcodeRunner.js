@@ -43,7 +43,7 @@ tape('testing EVM1 Ops', (t) => {
 
       // populate the stack with predefined values
       test.in.stack.forEach((item, index) => {
-        item = hexToUint8Array(item)
+        item = hexToUint8Array(item).reverse()
         setMemory(testInstance, item, index * 32)
       })
 
@@ -53,7 +53,7 @@ tape('testing EVM1 Ops', (t) => {
           let item = test.in.memory[offset]
           offset |= 0
           offset += EVM_MEMORY_OFFSET
-          item = hexToUint8Array(item)
+          item = hexToUint8Array(item).reverse()
           setMemory(testInstance, item, offset)
         })
       }
@@ -122,7 +122,7 @@ function buildTest (op, ethInterface) {
 }
 
 function hexToUint8Array (item, length) {
-  return new Uint8Array(ethUtil.setLength(new Buffer(item.slice(2), 'hex'), length || 32)).reverse()
+  return new Uint8Array(ethUtil.setLength(new Buffer(item.slice(2), 'hex'), length || 32))
 }
 
 function setMemory (instance, value, start) {
@@ -130,5 +130,5 @@ function setMemory (instance, value, start) {
 }
 
 function getMemory (instance, start, end) {
-  return new Uint8Array(instance.exports.memory).slice(start, end)
+  return new Uint8Array(instance.exports.memory).slice(start, end).reverse()
 }
