@@ -42,7 +42,7 @@ const codes = {
   0x38: ['CODESIZE', 2, 0, 1, false],
   0x39: ['CODECOPY', 3, 3, 0, false],
   0x3a: ['GASPRICE', 2, 0, 1, false],
-  0x3b: ['EXTCODESIZE', 20, 1, 1, true],
+  0x3b: ['EXTCODESIZE', 0, 1, 1, true],
   0x3c: ['EXTCODECOPY', 20, 4, 0, true],
 
   // '0x40' range - block operations

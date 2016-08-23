@@ -1,4 +1,5 @@
 const BN = require('bn.js')
+const ethUtil = require('ethereumjs-util')
 const fs = require('fs')
 const cp = require('child_process')
 const opcodes = require('./opcodes.js')
@@ -180,18 +181,22 @@ exports.compileEVM = function (evmCode, stackTrace) {
         break
       case 'PUSH':
         i++
-        bytes = evmCode.slice(i, i += op.number)
-        const bytesRounded = Math.ceil(bytes.length / 8) * 8
-
-        for (let q = bytesRounded; q > 0; q -= 8) {
-          const int64 = bytes2int64(bytes.slice(q - 8, q))
-          wasmCode = `(i64.const ${int64})` + wasmCode
-        }
-
+        bytes = ethUtil.setLength(evmCode.slice(i, i += op.number), 32)
+        const bytesRounded = Math.ceil(op.number / 8)
+        let push = ''
+        let q = 0
         // pad the remaining of the word with 0
-        for (let q = 32; q > bytesRounded; q -= 8) {
-          wasmCode = '(i64.const 0)' + wasmCode
+        for (; q < 4 - bytesRounded; q++) {
+          push = '(i64.const 0)' + push
         }
+
+        for (; q < 4; q++) {
+          const int64 = bytes2int64(bytes.slice(q * 8, q * 8 + 8))
+          push = push + `(i64.const ${int64})`
+        }
+
+        wasmCode = push + wasmCode
+
         i--
         break
       case 'DUP':
