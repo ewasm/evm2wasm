@@ -14,7 +14,8 @@ function runner (testData, t, cb) {
   const ethInterface = new Interface(enviroment)
 
   try {
-    const instance = Kernel.codeHandler(evm, ethInterface)
+    const kernel = new Kernel()
+    const instance = kernel.codeHandler(evm, ethInterface)
     checkResults(testData, t, instance, enviroment)
   } catch (e) {
     t.comment(e)
