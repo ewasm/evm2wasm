@@ -25,7 +25,7 @@ function runner (testData, t, cb) {
 
 function setupEnviroment (testData) {
   const env = new Environment()
-  env.gasLimit = parseInt(testData.exec.gas.slice(2), 16)
+  env.gasLeft = parseInt(testData.exec.gas.slice(2), 16)
   env.callData = Buffer.from(testData.exec.data.slice(2), 'hex')
   env.block.header.number = testData.env.currentNumber
   env.block.header.coinbase = new Buffer(testData.env.currentCoinbase, 'hex')
@@ -39,7 +39,7 @@ function setupEnviroment (testData) {
 
 function checkResults (testData, t, instance, environment) {
   // check gas used
-  t.equals(ethUtil.intToHex(environment.gasLimit), testData.gas, 'should have the correct gas')
+  t.equals(ethUtil.intToHex(environment.gasLeft), testData.gas, 'should have the correct gas')
   // check storage
   const testsStorage = testData.post[testData.exec.address].storage
   if (testsStorage) {
