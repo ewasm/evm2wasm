@@ -18,6 +18,7 @@ const depMap = new Map([
   ['MSTORE8', ['MEMUSEGAS']],
   ['CALLDATALOAD', ['bswap_64']],
   ['COINBASE', ['bswap_64']],
+  ['EXTCODESIZE', ['bswap_64']],
   ['BLOCKHASH']
 ])
 
@@ -67,6 +68,10 @@ const interfaceImportMap = {
   },
   'callDataCopy256': {
     'inputs': ['i32', 'i32']
+  },
+  'getExternalCodeSize': {
+    'inputs': ['i32'],
+    'output': 'i32'
   }
 }
 
