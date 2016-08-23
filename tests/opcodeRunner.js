@@ -101,7 +101,7 @@ tape('testing EVM1 Ops', (t) => {
       }
 
       if (test.out.gasUsed) {
-        t.equals(1000000 - testEnvironment.gasLimit, test.out.gasUsed, 'should have used the correct amount of gas')
+        t.equals(1000000 - testEnvironment.gasLeft, test.out.gasUsed, 'should have used the correct amount of gas')
       }
     })
   })
