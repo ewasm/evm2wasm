@@ -53,10 +53,10 @@ function checkResults (testData, t, instance, environment) {
   if (testsStorage) {
     for (let testKey in testsStorage) {
       const testValue = testsStorage[testKey]
-      const key = new Buffer(testKey.slice(2), 'hex').reverse().toString('hex')
+      const key = new Buffer(testKey.slice(2), 'hex').toString('hex')
       let value = environment.state.get(key)
       if (value) {
-        value = '0x' + new Buffer(value.reverse()).toString('hex')
+        value = '0x' + new Buffer(value).toString('hex')
       }
 
       t.equals(value, testValue, `should have correct storage value at key ${key}`)
