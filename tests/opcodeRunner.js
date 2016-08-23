@@ -118,7 +118,7 @@ function buildTest (op, ethInterface) {
   const funcs = compiler.resolveFunctions(new Set([op]))
   const linked = compiler.buildModule(funcs, [], [op])
   const wasm = compiler.compileWAST(linked)
-  return Kernel.codeHandler(wasm, ethInterface)
+  return new Kernel().codeHandler(wasm, ethInterface)
 }
 
 function hexToUint8Array (item, length) {
