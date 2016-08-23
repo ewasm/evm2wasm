@@ -24,7 +24,13 @@ tape('testing EVM1 Ops', (t) => {
     opTest.forEach((test) => {
       const testEnvironment = new KernelEnvironment()
       const testInterface = new KernelInterface(testEnvironment)
-      const testInstance = buildTest(test.op, testInterface)
+      let testInstance
+      try {
+        testInstance = buildTest(test.op, testInterface)
+      } catch (e) {
+        t.fail('WASM exception: ' + e)
+        return
+      }
 
       // FIXME: have separate `t.test()` for better grouping
       t.comment(`testing ${test.op} ${test.description}`)
