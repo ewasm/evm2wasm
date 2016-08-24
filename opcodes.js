@@ -34,7 +34,7 @@ const codes = {
   0x30: ['ADDRESS', 0, 0, 1, true],
   0x31: ['BALANCE', 0, 1, 1, true],
   0x32: ['ORIGIN', 2, 0, 1, true],
-  0x33: ['CALLER', 2, 0, 1, true],
+  0x33: ['CALLER', 0, 0, 1, true],
   0x34: ['CALLVALUE', 2, 0, 1, true],
   0x35: ['CALLDATALOAD', 0, 1, 1, true],
   0x36: ['CALLDATASIZE', 2, 0, 1, true],
