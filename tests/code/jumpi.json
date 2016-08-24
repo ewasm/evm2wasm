@@ -22,6 +22,9 @@
       ],
       "memory": []
     },
-    "gasUsed": 28
+    "gasUsed": 28,
+    "environment": {
+      "coinbase": "0x0000000000000000000000000000000000000000"
+    }
   }
 ]

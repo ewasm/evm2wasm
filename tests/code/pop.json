@@ -10,6 +10,9 @@
       "stack": [],
       "memory": []
     },
-    "gasUsed": 4
+    "gasUsed": 4,
+    "environment": {
+      "coinbase": "0x0000000000000000000000000000000000000000"
+    }
   }
 ]

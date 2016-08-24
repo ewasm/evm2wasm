@@ -8,11 +8,14 @@ const Interface = require('ewasm-kernel/interface')
 const argv = require('minimist')(process.argv.slice(2))
 
 const dir = `${__dirname}/code/`
-let testFiles = fs.readdirSync(dir).filter((name) => name.endsWith('.json'))
+const trace = argv.trace
+let testFiles
 
-// run a single file
 if (argv.file) {
+  // run a single file
   testFiles = [argv.file]
+} else {
+  testFiles = fs.readdirSync(dir).filter((name) => name.endsWith('.json'))
 }
 
 tape('testing transcompiler', (t) => {
@@ -23,6 +26,8 @@ tape('testing transcompiler', (t) => {
       t.comment(test.description)
 
       const environment = new Enviroment()
+      environment.block.header.coinbase = test.environment.coinbase
+
       const startGas = environment.gasLeft
       const ethInterface = new Interface(environment)
       let testInstance
@@ -50,6 +55,6 @@ tape('testing transcompiler', (t) => {
 
 function buildTest (code, env) {
   code = new Buffer(code.slice(2), 'hex')
-  const compiled = evm2wasm.compile(code)
+  const compiled = evm2wasm.compile(code, trace)
   return new Kernel().codeHandler(compiled, env)
 }

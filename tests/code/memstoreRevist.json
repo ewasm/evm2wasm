@@ -18,6 +18,9 @@
       "stack": [],
       "memory": []
     },
-    "gasUsed": 21
+    "gasUsed": 21,
+    "environment": {
+      "coinbase": "0x0000000000000000000000000000000000000000"
+    }
   }
 ]

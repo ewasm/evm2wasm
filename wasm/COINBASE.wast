@@ -6,5 +6,10 @@
 
   ;; loads the caller into memory
   (call_import $getBlockCoinbase(get_local $sp))
+
+  ;; zero out the rest of the stack
+  (i64.store (i32.add (get_local $sp) (i32.const 24)) (i64.const 0))
+  (i32.store (i32.add (get_local $sp) (i32.const 20)) (i32.const 0))
+
   (return (get_local $sp))
 )
