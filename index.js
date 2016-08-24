@@ -15,8 +15,9 @@ const depMap = new Map([
   ['EXP', ['ISZERO_32', 'MUL_256']],
   ['MUL', ['MUL_256']],
   ['ISZERO', ['ISZERO_32']],
-  ['MSTORE', ['MEMUSEGAS']],
-  ['MSTORE8', ['MEMUSEGAS']]
+  ['MSTORE', ['MEMUSEGAS', 'swap_word']],
+  ['MSTORE8', ['MEMUSEGAS']],
+  ['MLOAD', ['swap_word']]
 ])
 
 // this is used to generate the module's import table
