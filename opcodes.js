@@ -31,8 +31,8 @@ const codes = {
   0x20: ['SHA3', 30, 2, 1, false],
 
   // 0x30 range - closure state
-  0x30: ['ADDRESS', 2, 0, 1, true],
-  0x31: ['BALANCE', 20, 1, 1, true],
+  0x30: ['ADDRESS', 0, 0, 1, true],
+  0x31: ['BALANCE', 0, 1, 1, true],
   0x32: ['ORIGIN', 2, 0, 1, true],
   0x33: ['CALLER', 2, 0, 1, true],
   0x34: ['CALLVALUE', 2, 0, 1, true],

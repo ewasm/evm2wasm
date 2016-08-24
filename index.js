@@ -66,6 +66,9 @@ const interfaceImportMap = {
   'callDataCopy256': {
     'inputs': ['i32', 'i32']
   },
+  'getBalance': {
+    'inputs': ['i32', 'i32']
+  },
   'getExternalCodeSize': {
     'inputs': ['i32'],
     'output': 'i32'

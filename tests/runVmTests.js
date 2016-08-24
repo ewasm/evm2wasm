@@ -29,6 +29,8 @@ function setupEnviroment (testData) {
 
   env.gasLeft = parseInt(testData.exec.gas.slice(2), 16)
   env.callData = Buffer.from(testData.exec.data.slice(2), 'hex')
+  env.address = new Buffer(testData.exec.address, 'hex')
+  // console.log(testData);
   // setup block
   env.block.header.number = testData.env.currentNumber
   env.block.header.coinbase = new Buffer(testData.env.currentCoinbase, 'hex')
