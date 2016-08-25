@@ -46,7 +46,7 @@ function setupEnviroment (testData) {
     const account = testData.pre[address]
     account.code = new Buffer(account.code.slice(2), 'hex')
     account.balance = new U256(account.balance)
-    env.addAccount(address, account)
+    env.addAccount('0x' + address, account)
   }
 
   return env
