@@ -16,8 +16,8 @@ const depMap = new Map([
   ['MUL', ['MUL_256']],
   ['ISZERO', ['ISZERO_32']],
   ['MSTORE', ['MEMUSEGAS', 'swap_word']],
+  ['MLOAD', ['MEMUSEGAS', 'swap_word']],
   ['MSTORE8', ['MEMUSEGAS']],
-  ['MLOAD', ['swap_word']],
   ['CALLDATALOAD', ['swap_word']],
   ['CALLDATACOPY', ['MEMUSEGAS']]
 ])

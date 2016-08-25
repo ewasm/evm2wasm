@@ -19,7 +19,7 @@
   (set_local $offset3 (i64.load          (get_local $sp)))
 
   ;; subtrace gas useage
-  (call $memUseGas (i32.wrap/i64 (get_local $offset3)))
+  (call $memUseGas (i32.wrap/i64 (get_local $offset3)) (i32.const 32))
 
   ;; pop itme from the stack
   (set_local $sp (i32.sub (get_local $sp) (i32.const 32)))

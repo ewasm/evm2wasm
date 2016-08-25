@@ -17,6 +17,9 @@
   (set_local $offset2 (i64.load (i32.add (get_local $sp) (i32.const 8))))
   (set_local $offset3 (i64.load          (get_local $sp)))
 
+  ;; subtrace gas useage
+  (call $memUseGas (i32.wrap/i64 (get_local $offset3)) (i32.const  32))
+
   ;; FIXME: how to deal with overflow?
   (set_local $offset (i32.add (i32.wrap/i64 (get_local $offset3)) (get_local $offset)))
 

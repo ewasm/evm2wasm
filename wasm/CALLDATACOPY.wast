@@ -55,9 +55,7 @@
                                    (get_local $dataOffset3)))
 
 
-  (call $memUseGas (get_local $writeOffset))
-  (call $memUseGas (i32.sub (get_local $length) (i32.const 32)))
-
+  (call $memUseGas (get_local $writeOffset) (get_local $length))
   ;; check for overflow length
 
   (call_import $callDataCopy 
