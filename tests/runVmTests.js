@@ -5,6 +5,7 @@ const testing = require('ethereumjs-testing')
 const Kernel = require('ewasm-kernel')
 const Environment = require('ewasm-kernel/environment.js')
 const Address = require('ewasm-kernel/address.js')
+const U256 = require('ewasm-kernel/u256.js')
 const Interface = require('ewasm-kernel/interface')
 const evm2wasm = require('../index.js')
 
@@ -43,6 +44,7 @@ function setupEnviroment (testData) {
   for (let address in testData.pre) {
     const account = testData.pre[address]
     account.code = new Buffer(account.code.slice(2), 'hex')
+    account.balance = new U256(account.balance)
     env.addAccount(address, account)
   }
 
@@ -57,10 +59,10 @@ function checkResults (testData, t, instance, environment) {
   if (testsStorage) {
     for (let testKey in testsStorage) {
       const testValue = testsStorage[testKey]
-      const key = new Buffer(testKey.slice(2), 'hex').toString('hex')
+      const key = new Buffer(testKey.slice(2), 'hex').reverse().toString('hex')
       let value = environment.state.get(key)
       if (value) {
-        value = '0x' + new Buffer(value).toString('hex')
+        value = '0x' + new Buffer(value).reverse().toString('hex')
       }
 
       t.equals(value, testValue, `should have correct storage value at key ${key}`)
