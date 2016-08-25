@@ -15,12 +15,10 @@ const depMap = new Map([
   ['EXP', ['ISZERO_32', 'MUL_256']],
   ['MUL', ['MUL_256']],
   ['ISZERO', ['ISZERO_32']],
-  ['MSTORE', ['MEMUSEGAS']],
+  ['MSTORE', ['MEMUSEGAS', 'swap_word']],
   ['MSTORE8', ['MEMUSEGAS']],
-  ['CALLDATALOAD', ['bswap_64']],
-  ['COINBASE', ['bswap_64']],
-  ['EXTCODESIZE', ['bswap_64']],
-  ['BLOCKHASH']
+  ['MLOAD', ['swap_word']],
+  ['CALLDATALOAD', ['swap_word']]
 ])
 
 // this is used to generate the module's import table
@@ -68,6 +66,9 @@ const interfaceImportMap = {
     'inputs': ['i32', 'i32', 'i32']
   },
   'callDataCopy256': {
+    'inputs': ['i32', 'i32']
+  },
+  'getBalance': {
     'inputs': ['i32', 'i32']
   },
   'getExternalCodeSize': {

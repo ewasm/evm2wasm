@@ -1,0 +1,22 @@
+[
+  {
+    "description": "tests that COINBASE clears the stack",
+    "environment": {
+      "coinbase": "0x4bb96091ee9d802ed039c4d1a5f6216f90f81b01"
+    },
+    "source": [
+      "PUSH32",
+      "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "POP",
+      "COINBASE"
+    ],
+    "code": "0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff5041",
+    "result": {
+      "stack": [
+        "0x0000000000000000000000004bb96091ee9d802ed039c4d1a5f6216f90f81b01"
+      ],
+      "memory": []
+    },
+    "gasUsed": 7
+  }
+]

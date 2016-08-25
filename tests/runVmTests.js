@@ -4,6 +4,8 @@ const ethUtil = require('ethereumjs-util')
 const testing = require('ethereumjs-testing')
 const Kernel = require('ewasm-kernel')
 const Environment = require('ewasm-kernel/environment.js')
+const Address = require('ewasm-kernel/address.js')
+const U256 = require('ewasm-kernel/u256.js')
 const Interface = require('ewasm-kernel/interface')
 const evm2wasm = require('../index.js')
 
@@ -29,6 +31,9 @@ function setupEnviroment (testData) {
 
   env.gasLeft = parseInt(testData.exec.gas.slice(2), 16)
   env.callData = Buffer.from(testData.exec.data.slice(2), 'hex')
+  env.address = new Address('0x' + testData.exec.address)
+  env.caller = new Address('0x' + testData.exec.caller)
+
   // setup block
   env.block.header.number = testData.env.currentNumber
   env.block.header.coinbase = new Buffer(testData.env.currentCoinbase, 'hex')
@@ -39,6 +44,8 @@ function setupEnviroment (testData) {
 
   for (let address in testData.pre) {
     const account = testData.pre[address]
+    account.code = new Buffer(account.code.slice(2), 'hex')
+    account.balance = new U256(account.balance)
     env.addAccount(address, account)
   }
 
@@ -56,7 +63,7 @@ function checkResults (testData, t, instance, environment) {
       const key = new Buffer(testKey.slice(2), 'hex').reverse().toString('hex')
       let value = environment.state.get(key)
       if (value) {
-        value = '0x' + new Buffer(value.reverse()).toString('hex')
+        value = '0x' + new Buffer(value).reverse().toString('hex')
       }
 
       t.equals(value, testValue, `should have correct storage value at key ${key}`)

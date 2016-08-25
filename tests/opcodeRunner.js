@@ -3,6 +3,7 @@ const tape = require('tape')
 const Kernel = require('ewasm-kernel')
 const KernelInterface = require('ewasm-kernel/interface.js')
 const KernelEnvironment = require('ewasm-kernel/environment.js')
+const Address = require('ewasm-kernel/address.js')
 const ethUtil = require('ethereumjs-util')
 const compiler = require('../index.js')
 const argv = require('minimist')(process.argv.slice(2))
@@ -36,14 +37,14 @@ tape('testing EVM1 Ops', (t) => {
       t.comment(`testing ${test.op} ${test.description}`)
 
       // populate the environment
-      testEnvironment.caller = hexToUint8Array(test.environment.caller, 20)
-      testEnvironment.address = hexToUint8Array(test.environment.address, 20)
+      testEnvironment.caller = new Address(test.environment.caller)
+      testEnvironment.address = new Address(test.environment.address)
       testEnvironment.callData = new Buffer(test.environment.callData.slice(2), 'hex')
       testEnvironment.block.header.coinbase = test.environment.coinbase
 
       // populate the stack with predefined values
       test.in.stack.forEach((item, index) => {
-        item = hexToUint8Array(item)
+        item = hexToUint8Array(item).reverse()
         setMemory(testInstance, item, index * 32)
       })
 
@@ -53,7 +54,7 @@ tape('testing EVM1 Ops', (t) => {
           let item = test.in.memory[offset]
           offset |= 0
           offset += EVM_MEMORY_OFFSET
-          item = hexToUint8Array(item)
+          item = hexToUint8Array(item).reverse()
           setMemory(testInstance, item, offset)
         })
       }
@@ -122,7 +123,7 @@ function buildTest (op, ethInterface) {
 }
 
 function hexToUint8Array (item, length) {
-  return new Uint8Array(ethUtil.setLength(new Buffer(item.slice(2), 'hex'), length || 32)).reverse()
+  return new Uint8Array(ethUtil.setLength(new Buffer(item.slice(2), 'hex'), length || 32))
 }
 
 function setMemory (instance, value, start) {
@@ -130,5 +131,5 @@ function setMemory (instance, value, start) {
 }
 
 function getMemory (instance, start, end) {
-  return new Uint8Array(instance.exports.memory).slice(start, end)
+  return new Uint8Array(instance.exports.memory).slice(start, end).reverse()
 }
