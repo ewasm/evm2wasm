@@ -33,6 +33,7 @@ function setupEnviroment (testData) {
   env.callData = Buffer.from(testData.exec.data.slice(2), 'hex')
   env.address = new Address('0x' + testData.exec.address)
   env.caller = new Address('0x' + testData.exec.caller)
+
   // setup block
   env.block.header.number = testData.env.currentNumber
   env.block.header.coinbase = new Buffer(testData.env.currentCoinbase, 'hex')
