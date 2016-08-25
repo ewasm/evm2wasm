@@ -1,6 +1,6 @@
 (func $memUseGas
   (param $offset i32)
-  (local $length i32)
+  (param $length i32)
 
   (local $cost i32)
   (local $pages i32)
@@ -19,7 +19,6 @@
   (local $newWordCount i32)
 
   (set_local $wordCost (i32.const 3))
-  (set_local $length (i32.const 32))
 
   ;; TODO: dedicate memory for these globals
   (set_local $wordCountLoc   (i32.const 32768))
@@ -35,7 +34,7 @@
                                  (i32.add (get_local $offset) (get_local $length))) (f32.const 32)))))
 
   ;;if (runState.highestMem >= highestMem)  return
-  (if (i32.lt_u (get_local $newWordCount) (get_local $wordCount))
+  (if (i32.le_u (get_local $newWordCount) (get_local $wordCount))
     (then (return))
   )
 
