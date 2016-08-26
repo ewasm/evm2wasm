@@ -63,6 +63,9 @@ const interfaceImportMap = {
   'getCallDataSize': {
     'output': 'i32'
   },
+  'codeCopy': {
+    'inputs': ['i32', 'i32', 'i32']
+  },
   'callDataCopy': {
     'inputs': ['i32', 'i32', 'i32']
   },

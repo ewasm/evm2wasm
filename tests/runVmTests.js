@@ -34,7 +34,9 @@ function setupEnviroment (testData) {
   // TODO: fix tests
   env.address = new Address('0x' + testData.exec.address)
   env.caller = new Address('0x' + testData.exec.caller)
+
   env.callValue = new U256(testData.exec.value)
+  env.code = new Buffer(testData.exec.code.slice(2), 'hex')
 
   // setup block
   env.block.header.number = testData.env.currentNumber
