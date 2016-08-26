@@ -72,6 +72,9 @@ const interfaceImportMap = {
   'getBalance': {
     'inputs': ['i32', 'i32']
   },
+  'getCallValue': {
+    'inputs': ['i32']
+  },
   'getExternalCodeSize': {
     'inputs': ['i32'],
     'output': 'i32'
