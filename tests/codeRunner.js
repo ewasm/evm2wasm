@@ -4,6 +4,7 @@ const evm2wasm = require('../index.js')
 const ethUtil = require('ethereumjs-util')
 const Kernel = require('ewasm-kernel')
 const Enviroment = require('ewasm-kernel/environment')
+const Address = require('ewasm-kernel/address')
 const Interface = require('ewasm-kernel/interface')
 const argv = require('minimist')(process.argv.slice(2))
 
@@ -27,6 +28,7 @@ tape('testing transcompiler', (t) => {
 
       const environment = new Enviroment()
       environment.block.header.coinbase = test.environment.coinbase
+      environment.origin = new Address(test.environment.origin)
 
       const startGas = environment.gasLeft
       const ethInterface = new Interface(environment)

@@ -1,26 +1,20 @@
 [
   {
-    "description": "test solidity dispatcher preamble",
+    "description": "tests the program counter",
     "source": [
       "PUSH1",
-      "0x06",
-      "JUMP",
-      "PUSH1",
-      "0x0d",
-      "JUMP",
-      "JUMPDEST",
-      "PUSH1",
       "0x01",
-      "STOP"
+      "POP",
+      "PC"
     ],
-    "code": "0x600656600d565b600100",
+    "code": "0x60015058",
     "result": {
       "stack": [
-        "0x01"
+        "0x03"
       ],
       "memory": []
     },
-    "gasUsed": 15,
+    "gasUsed": 7,
     "environment": {
       "coinbase": "0x0000000000000000000000000000000000000000",
       "origin": "0x0000000000000000000000000000000000000000"

@@ -1,17 +1,17 @@
 [
   {
-    "description": "tests that COINBASE clears the stack",
+    "description": "tests that Origin clears the stack",
     "environment": {
-      "coinbase": "0x4bb96091ee9d802ed039c4d1a5f6216f90f81b01",
-      "origin": "0x0000000000000000000000000000000000000000"
+      "coinbase": "0x0000000000000000000000000000000000000000",
+      "origin": "0x4bb96091ee9d802ed039c4d1a5f6216f90f81b01"
     },
     "source": [
       "PUSH32",
       "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
       "POP",
-      "COINBASE"
+      "ORIGIN"
     ],
-    "code": "0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff5041",
+    "code": "0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff5032",
     "result": {
       "stack": [
         "0x0000000000000000000000004bb96091ee9d802ed039c4d1a5f6216f90f81b01"
