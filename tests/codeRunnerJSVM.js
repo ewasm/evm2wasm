@@ -19,9 +19,10 @@ tape('testing js VM', (t) => {
       t.comment(test.description)
       const vm = new VM()
         // vm.on('step', (info) => {
-        //   console.log(info.opcode.name);
+        //   console.log(info.opcode.name, info.opcode.fee);
         // })
       vm.runCode({
+        data: test.environment.callData,
         code: new Buffer(test.code.slice(2), 'hex'),
         gasLimit: new BN(90000)
       }, (err, results) => {
@@ -29,7 +30,16 @@ tape('testing js VM', (t) => {
         // check the results
         // console.log(test.gasUsed);
         console.log(err)
+
+        t.equals(results.exception, 1, 'should not run into exception')
+
+        // check the gas used
+        const gasUsed = results.gasUsed.toNumber()
+        t.equals(gasUsed, test.gasUsed, 'should have correct gas')
+
         const stack = results.runState.stack
+        t.equal(stack.length, test.result.stack.length, 'should have correct number of items on the stack')
+
         test.result.stack.forEach((item, index) => {
           t.equals('0x' + stack[index].toString('hex'), item)
         })

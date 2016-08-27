@@ -1,0 +1,25 @@
+[
+  {
+    "description": "drain gas",
+    "source": [
+      "JUMPDEST",
+      "GAS",
+      "PUSH1",
+      "0x2C",
+      "LT",
+      "PUSH1",
+      "0x00",
+      "JUMPI",
+      "STOP"
+    ],
+    "code": "0x5b5a602C1060005700",
+    "result": {
+      "stack": [],
+      "memory": []
+    },
+    "gasUsed": 89980,
+    "environment": {
+      "coinbase": "0x0000000000000000000000000000000000000000"
+    }
+  }
+]
