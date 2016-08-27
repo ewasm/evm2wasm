@@ -29,8 +29,6 @@ function runner (testData, t, cb) {
 function setupEnviroment (testData) {
   const env = new Environment()
 
-  console.log(testData);
-
   env.gasLeft = parseInt(testData.exec.gas.slice(2), 16)
   env.callData = Buffer.from(testData.exec.data.slice(2), 'hex')
   // TODO: fix tests
