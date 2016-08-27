@@ -194,7 +194,7 @@ exports.compileEVM = function (evmCode, stackTrace) {
         i += op.number
         break
       case 'PC':
-        wasmCode = `(i64.const ${i}) ${wasmCode}`
+        wasmCode = `(i32.const ${i}) ${wasmCode}`
         break
       case 'PUSH':
         i++
