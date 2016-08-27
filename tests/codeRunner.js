@@ -29,6 +29,9 @@ tape('testing transcompiler', (t) => {
       const environment = new Enviroment()
       environment.block.header.coinbase = test.environment.coinbase
       environment.origin = new Address(test.environment.origin)
+      if (test.environment.callData) {
+        environment.callData = new Buffer(test.environment.callData.slice(2), 'hex')
+      }
 
       const startGas = environment.gasLeft
       const ethInterface = new Interface(environment)
@@ -39,6 +42,7 @@ tape('testing transcompiler', (t) => {
         t.fail('WASM exception: ' + e)
         return
       }
+
       // check the gas used
       const gasUsed = startGas - environment.gasLeft
       t.equals(gasUsed, test.gasUsed, 'should have correct gas')
