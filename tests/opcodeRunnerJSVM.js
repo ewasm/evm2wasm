@@ -85,7 +85,15 @@ tape('testing EVM1 Ops', (t) => {
         args.push(runState)
         runState.stack = []
       }
-      const result = opFunc[test.op](...args)
+
+      let result
+      try {
+        result = opFunc[test.op](...args)
+      } catch (e) {
+        t.fail('JSVM exception: ' + e)
+        return
+      }
+
       if (result) {
         runState.stack.push(result)
       }
