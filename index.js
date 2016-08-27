@@ -35,9 +35,6 @@ const interfaceImportMap = {
   'useGas': {
     'inputs': [ 'i32' ]
   },
-  'getGasLeft': {
-    'output': 'i64'
-  },
   'return': {
     'inputs': [ 'i32', 'i32' ]
   },
