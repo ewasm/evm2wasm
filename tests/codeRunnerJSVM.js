@@ -22,6 +22,7 @@ tape('testing js VM', (t) => {
         //   console.log(info.opcode.name, info.opcode.fee);
         // })
       vm.runCode({
+        data: test.environment.callData,
         code: new Buffer(test.code.slice(2), 'hex'),
         gasLimit: new BN(90000)
       }, (err, results) => {
