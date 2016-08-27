@@ -17,7 +17,7 @@ const depMap = new Map([
   ['ISZERO', ['ISZERO_32']],
   ['MSTORE', ['MEMUSEGAS', 'swap_word', 'check_overflow']],
   ['MLOAD', ['MEMUSEGAS', 'swap_word', 'check_overflow']],
-  ['MSTORE8', ['MEMUSEGAS','check_overflow']],
+  ['MSTORE8', ['MEMUSEGAS', 'check_overflow']],
   ['CALLDATALOAD', ['swap_word', 'check_overflow']],
   ['CALLDATACOPY', ['MEMUSEGAS', 'check_overflow']]
 ])
@@ -63,6 +63,12 @@ const interfaceImportMap = {
   'getCallDataSize': {
     'output': 'i32'
   },
+  'codeCopy': {
+    'inputs': ['i32', 'i32', 'i32']
+  },
+  'getCodeSize': {
+    'output': 'i32'
+  },
   'callDataCopy': {
     'inputs': ['i32', 'i32', 'i32']
   },
@@ -71,6 +77,9 @@ const interfaceImportMap = {
   },
   'getBalance': {
     'inputs': ['i32', 'i32']
+  },
+  'getCallValue': {
+    'inputs': ['i32']
   },
   'getExternalCodeSize': {
     'inputs': ['i32'],

@@ -31,8 +31,12 @@ function setupEnviroment (testData) {
 
   env.gasLeft = parseInt(testData.exec.gas.slice(2), 16)
   env.callData = Buffer.from(testData.exec.data.slice(2), 'hex')
+  // TODO: fix tests
   env.address = new Address('0x' + testData.exec.address)
   env.caller = new Address('0x' + testData.exec.caller)
+
+  env.callValue = new U256(testData.exec.value)
+  env.code = new Buffer(testData.exec.code.slice(2), 'hex')
 
   // setup block
   env.block.header.number = testData.env.currentNumber
