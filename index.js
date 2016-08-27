@@ -68,6 +68,9 @@ const interfaceImportMap = {
   'getCallDataSize': {
     'output': 'i32'
   },
+  'getGasLeft': {
+    'output': 'i64'
+  },
   'codeCopy': {
     'inputs': ['i32', 'i32', 'i32']
   },
@@ -125,7 +128,7 @@ exports.compileWAST = function (wast) {
 // opcodes (JUMPI. JUMP).
 // All segments start at
 // * the beginning for EVM code
-// * a GAS opcode (TODO)
+// * a GAS opcode
 // * a JUMPDEST opcode
 // * After a JUMPI opcode
 // @param {Integer[]} evmCode the evm byte code
@@ -136,7 +139,7 @@ exports.compileEVM = function (evmCode, stackTrace) {
   // to figure out what .wast files to include
   const opcodesUsed = new Set()
   // some opcodes don't have wast files
-  const opcodesIgnore = new Set(['JUMP', 'JUMPI', 'JUMPDEST', 'STOP', 'RETURN'])
+  const opcodesIgnore = new Set(['JUMP', 'JUMPI', 'JUMPDEST', 'STOP', 'RETURN', 'GAS'])
   // this is the wasm code that each segment starts with
   const initCode = '(get_local $sp)'
   // an array of found segments
@@ -156,6 +159,12 @@ exports.compileEVM = function (evmCode, stackTrace) {
     let bytes
     gasCount += op.fee
     switch (op.name) {
+      case 'GAS':
+        wasmCode = `\n(set_local $sp (call $${op.name} ${wasmCode}))`
+        opcodesUsed.add(op.name)
+        addSegement(false)
+        wasmCode = initCode
+        break
       case 'JUMP':
         jumpFound = true
         wasmCode = `;; jump
@@ -294,6 +303,7 @@ function assmebleSegments (segments) {
   let jumpSegOffset = 0
 
   segments.forEach((seg, index) => {
+    // if its a jump
     if (seg[2]) {
       wasm = `(block $${index + 1 - jumpSegOffset} 
                ${wasm}
