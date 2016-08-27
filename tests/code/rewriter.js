@@ -16,6 +16,9 @@ files.forEach((file) => {
     if (!evn.coinbase) {
       evn.coinbase = '0x0000000000000000000000000000000000000000'
     }
+    if (!evn.origin) {
+      evn.origin = '0x0000000000000000000000000000000000000000'
+    }
   }
   console.log(file)
   fs.writeFileSync(path.join(__dirname, '/') + file, JSON.stringify(json, null, 2))

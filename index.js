@@ -42,6 +42,9 @@ const interfaceImportMap = {
   'getCaller': {
     'inputs': [ 'i32' ]
   },
+  'getTxOrigin': {
+    'inputs': [ 'i32' ]
+  },
   'getAddress': {
     'inputs': [ 'i32' ]
   },
