@@ -53,6 +53,10 @@ function setupEnviroment (testData) {
     const account = testData.pre[address]
     account.code = new Buffer(account.code.slice(2), 'hex')
     account.balance = new U256(account.balance)
+    // TODO: fix storage
+    for (let key in account.storage) {
+      env.state.set(key.slice(2), new Buffer(account.storage[key].slice(2), 'hex').reverse())
+    }
     env.addAccount(address, account)
   }
 
