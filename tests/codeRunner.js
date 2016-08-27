@@ -27,6 +27,7 @@ tape('testing transcompiler', (t) => {
       t.comment(test.description)
 
       const environment = new Enviroment()
+      environment.gasLeft = 90000
       environment.block.header.coinbase = test.environment.coinbase
       environment.origin = new Address(test.environment.origin)
       if (test.environment.callData) {
