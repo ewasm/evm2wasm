@@ -72,6 +72,9 @@ const interfaceImportMap = {
   'getCodeSize': {
     'output': 'i32'
   },
+  'getTxGasPrice': {
+    'output': 'i32'
+  },
   'callDataCopy': {
     'inputs': ['i32', 'i32', 'i32']
   },

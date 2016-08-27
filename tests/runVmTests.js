@@ -31,6 +31,8 @@ function setupEnviroment (testData) {
 
   env.gasLeft = parseInt(testData.exec.gas.slice(2), 16)
   env.callData = Buffer.from(testData.exec.data.slice(2), 'hex')
+  env.gasPrice = ethUtil.bufferToInt(Buffer.from(testData.exec.gasPrice.slice(2), 'hex'))
+
   // TODO: fix tests
   env.address = new Address(testData.exec.address)
   env.caller = new Address(testData.exec.caller)
