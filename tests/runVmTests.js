@@ -21,7 +21,7 @@ function runner (testData, t, cb) {
     checkResults(testData, t, instance, enviroment)
   } catch (e) {
     t.comment(e)
-    t.equals(undefined, testData.post)
+    t.deepEquals({}, testData.post, 'should not have post data')
   }
   cb()
 }
@@ -32,9 +32,9 @@ function setupEnviroment (testData) {
   env.gasLeft = parseInt(testData.exec.gas.slice(2), 16)
   env.callData = Buffer.from(testData.exec.data.slice(2), 'hex')
   // TODO: fix tests
-  env.address = new Address('0x' + testData.exec.address)
-  env.caller = new Address('0x' + testData.exec.caller)
-  env.origin = new Address('0x' + testData.exec.origin)
+  env.address = new Address(testData.exec.address)
+  env.caller = new Address(testData.exec.caller)
+  env.origin = new Address(testData.exec.origin)
 
   env.callValue = new U256(testData.exec.value)
   env.code = new Buffer(testData.exec.code.slice(2), 'hex')
@@ -51,7 +51,7 @@ function setupEnviroment (testData) {
     const account = testData.pre[address]
     account.code = new Buffer(account.code.slice(2), 'hex')
     account.balance = new U256(account.balance)
-    env.addAccount('0x' + address, account)
+    env.addAccount(address, account)
   }
 
   return env
