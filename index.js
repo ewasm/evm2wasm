@@ -18,8 +18,10 @@ const depMap = new Map([
   ['MSTORE', ['MEMUSEGAS', 'swap_word', 'check_overflow']],
   ['MLOAD', ['MEMUSEGAS', 'swap_word', 'check_overflow']],
   ['MSTORE8', ['MEMUSEGAS', 'check_overflow']],
+  ['CODECOPY', ['MEMUSEGAS', 'check_overflow']],
   ['CALLDATALOAD', ['swap_word', 'check_overflow']],
-  ['CALLDATACOPY', ['MEMUSEGAS', 'check_overflow']]
+  ['CALLDATACOPY', ['MEMUSEGAS', 'check_overflow']],
+  ['EXTCODECOPY', ['MEMUSEGAS', 'check_overflow']]
 ])
 
 // this is used to generate the module's import table
