@@ -172,31 +172,40 @@ exports.compileEVM = function (evmCode, stackTrace) {
         jumpFound = true
         wasmCode = `;; jump
                       (set_local $sp ${wasmCode})
-                      (set_local $jump_dest (i32.load (get_local $sp)))
+                      (set_local $jump_dest (call $check_overflow 
+                                             (i64.load (get_local $sp))
+                                             (i64.load (i32.add (get_local $sp) (i32.const 8)))
+                                             (i64.load (i32.add (get_local $sp) (i32.const 16)))
+                                             (i64.load (i32.add (get_local $sp) (i32.const 24)))))
                       (set_local $sp (i32.sub (get_local $sp) (i32.const 32)))
                       (br $loop)`
+        opcodesUsed.add('check_overflow')
         i = findNextJumpDest(evmCode, i)
         break
       case 'JUMPI':
         jumpFound = true
         wasmCode = `(block
                     (set_local $sp ${wasmCode})
-                    (set_local $jump_dest (i32.load (get_local $sp)))
-                    (set_local $sp (i32.sub (get_local $sp) (i32.const 32)))
-                    (set_local $scratch (i64.or
-                      (i64.load (i32.add (get_local $sp) (i32.const 0)))
+                    (set_local $jump_dest (call $check_overflow 
+                                             (i64.load (get_local $sp))
+                                             (i64.load (i32.add (get_local $sp) (i32.const 8)))
+                                             (i64.load (i32.add (get_local $sp) (i32.const 16)))
+                                             (i64.load (i32.add (get_local $sp) (i32.const 24)))))
+
+                    (set_local $sp (i32.sub (get_local $sp) (i32.const 64)))
+                    (br_if $loop (i32.eqz (i64.eqz (i64.or
+                      (i64.load (i32.add (get_local $sp) (i32.const 32)))
                       (i64.or
-                        (i64.load (i32.add (get_local $sp) (i32.const 8)))
+                        (i64.load (i32.add (get_local $sp) (i32.const 40)))
                         (i64.or
-                          (i64.load (i32.add (get_local $sp) (i32.const 16)))
-                          (i64.load (i32.add (get_local $sp) (i32.const 24)))
+                          (i64.load (i32.add (get_local $sp) (i32.const 48)))
+                          (i64.load (i32.add (get_local $sp) (i32.const 56)))
                         )
                       )
-                    ))
-                    (set_local $sp (i32.sub (get_local $sp) (i32.const 32)))
-                    (br_if $loop (i32.eqz (i64.eqz (get_local $scratch))))
+                    ))))
                     (get_local $sp)
                     )`
+        opcodesUsed.add('check_overflow')
         addSegement(false)
         wasmCode = initCode
         break
@@ -262,8 +271,6 @@ exports.compileEVM = function (evmCode, stackTrace) {
           i = evmCode.length
         }
         break
-      case 'INVALID':
-        throw new Error('Invalid opcode ' + evmCode[i].toString(16))
     }
     if (!opcodesIgnore.has(op.name)) {
       if (stackTrace) {
@@ -318,7 +325,6 @@ function assmebleSegments (segments) {
     }
   })
   return `(func $main 
-           (local $scratch i64)
            (local $sp i32) 
            (local $jump_dest i32)
            (set_local $sp (i32.const -32)) 
