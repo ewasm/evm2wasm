@@ -87,6 +87,10 @@ const interfaceImportMap = {
   'getExternalCodeSize': {
     'inputs': ['i32'],
     'output': 'i32'
+  },
+  'externalCodeCopy': {
+    'inputs': ['i32', 'i32', 'i32', 'i32'],
+    'output': 'i32'
   }
 }
 
