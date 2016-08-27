@@ -25,8 +25,8 @@ tape('testing js VM', (t) => {
         code: new Buffer(test.code.slice(2), 'hex'),
         gasLimit: new BN(90000)
       }, (err, results) => {
-        // test.gasUsed = results.gasUsed.toNumber()
-          // check the results
+        t.equals(results.gasUsed.toNumber(), test.gasUsed, 'should use correct amount of gas')
+        // check the results
         // console.log(test.gasUsed);
         console.log(err)
         const stack = results.runState.stack

@@ -190,6 +190,9 @@ exports.compileEVM = function (evmCode, stackTrace) {
         }
         i += op.number
         break
+      case 'PC':
+        wasmCode = `(i64.const ${i}) ${wasmCode}`
+        break
       case 'PUSH':
         i++
         bytes = ethUtil.setLength(evmCode.slice(i, i += op.number), 32)
