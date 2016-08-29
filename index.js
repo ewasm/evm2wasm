@@ -21,7 +21,8 @@ const depMap = new Map([
   ['CODECOPY', ['MEMUSEGAS', 'check_overflow']],
   ['CALLDATALOAD', ['swap_word', 'check_overflow']],
   ['CALLDATACOPY', ['MEMUSEGAS', 'check_overflow']],
-  ['EXTCODECOPY', ['MEMUSEGAS', 'check_overflow']]
+  ['EXTCODECOPY', ['MEMUSEGAS', 'check_overflow']],
+  ['LOG', ['MEMUSEGAS', 'check_overflow']]
 ])
 
 // this is used to generate the module's import table
@@ -99,6 +100,9 @@ const interfaceImportMap = {
   'externalCodeCopy': {
     'inputs': ['i32', 'i32', 'i32', 'i32'],
     'output': 'i32'
+  },
+  'log': {
+    'inputs': ['i32', 'i32', 'i32', 'i32', 'i32', 'i32', 'i32']
   }
 }
 
@@ -214,11 +218,7 @@ exports.compileEVM = function (evmCode, stackTrace) {
         break
       case 'LOG':
         bytes = evmCode.slice(i, i + op.number * 8)
-        for (let i = 0; i < bytes.length; i += 8) {
-          const int64 = bytes2int64(bytes.slice(i, i + 8))
-          wasmCode = `(i64.const ${int64})` + wasmCode
-        }
-        i += op.number
+        wasmCode = `(i32.const ${op.number}) ${wasmCode}`
         break
       case 'PC':
         wasmCode = `(i32.const ${i}) ${wasmCode}`
