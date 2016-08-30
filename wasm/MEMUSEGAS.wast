@@ -1,7 +1,9 @@
+(import $print "debug" "print" (param i32))
 (func $memUseGas
   (param $offset i32)
   (param $length i32)
 
+  (local $memstart i32)
   (local $cost i32)
   (local $pages i32)
 
@@ -18,6 +20,8 @@
   ;; the number of new words being allocated
   (local $newWordCount i32)
 
+
+  (set_local $memstart (i32.const 33832))
   (set_local $wordCost (i32.const 3))
 
   ;; TODO: dedicate memory for these globals
@@ -54,16 +58,12 @@
   ;; grow actual memory
   ;; the first 31704 bytes are guaranteed to be available
   ;; adjust for 32 bytes (the maximal size of MSTORE write)
-  (if (i32.gt_u (get_local $offset) (i32.const 31672))
+  ;; TODO it should be current_memory * page_size
+  (set_local $offset (i32.add (get_local $length) (i32.add (get_local $offset) (get_local $memstart))))
+  (if (i32.gt_u (get_local $offset) (current_memory))
     (then
-      ;; FIXME: not available in 0xa
-      ;;(set_local $pages (current_memory))
-      (set_local $pages (grow_memory (i32.const 0)))
-
-      ;; extra pages needed: (($offset - 31672) / 65536) - $pages
-      (set_local $pages (i32.sub (i32.div_u (i32.sub (get_local $offset) (i32.const 31672)) (i32.const 65536)) (get_local $pages)))
-
-      (grow_memory (get_local $pages))
+      (grow_memory 
+        (i32.div_u (i32.add (i32.const 65535) (i32.sub (get_local $offset) (current_memory))) (i32.const 65536)))
     )
   )
 )
