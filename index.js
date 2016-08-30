@@ -21,7 +21,8 @@ const depMap = new Map([
   ['CODECOPY', ['MEMUSEGAS', 'check_overflow']],
   ['CALLDATALOAD', ['swap_word', 'check_overflow']],
   ['CALLDATACOPY', ['MEMUSEGAS', 'check_overflow']],
-  ['EXTCODECOPY', ['MEMUSEGAS', 'check_overflow']]
+  ['EXTCODECOPY', ['MEMUSEGAS', 'check_overflow']],
+  ['LOG', ['MEMUSEGAS', 'check_overflow']]
 ])
 
 // this is used to generate the module's import table
@@ -99,6 +100,9 @@ const interfaceImportMap = {
   'externalCodeCopy': {
     'inputs': ['i32', 'i32', 'i32', 'i32'],
     'output': 'i32'
+  },
+  'log': {
+    'inputs': ['i32', 'i32', 'i32', 'i32', 'i32', 'i32', 'i32']
   }
 }
 
@@ -168,6 +172,7 @@ exports.compileEVM = function (evmCode, stackTrace) {
       case 'JUMP':
         jumpFound = true
         wasmCode = `;; jump
+                    (block
                       (set_local $sp ${wasmCode})
                       (set_local $jump_dest (call $check_overflow 
                                              (i64.load (get_local $sp))
@@ -175,7 +180,8 @@ exports.compileEVM = function (evmCode, stackTrace) {
                                              (i64.load (i32.add (get_local $sp) (i32.const 16)))
                                              (i64.load (i32.add (get_local $sp) (i32.const 24)))))
                       (set_local $sp (i32.sub (get_local $sp) (i32.const 32)))
-                      (br $loop)`
+                      (br $loop)
+                    )`
         opcodesUsed.add('check_overflow')
         i = findNextJumpDest(evmCode, i)
         break
@@ -214,11 +220,7 @@ exports.compileEVM = function (evmCode, stackTrace) {
         break
       case 'LOG':
         bytes = evmCode.slice(i, i + op.number * 8)
-        for (let i = 0; i < bytes.length; i += 8) {
-          const int64 = bytes2int64(bytes.slice(i, i + 8))
-          wasmCode = `(i64.const ${int64})` + wasmCode
-        }
-        i += op.number
+        wasmCode = `(i32.const ${op.number}) ${wasmCode}`
         break
       case 'PC':
         wasmCode = `(i32.const ${i}) ${wasmCode}`
@@ -252,7 +254,7 @@ exports.compileEVM = function (evmCode, stackTrace) {
         wasmCode = `(i32.const ${op.number - 1})` + wasmCode
         break
       case 'STOP':
-        wasmCode = `${wasmCode} (br $done)`
+        wasmCode = `(block ${wasmCode} (br $done))`
         if (jumpFound) {
           i = findNextJumpDest(evmCode, i)
         } else {
@@ -260,7 +262,7 @@ exports.compileEVM = function (evmCode, stackTrace) {
         }
         break
       case 'RETURN':
-        wasmCode = `\n(call $${op.name} ${wasmCode}) (br $done)`
+        wasmCode = `\n(block (call $${op.name} ${wasmCode}) (br $done))`
         opcodesUsed.add(op.name)
         if (jumpFound) {
           i = findNextJumpDest(evmCode, i)
@@ -296,6 +298,9 @@ exports.compileEVM = function (evmCode, stackTrace) {
   return exports.buildModule(funcMap)
 
   function addSegement (isJumpDest = true) {
+    if(isJumpDest) {
+      wasmCode = `(set_local $sp ${wasmCode})`
+    }
     wasmCode = `(call_import $useGas (i32.const ${gasCount})) ${wasmCode}`
     gasCount = 0
     segments.push([wasmCode, jumpDestNum, isJumpDest])
