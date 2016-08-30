@@ -46,7 +46,7 @@
              (i32.sub (get_local $sp) (i32.const  64))
              (i32.sub (get_local $sp) (i32.const  96))
              (i32.sub (get_local $sp) (i32.const 128))
-             (i32.sub (get_local $sp) (i32.const 132)))
+             (i32.sub (get_local $sp) (i32.const 160)))
 
   (return (i32.sub (get_local $sp) (i32.add (i32.mul (i32.const 8) (get_local $number)) (i32.const 64))))
 )
