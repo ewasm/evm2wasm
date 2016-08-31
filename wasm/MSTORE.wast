@@ -3,7 +3,7 @@
   (param $sp i32)
   (result i32)
 
-  (local $memstart   i32)
+  (local $memstart i32)
   (local $offset   i32)
   
   (local $offset0 i64)
@@ -35,6 +35,7 @@
 
   ;; FIXME: how to deal with overflow?
   (set_local $offset (i32.add (get_local $offset) (get_local $memstart)))
+
 
   ;; store word to memory
   (i64.store          (get_local $offset)                 (i64.load          (get_local $sp)))

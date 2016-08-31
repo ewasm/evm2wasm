@@ -298,7 +298,7 @@ exports.compileEVM = function (evmCode, stackTrace) {
   return exports.buildModule(funcMap)
 
   function addSegement (isJumpDest = true) {
-    if(isJumpDest) {
+    if (isJumpDest) {
       wasmCode = `(set_local $sp ${wasmCode})`
     }
     wasmCode = `(call_import $useGas (i32.const ${gasCount})) ${wasmCode}`
