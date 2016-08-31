@@ -1,7 +1,6 @@
 ;; MLOAD(offset: sp[-2])
 (func $MLOAD
   (param $sp i32)
-  (result i32)
 
   (local $memstart i32)
   (local $offset i32)
@@ -36,6 +35,4 @@
 
   ;; swap
   (call $swap_word (get_local $sp))
-
-  (return (get_local $sp))
 )

@@ -1,6 +1,5 @@
 (func $CODECOPY
   (param $sp i32)
-  (result i32)
   (local $memstart i32)
 
   (local $writeOffset i32)
@@ -63,6 +62,4 @@
               (get_local $dataOffset)
               (get_local $length))
 
-  ;; pop 3 stack items
-  (return (i32.sub (get_local $sp) (i32.const 96)))
 )

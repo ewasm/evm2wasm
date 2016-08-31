@@ -1,7 +1,6 @@
 ;; MSTORE(word: sp[-1], offset: sp[-2])
 (func $MSTORE
   (param $sp i32)
-  (result i32)
 
   (local $memstart i32)
   (local $offset   i32)
@@ -42,6 +41,4 @@
   (i64.store (i32.add (get_local $offset) (i32.const 8))  (i64.load (i32.add (get_local $sp) (i32.const  8))))
   (i64.store (i32.add (get_local $offset) (i32.const 16)) (i64.load (i32.add (get_local $sp) (i32.const 16))))
   (i64.store (i32.add (get_local $offset) (i32.const 24)) (i64.load (i32.add (get_local $sp) (i32.const 24))))
-
-  (i32.sub (get_local $sp) (i32.const 32))
 )

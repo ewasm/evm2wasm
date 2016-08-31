@@ -1,6 +1,5 @@
 (func $CALLDATALOAD
   (param $sp i32)
-  (result i32)
   (local $writeOffset i32)
   (local $writeOffset0 i64)
   (local $writeOffset1 i64)
@@ -21,6 +20,4 @@
   (call_import $callDataCopy256 (get_local $sp) (get_local $writeOffset))
   ;; swap top stack item
   (call $swap_word (get_local $sp))
-
-  (return (get_local $sp))
 )

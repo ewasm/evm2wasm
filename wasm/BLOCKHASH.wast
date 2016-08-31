@@ -1,6 +1,5 @@
 (func $BLOCKHASH
   (param $sp i32)
-  (result i32)
 
   (local $a0 i64)
   (local $a1 i64)
@@ -14,6 +13,4 @@
 
   ;; to check that we are not overflowing 32 bits
   (call_import $getBlockHash (i32.wrap/i64 (get_local $a3)) (get_local $sp))
-
-  (return (get_local $sp))
 )

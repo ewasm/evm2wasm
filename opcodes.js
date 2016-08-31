@@ -12,7 +12,7 @@ const codes = {
   0x08: ['ADDMOD', 8, 3, 1, false],
   0x09: ['MULMOD', 8, 3, 1, false],
   0x0a: ['EXP', 10, 2, 1, false],
-  0x0b: ['SIGNEXTEND', 5, 1, 1, false],
+  0x0b: ['SIGNEXTEND', 5, 2, 1, false],
 
   // 0x10 range - bit ops
   0x10: ['LT', 3, 2, 1, false],
@@ -60,8 +60,8 @@ const codes = {
   0x53: ['MSTORE8', 3, 2, 0, false],
   0x54: ['SLOAD', 0, 1, 1, true],
   0x55: ['SSTORE', 0, 2, 0, true],
-  0x56: ['JUMP', 8, 1, 0, false],
-  0x57: ['JUMPI', 10, 2, 0, false],
+  0x56: ['JUMP', 8, 0, 0, false],
+  0x57: ['JUMPI', 10, 0, 0, false],
   0x58: ['PC', 2, 0, 1, false],
   0x59: ['MSIZE', 2, 0, 1, false],
   0x5a: ['GAS', 0, 0, 1, false],
@@ -145,7 +145,7 @@ const codes = {
   0xf0: ['CREATE', 32000, 3, 1, true],
   0xf1: ['CALL', 40, 7, 1, true],
   0xf2: ['CALLCODE', 40, 7, 1, true],
-  0xf3: ['RETURN', 0, 2, 0, false],
+  0xf3: ['RETURN', 0, 0, 0, false],
   0xf4: ['DELEGATECALL', 40, 6, 1, true],
 
   // '0x70', range - other
@@ -153,7 +153,7 @@ const codes = {
 }
 
 module.exports = function (op) {
-  const code = codes[op] ? codes[op] : ['INVALID', 0]
+  const code = codes[op] ? codes[op] : ['INVALID', 0, 0, 0]
   let opcode = code[0]
   let number
 

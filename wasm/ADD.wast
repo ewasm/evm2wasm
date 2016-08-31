@@ -1,7 +1,6 @@
 ;; Add 0x01
 (func $ADD
   (param $sp i32)
-  (result i32)
 
   (local $a i64)
   (local $c i64)
@@ -50,6 +49,4 @@
                  (i64.or  ;; carry 
                    (i64.extend_u/i32 (i64.lt_u (get_local $d) (get_local $c))) 
                    (get_local $carry)))))
-
-  (i32.sub (get_local $sp) (i32.const 24))
 )

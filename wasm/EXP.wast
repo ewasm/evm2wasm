@@ -1,7 +1,6 @@
 ;; Exponential 0x0a
 (func $EXP
   (param $sp i32)
-  (result i32)
 
   ;; base
   (local $base0 i64)
@@ -85,6 +84,4 @@
   (i64.store (i32.add (get_local $sp) (i32.const 16)) (get_local $r1))
   (i64.store (i32.add (get_local $sp) (i32.const  8)) (get_local $r2))
   (i64.store          (get_local $sp)                 (get_local $r3))
-
-  (get_local $sp)
 )

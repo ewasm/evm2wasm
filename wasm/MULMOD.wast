@@ -1,6 +1,5 @@
 (func $MULMOD
   (param $sp i32)
-  (result i32)
 
   (local $a i64)
   (local $c i64)
@@ -247,8 +246,6 @@
          (get_local $a) (get_local $b) (get_local $c) (get_local $d) (get_local $e) (get_local $f) (get_local $g) (get_local $h) 
          (i64.const 0)  (i64.const 0) (i64.const 0)  (i64.const 0)  (get_local $moda) (get_local $modb) (get_local $modc) (get_local $modd) (i32.add (get_local $sp) (i32.const 24))
   )
-
-  (get_local $sp)
 )
 
 

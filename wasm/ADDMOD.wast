@@ -1,6 +1,5 @@
 (func $ADDMOD
   (param $sp i32)
-  (result i32)
 
   (local $a i64)
   (local $b i64)
@@ -62,8 +61,6 @@
   (call $MOD_320
         (get_local $carry) (get_local $a)    (get_local $b)    (get_local $c)    (get_local $d)
         (i64.const 0)      (get_local $moda) (get_local $modb) (get_local $modc) (get_local $modd) (get_local $sp))
-
-  (get_local $sp)
 )
 
 (func $MOD_320

@@ -205,22 +205,22 @@ exports.compileEVM = function (evmCode, stackTrace) {
         gasCount = 1
         break
       case 'GAS':
-        wasmCode = `${wasmCode} \n(set_local $sp (call $${op.name} (get_local $sp)))`
+        wasmCode = `${wasmCode} \n (call $${op.name} (get_local $sp))`
         opcodesUsed.add(op.name)
         addMetering()
         break
       case 'LOG':
-        wasmCode = `${wasmCode} \n(set_local $sp (call $${op.name} (i32.const ${op.number}) (get_local $sp)))`
+        wasmCode = `${wasmCode} \n (call $${op.name} (i32.const ${op.number}) (get_local $sp))`
         opcodesUsed.add(op.name)
         break
       case 'DUP':
       case 'SWAP':
         // adds the number on the stack to SWAP
-        wasmCode = `${wasmCode} \n (set_local $sp (call $${op.name} (i32.const ${op.number - 1}) (get_local $sp))) `
+        wasmCode = `${wasmCode} \n (call $${op.name} (i32.const ${op.number - 1}) (get_local $sp)) `
         opcodesUsed.add(op.name)
         break
       case 'PC':
-        wasmCode = `${wasmCode} \n (set_local $sp (call $${op.name} (i32.const ${i}) (get_local $sp)))`
+        wasmCode = `${wasmCode} \n (call $${op.name} (i32.const ${i}) (get_local $sp))`
         opcodesUsed.add(op.name)
         break
       case 'PUSH':
@@ -239,7 +239,7 @@ exports.compileEVM = function (evmCode, stackTrace) {
           push = push + `(i64.const ${int64})`
         }
 
-        wasmCode = `${wasmCode} \n (set_local $sp (call $${op.name} ${push} (get_local $sp)))`
+        wasmCode = `${wasmCode} \n (call $${op.name} ${push} (get_local $sp))`
         opcodesUsed.add(op.name)
         i--
         break
@@ -267,12 +267,17 @@ exports.compileEVM = function (evmCode, stackTrace) {
         i = findNextJumpDest(evmCode, i)
         break
       default:
-        wasmCode = `${wasmCode} \n (set_local $sp (call $${op.name} (get_local $sp)))`
+        wasmCode = `${wasmCode} \n  (call $${op.name} (get_local $sp))`
         if (stackTrace) {
           // creates a stack trace
           wasmCode = `${wasmCode} \n (call_import $stackTrace (get_local $sp) (i32.const ${opint}))`
         }
         opcodesUsed.add(op.name)
+    }
+
+    const stackDif = op.out - op.in
+    if (stackDif !== 0) {
+      wasmCode = `${wasmCode} (set_local $sp (i32.add (get_local $sp) (i32.const ${stackDif * 32})))`
     }
   }
 
