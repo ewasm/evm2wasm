@@ -163,12 +163,6 @@ exports.compileEVM = function (evmCode, stackTrace) {
     let bytes
     gasCount += op.fee
     switch (op.name) {
-      case 'GAS':
-        wasmCode = `\n(set_local $sp (call $${op.name} ${wasmCode}))`
-        opcodesUsed.add(op.name)
-        addSegement(false)
-        wasmCode = initCode
-        break
       case 'JUMP':
         jumpFound = true
         wasmCode = `;; jump
@@ -209,18 +203,27 @@ exports.compileEVM = function (evmCode, stackTrace) {
                     (get_local $sp)
                     )`
         opcodesUsed.add('check_overflow')
-        addSegement(false)
-        wasmCode = initCode
+        addSegement()
         break
       case 'JUMPDEST':
-        addSegement()
-        jumpDestNum = i
+        wasmCode = `(call_import $useGas (i32.const ${gasCount})) (set_local $sp ${wasmCode})`
+        segments.push([wasmCode, jumpDestNum, true])
         wasmCode = initCode
-        gasCount++
+        jumpDestNum = i
+        gasCount = 1
+        break
+      case 'GAS':
+        wasmCode = `\n(set_local $sp (call $${op.name} ${wasmCode}))`
+        opcodesUsed.add(op.name)
+        addSegement()
         break
       case 'LOG':
-        bytes = evmCode.slice(i, i + op.number * 8)
         wasmCode = `(i32.const ${op.number}) ${wasmCode}`
+        break
+      case 'DUP':
+      case 'SWAP':
+        // adds the number on the stack to SWAP
+        wasmCode = `(i32.const ${op.number - 1}) ${wasmCode}`
         break
       case 'PC':
         wasmCode = `(i32.const ${i}) ${wasmCode}`
@@ -244,14 +247,6 @@ exports.compileEVM = function (evmCode, stackTrace) {
         wasmCode = push + wasmCode
 
         i--
-        break
-      case 'DUP':
-        // adds the number on the stack to DUP
-        wasmCode = `(i32.const ${op.number - 1})` + wasmCode
-        break
-      case 'SWAP':
-        // adds the number on the stack to SWAP
-        wasmCode = `(i32.const ${op.number - 1})` + wasmCode
         break
       case 'STOP':
         wasmCode = `(block ${wasmCode} (br $done))`
@@ -283,7 +278,8 @@ exports.compileEVM = function (evmCode, stackTrace) {
   }
 
   if (wasmCode !== '') {
-    addSegement()
+    wasmCode = `(call_import $useGas (i32.const ${gasCount})) ${wasmCode}`
+    segments.push([wasmCode, jumpDestNum, true])
   }
 
   let mainFunc = '(export "main" $main)' + assmebleSegments(segments)
@@ -297,13 +293,11 @@ exports.compileEVM = function (evmCode, stackTrace) {
   funcMap.push(mainFunc)
   return exports.buildModule(funcMap)
 
-  function addSegement (isJumpDest = true) {
-    if (isJumpDest) {
-      wasmCode = `(set_local $sp ${wasmCode})`
-    }
+  function addSegement () {
     wasmCode = `(call_import $useGas (i32.const ${gasCount})) ${wasmCode}`
+    segments.push([wasmCode])
+    wasmCode = initCode
     gasCount = 0
-    segments.push([wasmCode, jumpDestNum, isJumpDest])
   }
 }
 

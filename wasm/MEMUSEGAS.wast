@@ -1,4 +1,3 @@
-(import $print "debug" "print" (param i32))
 (func $memUseGas
   (param $offset i32)
   (param $length i32)
