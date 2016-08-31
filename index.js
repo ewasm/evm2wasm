@@ -153,6 +153,10 @@ exports.compileEVM = function (evmCode, stackTrace) {
   let gasCount = 0
   // used for pruning dead code
   let jumpFound = false
+  // the accumlitive stack difference for the current segmnet
+  let segmentStackHigh = 0
+  let segmentStackLow = 0
+  let segmentStackTottal = 0
 
   for (let i = 0; i < evmCode.length; i++) {
     const opint = evmCode[i]
@@ -199,6 +203,7 @@ exports.compileEVM = function (evmCode, stackTrace) {
         break
       case 'JUMPDEST':
         addMetering()
+        addStackCheck()
         jumpSegments.push([segment, jumpDestNum])
         segment = ''
         jumpDestNum = i
@@ -276,12 +281,19 @@ exports.compileEVM = function (evmCode, stackTrace) {
     }
 
     const stackDif = op.out - op.in
+    segmentStackTottal += stackDif
+    if (segmentStackTottal > segmentStackHigh) {
+      segmentStackHigh = segmentStackTottal
+    } else if (segmentStackTottal < segmentStackLow) {
+      segmentStackLow = segmentStackTottal
+    }
+
     if (stackDif !== 0) {
       wasmCode = `${wasmCode} (set_local $sp (i32.add (get_local $sp) (i32.const ${stackDif * 32})))`
     }
   }
-
   addMetering()
+  addStackCheck()
   jumpSegments.push([segment, jumpDestNum])
 
   let mainFunc = '(export "main" $main)' + assmebleSegments(jumpSegments)
@@ -299,6 +311,24 @@ exports.compileEVM = function (evmCode, stackTrace) {
     segment = `${segment} (call_import $useGas (i32.const ${gasCount})) ${wasmCode}`
     wasmCode = ''
     gasCount = 0
+  }
+
+  function addStackCheck () {
+    let check = ''
+    if (segmentStackHigh !== 0) {
+      check = `(if (i32.gt_s (get_local $sp) (i32.const ${1024 * 32 - segmentStackHigh * 32})) 
+                  (then (unreachable)))`
+    }
+    if (segmentStackLow !== 0) {
+      check += `(if (i32.lt_s (get_local $sp) (i32.const ${-segmentStackLow * 32 - 32})) 
+                  (then (unreachable))
+               )`
+    }
+    segment = check + segment
+
+    segmentStackHigh = 0
+    segmentStackLow = 0
+    segmentStackTottal = 0
   }
 }
 
