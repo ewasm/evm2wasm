@@ -201,7 +201,7 @@ exports.compileEVM = function (evmCode, stackTrace) {
         break
       case 'JUMPDEST':
         addMetering()
-        jumpSegments.push([segment, jumpDestNum, true])
+        jumpSegments.push([segment, jumpDestNum])
         segment = ''
         jumpDestNum = i
         gasCount = 1
@@ -273,7 +273,7 @@ exports.compileEVM = function (evmCode, stackTrace) {
   }
 
   addMetering()
-  jumpSegments.push([segment, jumpDestNum, true])
+  jumpSegments.push([segment, jumpDestNum])
 
   let mainFunc = '(export "main" $main)' + assmebleSegments(jumpSegments)
 
@@ -302,15 +302,9 @@ function assmebleSegments (segments) {
 
   segments.forEach((seg, index) => {
     // if its a jump
-    if (seg[2]) {
-      wasm = `(block $${index + 1 - jumpSegOffset} 
+    wasm = `(block $${index + 1 - jumpSegOffset} 
                ${wasm}
                ${seg[0]})`
-    } else {
-      jumpSegOffset++
-      wasm = `${wasm}
-               ${seg[0]}`
-    }
   })
   return `(func $main 
            (local $sp i32) 
@@ -327,7 +321,7 @@ function buildJumpMap (segments) {
   let wasm = '(unreachable)'
   let brTable = '(block $0 (br_table'
 
-  segments.filter((seg) => seg[2]).forEach((seg, index) => {
+  segments.forEach((seg, index) => {
     brTable += ' $' + index
     wasm = `(if (i32.eq (get_local $jump_dest) (i32.const ${seg[1]}))
                   (then (i32.const ${index}))
