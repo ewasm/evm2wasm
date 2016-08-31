@@ -142,12 +142,10 @@ exports.compileEVM = function (evmCode, stackTrace) {
   // this keep track of the opcode we have found so far. This will be used to
   // to figure out what .wast files to include
   const opcodesUsed = new Set()
-  // this is the wasm code that each segment starts with
-  const initCode = ''
   // an array of found segments
   const jumpSegments = []
   // the transcompiled EVM code
-  let wasmCode = initCode
+  let wasmCode = ''
   let segment = ''
   // used to translate the local in EVM of JUMPDEST to a wasm block label
   let jumpDestNum = 0
@@ -250,6 +248,7 @@ exports.compileEVM = function (evmCode, stackTrace) {
         if (jumpFound) {
           i = findNextJumpDest(evmCode, i)
         } else {
+          // the rest is dead code
           i = evmCode.length
         }
         break
@@ -259,8 +258,13 @@ exports.compileEVM = function (evmCode, stackTrace) {
         if (jumpFound) {
           i = findNextJumpDest(evmCode, i)
         } else {
+          // the rest is dead code
           i = evmCode.length
         }
+        break
+      case 'INVALID':
+        wasmCode = '(unreachable)'
+        i = findNextJumpDest(evmCode, i)
         break
       default:
         wasmCode = `${wasmCode} \n (set_local $sp (call $${op.name} (get_local $sp)))`
