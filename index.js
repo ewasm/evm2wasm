@@ -22,7 +22,9 @@ const depMap = new Map([
   ['CALLDATALOAD', ['swap_word', 'check_overflow']],
   ['CALLDATACOPY', ['MEMUSEGAS', 'check_overflow']],
   ['EXTCODECOPY', ['MEMUSEGAS', 'check_overflow']],
-  ['LOG', ['MEMUSEGAS', 'check_overflow']]
+  ['LOG', ['MEMUSEGAS', 'check_overflow']],
+  ['JUMPI', ['check_overflow']],
+  ['JUMP', ['check_overflow']]
 ])
 
 // this is used to generate the module's import table
@@ -153,6 +155,10 @@ exports.compileEVM = function (evmCode, stackTrace) {
   let gasCount = 0
   // used for pruning dead code
   let jumpFound = false
+  // the accumlitive stack difference for the current segmnet
+  let segmentStackDeta = 0
+  let segmentStackHigh = 0
+  let segmentStackLow = 0
 
   for (let i = 0; i < evmCode.length; i++) {
     const opint = evmCode[i]
@@ -171,7 +177,6 @@ exports.compileEVM = function (evmCode, stackTrace) {
                                              (i64.load (i32.add (get_local $sp) (i32.const 24)))))
                       (set_local $sp (i32.sub (get_local $sp) (i32.const 32)))
                       (br $loop)`
-        opcodesUsed.add('check_overflow')
         i = findNextJumpDest(evmCode, i)
         break
       case 'JUMPI':
@@ -194,11 +199,11 @@ exports.compileEVM = function (evmCode, stackTrace) {
                         )
                       )
                     ))))`
-        opcodesUsed.add('check_overflow')
         addMetering()
         break
       case 'JUMPDEST':
         addMetering()
+        addStackCheck()
         jumpSegments.push([segment, jumpDestNum])
         segment = ''
         jumpDestNum = i
@@ -206,22 +211,18 @@ exports.compileEVM = function (evmCode, stackTrace) {
         break
       case 'GAS':
         wasmCode = `${wasmCode} \n (call $${op.name} (get_local $sp))`
-        opcodesUsed.add(op.name)
         addMetering()
         break
       case 'LOG':
         wasmCode = `${wasmCode} \n (call $${op.name} (i32.const ${op.number}) (get_local $sp))`
-        opcodesUsed.add(op.name)
         break
       case 'DUP':
       case 'SWAP':
         // adds the number on the stack to SWAP
         wasmCode = `${wasmCode} \n (call $${op.name} (i32.const ${op.number - 1}) (get_local $sp)) `
-        opcodesUsed.add(op.name)
         break
       case 'PC':
         wasmCode = `${wasmCode} \n (call $${op.name} (i32.const ${i}) (get_local $sp))`
-        opcodesUsed.add(op.name)
         break
       case 'PUSH':
         i++
@@ -240,7 +241,6 @@ exports.compileEVM = function (evmCode, stackTrace) {
         }
 
         wasmCode = `${wasmCode} \n (call $${op.name} ${push} (get_local $sp))`
-        opcodesUsed.add(op.name)
         i--
         break
       case 'STOP':
@@ -254,7 +254,6 @@ exports.compileEVM = function (evmCode, stackTrace) {
         break
       case 'RETURN':
         wasmCode = `${wasmCode} \n (call $${op.name} (get_local $sp)) (br $done)`
-        opcodesUsed.add(op.name)
         if (jumpFound) {
           i = findNextJumpDest(evmCode, i)
         } else {
@@ -272,16 +271,23 @@ exports.compileEVM = function (evmCode, stackTrace) {
           // creates a stack trace
           wasmCode = `${wasmCode} \n (call_import $stackTrace (get_local $sp) (i32.const ${opint}))`
         }
-        opcodesUsed.add(op.name)
     }
 
-    const stackDif = op.out - op.in
-    if (stackDif !== 0) {
-      wasmCode = `${wasmCode} (set_local $sp (i32.add (get_local $sp) (i32.const ${stackDif * 32})))`
+    opcodesUsed.add(op.name)
+    const stackDeta = op.on - op.off
+    segmentStackDeta += stackDeta
+    if (segmentStackDeta > segmentStackHigh) {
+      segmentStackHigh = segmentStackDeta
+    } else if (segmentStackDeta < segmentStackLow) {
+      segmentStackLow = segmentStackDeta
+    }
+
+    if (stackDeta !== 0) {
+      wasmCode = `${wasmCode} (set_local $sp (i32.add (get_local $sp) (i32.const ${stackDeta * 32})))`
     }
   }
-
   addMetering()
+  addStackCheck()
   jumpSegments.push([segment, jumpDestNum])
 
   let mainFunc = '(export "main" $main)' + assmebleSegments(jumpSegments)
@@ -295,10 +301,30 @@ exports.compileEVM = function (evmCode, stackTrace) {
   funcMap.push(mainFunc)
   return exports.buildModule(funcMap)
 
+  // add a metering statment at the beginning of a segment
   function addMetering () {
     segment = `${segment} (call_import $useGas (i32.const ${gasCount})) ${wasmCode}`
     wasmCode = ''
     gasCount = 0
+  }
+
+  // adds stack height checks to the beginning of a segment
+  function addStackCheck () {
+    let check = ''
+    if (segmentStackHigh !== 0) {
+      check = `(if (i32.gt_s (get_local $sp) (i32.const ${1024 * 32 - segmentStackHigh * 32})) 
+                  (then (unreachable)))`
+    }
+    if (segmentStackLow !== 0) {
+      check += `(if (i32.lt_s (get_local $sp) (i32.const ${-segmentStackLow * 32 - 32})) 
+                  (then (unreachable))
+               )`
+    }
+    segment = check + segment
+
+    segmentStackHigh = 0
+    segmentStackLow = 0
+    segmentStackDeta = 0
   }
 }
 

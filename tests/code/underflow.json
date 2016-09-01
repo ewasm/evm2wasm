@@ -1,0 +1,25 @@
+[
+  {
+    "description": "test that underflows are deteched correctly",
+    "source": [
+      "PUSH1",
+      "0x02",
+      "PUSH1",
+      "0x02",
+      "POP",
+      "POP",
+      "POP"
+    ],
+    "code": "0x60026002505050",
+    "result": {
+      "stack": [],
+      "memory": []
+    },
+    "gasUsed": "Nan",
+    "trapped": true,
+    "environment": {
+      "coinbase": "0x0000000000000000000000000000000000000000",
+      "origin": "0x0000000000000000000000000000000000000000"
+    }
+  }
+]
