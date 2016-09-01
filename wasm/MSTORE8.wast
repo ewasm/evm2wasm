@@ -1,7 +1,6 @@
 ;; MSTORE8(word: sp[-1], offset: sp[-2])
 (func $MSTORE8
   (param $sp i32)
-  (result i32)
 
   (local $offset i32)
   (local $memstart i32)
@@ -32,6 +31,4 @@
   ;; FIXME: how to deal with overflow?
   (set_local $offset (i32.add (get_local $offset) (get_local $memstart)))
   (i32.store8 (i32.add (get_local $offset) (i32.const 0)) (i32.load (get_local $sp)))
-
-  (i32.sub (get_local $sp) (i32.const 32))
 )

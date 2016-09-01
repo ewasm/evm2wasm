@@ -1,7 +1,6 @@
 ;; Modulo 0x06
 (func $MOD
   (param $sp i32)
-  (result i32)
 
   ;; dividend
   (local $a i64)
@@ -120,6 +119,4 @@
   (i64.store (i32.add (get_local $sp) (i32.const 16)) (get_local $b))
   (i64.store (i32.add (get_local $sp) (i32.const  8)) (get_local $c))
   (i64.store          (get_local $sp)                 (get_local $d))
-
-  (get_local $sp)
 )

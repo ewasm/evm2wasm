@@ -1,7 +1,6 @@
 (func $LOG
   (param $number i32)
   (param $sp i32)
-  (result i32)
 
   (local $offset i32)
   (local $offset0 i64)
@@ -47,6 +46,4 @@
              (i32.sub (get_local $sp) (i32.const  96))
              (i32.sub (get_local $sp) (i32.const 128))
              (i32.sub (get_local $sp) (i32.const 160)))
-
-  (return (i32.sub (get_local $sp) (i32.add (i32.mul (i32.const 8) (get_local $number)) (i32.const 64))))
 )
