@@ -1,0 +1,22 @@
+[
+  {
+    "description": "tests that calldata load clears the stack even if it doesn't have any data to load",
+    "source": [
+      "PUSH1",
+      "0x02",
+      "CALLDATALOAD"
+    ],
+    "code": "0x600235",
+    "result": {
+      "stack": [
+        "0x00"
+      ],
+      "memory": []
+    },
+    "gasUsed": 6,
+    "environment": {
+      "coinbase": "0x0000000000000000000000000000000000000000",
+      "origin": "0x0000000000000000000000000000000000000000"
+    }
+  }
+]
