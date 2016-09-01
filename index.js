@@ -18,10 +18,10 @@ const depMap = new Map([
   ['MSTORE', ['MEMUSEGAS', 'swap_word', 'check_overflow']],
   ['MLOAD', ['MEMUSEGAS', 'swap_word', 'check_overflow']],
   ['MSTORE8', ['MEMUSEGAS', 'check_overflow']],
-  ['CODECOPY', ['MEMUSEGAS', 'check_overflow']],
+  ['CODECOPY', ['MEMUSEGAS', 'check_overflow', 'zero_mem']],
   ['CALLDATALOAD', ['swap_word', 'check_overflow']],
-  ['CALLDATACOPY', ['MEMUSEGAS', 'check_overflow']],
-  ['EXTCODECOPY', ['MEMUSEGAS', 'check_overflow']],
+  ['CALLDATACOPY', ['MEMUSEGAS', 'check_overflow', 'zero_mem']],
+  ['EXTCODECOPY', ['MEMUSEGAS', 'check_overflow', 'zero_mem']],
   ['LOG', ['MEMUSEGAS', 'check_overflow']],
   ['JUMPI', ['check_overflow']],
   ['JUMP', ['check_overflow']]
@@ -267,10 +267,6 @@ exports.compileEVM = function (evmCode, stackTrace) {
         break
       default:
         wasmCode = `${wasmCode} \n  (call $${op.name} (get_local $sp))`
-        if (stackTrace) {
-          // creates a stack trace
-          wasmCode = `${wasmCode} \n (call_import $stackTrace (get_local $sp) (i32.const ${opint}))`
-        }
     }
 
     opcodesUsed.add(op.name)
@@ -282,8 +278,14 @@ exports.compileEVM = function (evmCode, stackTrace) {
       segmentStackLow = segmentStackDeta
     }
 
+    // update the stack pointer
     if (stackDeta !== 0) {
       wasmCode = `${wasmCode} (set_local $sp (i32.add (get_local $sp) (i32.const ${stackDeta * 32})))`
+    }
+
+    // creates a stack trace
+    if (stackTrace) {
+      wasmCode = `${wasmCode} \n (call_import $stackTrace (get_local $sp) (i32.const ${opint}))`
     }
   }
   addMetering()
@@ -313,15 +315,13 @@ exports.compileEVM = function (evmCode, stackTrace) {
     let check = ''
     if (segmentStackHigh !== 0) {
       check = `(if (i32.gt_s (get_local $sp) (i32.const ${1024 * 32 - segmentStackHigh * 32})) 
-                  (then (unreachable)))`
+                 (then (unreachable)))`
     }
     if (segmentStackLow !== 0) {
       check += `(if (i32.lt_s (get_local $sp) (i32.const ${-segmentStackLow * 32 - 32})) 
-                  (then (unreachable))
-               )`
+                  (then (unreachable)))`
     }
     segment = check + segment
-
     segmentStackHigh = 0
     segmentStackLow = 0
     segmentStackDeta = 0

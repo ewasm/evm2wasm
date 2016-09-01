@@ -54,11 +54,10 @@
                                    (get_local $dataOffset2)
                                    (get_local $dataOffset3)))
 
-
   (call $memUseGas (get_local $writeOffset) (get_local $length))
-  ;; check for overflow length
+  (call $zero_mem (get_local $writeOffset) (get_local $length))
 
- (call_import $externalCodeCopy 
+  (call_import $externalCodeCopy 
               (get_local $sp)
               (i32.add (get_local $writeOffset) (get_local $memstart))
               (get_local $dataOffset)
