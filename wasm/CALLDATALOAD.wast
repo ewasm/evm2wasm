@@ -11,6 +11,11 @@
   (set_local $writeOffset2 (i64.load (i32.add (get_local $sp) (i32.const 16))))
   (set_local $writeOffset3 (i64.load (i32.add (get_local $sp) (i32.const 24))))
 
+  (i64.store (i32.add (get_local $sp) (i32.const  0)) (i64.const 0))
+  (i64.store (i32.add (get_local $sp) (i32.const  8)) (i64.const 0))
+  (i64.store (i32.add (get_local $sp) (i32.const 16)) (i64.const 0))
+  (i64.store (i32.add (get_local $sp) (i32.const 24)) (i64.const 0))
+
   (set_local $writeOffset
              (call $check_overflow (get_local $writeOffset0)
                                    (get_local $writeOffset1)

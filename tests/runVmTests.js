@@ -30,7 +30,7 @@ function setupEnviroment (testData) {
   const env = new Environment()
 
   env.gasLeft = parseInt(testData.exec.gas.slice(2), 16)
-  env.callData = Buffer.from(testData.exec.data.slice(2), 'hex')
+  env.callData = new Uint8Array(Buffer.from(testData.exec.data.slice(2), 'hex'))
   env.gasPrice = ethUtil.bufferToInt(Buffer.from(testData.exec.gasPrice.slice(2), 'hex'))
 
   // TODO: fix tests
@@ -39,7 +39,7 @@ function setupEnviroment (testData) {
   env.origin = new Address(testData.exec.origin)
 
   env.callValue = new U256(testData.exec.value)
-  env.code = new Buffer(testData.exec.code.slice(2), 'hex')
+  env.code = new Uint8Array(new Buffer(testData.exec.code.slice(2), 'hex'))
 
   // setup block
   env.block.header.number = testData.env.currentNumber
