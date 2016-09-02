@@ -3,32 +3,26 @@
   (param $length i32)
 
   (local $memstart i32)
-  (local $cost i32)
-  (local $pages i32)
+  (local $cost i64)
 
   ;; what was charged for the last memory allocation
-  (local $prevMemCost i32)
+  (local $prevMemCost i64)
   (local $prevMemCostLoc i32)
 
   ;; the number of 256 words stored in memory
   (local $wordCount i32)
   (local $wordCountLoc i32)
 
-  ;; the base gas fee for storing a word
-  (local $wordCost i32)
   ;; the number of new words being allocated
   (local $newWordCount i32)
 
-
+  ;; set globals
   (set_local $memstart (i32.const 33832))
-  (set_local $wordCost (i32.const 3))
-
-  ;; TODO: dedicate memory for these globals
   (set_local $wordCountLoc   (i32.const 32768))
   (set_local $prevMemCostLoc (i32.const 32772))
 
   (set_local $wordCount   (i32.load (get_local $wordCountLoc)))
-  (set_local $prevMemCost (i32.load (get_local $prevMemCostLoc)))
+  (set_local $prevMemCost (i64.load (get_local $prevMemCostLoc)))
 
   ;; const newMemoryWordCount = Math.ceil((offset + length) / 32)
   (set_local $newWordCount (i32.trunc_u/f32 (f32.ceil
@@ -43,16 +37,26 @@
 
   ;; words * 3 + words ^2 / 512
   (set_local $cost
-    (i32.sub 
-     (i32.add
-       (i32.mul (get_local $newWordCount) (i32.const 3))
-       (i32.div_u (i32.mul (get_local $newWordCount) (get_local $newWordCount)) (i32.const 512)))
+    (i64.sub 
+     (i64.add
+       (i64.extend_u/i32 (i32.mul (get_local $newWordCount) (i32.const 3)))
+       (i64.div_u (i64.mul (i64.extend_u/i32 (get_local $newWordCount)) (i64.extend_u/i32 (get_local $newWordCount))) (i64.const 512)))
      (get_local $prevMemCost)))
 
-  (i32.store (get_local $wordCountLoc) (get_local $newWordCount))
-  (i32.store (get_local $prevMemCostLoc) (get_local $cost))
+  ;; TODO remove once useGas can use i64
+  (loop $done $loop
+    (if (i64.le_u (get_local $cost) (i64.const 0xffffffff))
+      (then (br $done))  
+    )
+    (call_import $useGas  (i32.const 0xffffffff))
+    (set_local $cost (i64.sub (get_local $cost) (i64.const 0xffffffff)))
+    (br $loop)
+  )
 
-  (call_import $useGas (get_local $cost))
+  (call_import $useGas  (i32.wrap/i64 (get_local $cost)))
+
+  (i32.store (get_local $wordCountLoc) (get_local $newWordCount))
+  (i64.store (get_local $prevMemCostLoc) (get_local $cost))
 
   ;; grow actual memory
   ;; the first 31704 bytes are guaranteed to be available
