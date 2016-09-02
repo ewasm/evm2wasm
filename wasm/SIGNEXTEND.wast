@@ -1,7 +1,6 @@
 ;; sign extend
 (func $SIGNEXTEND
   (param $sp i32)
-  (result i32)
 
   (local $a0 i64)
   (local $a1 i64)
@@ -45,5 +44,5 @@
       )
     )
   )
-  (get_local $sp)
 )
+

@@ -244,6 +244,9 @@ exports.compileEVM = function (evmCode, stackTrace) {
         wasmCode = `${wasmCode} \n (call $${op.name} ${push} (get_local $sp))`
         i--
         break
+      case 'POP':
+        // do nothing
+        break
       case 'STOP':
         wasmCode = `${wasmCode} (br $done)`
         if (jumpFound) {

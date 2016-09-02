@@ -1,7 +1,6 @@
 ;; RETURN(length: sp[-1], offset: sp[-2])
 (func $RETURN
   (param $sp i32)
-  (result i32)
 
   (local $memstart i32)
   (local $offset i32)
@@ -33,6 +32,4 @@
   (set_local $length (i32.wrap/i64 (get_local $length3)))
 
   (call_import $return (i32.add (get_local $offset) (get_local $memstart)) (get_local $length))
-
-  (i32.sub (get_local $sp) (i32.const 64))
 )
