@@ -24,7 +24,8 @@ const depMap = new Map([
   ['EXTCODECOPY', ['MEMUSEGAS', 'check_overflow', 'zero_mem']],
   ['LOG', ['MEMUSEGAS', 'check_overflow']],
   ['JUMPI', ['check_overflow']],
-  ['JUMP', ['check_overflow']]
+  ['JUMP', ['check_overflow']],
+  ['SHA3', ['MEMUSEGAS', 'check_overflow']],
 ])
 
 // this is used to generate the module's import table
