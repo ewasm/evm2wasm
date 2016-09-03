@@ -1,7 +1,6 @@
 ;; Signed division 0x03
 (func $SDIV
   (param $sp i32)
-  (result i32)
 
   ;; dividend
   (local $a i64)
@@ -181,6 +180,4 @@
   (i64.store (i32.add (get_local $sp) (i32.const 16)) (get_local $bq))
   (i64.store (i32.add (get_local $sp) (i32.const  8)) (get_local $cq))
   (i64.store          (get_local $sp)                 (get_local $dq))
-
-  (get_local $sp)
 )

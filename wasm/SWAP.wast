@@ -2,8 +2,6 @@
   (param $a0 i32)
   (param $sp i32)
 
-  (result i32)
-
   (local $sp_ref i32)
 
   (local $topa i64)
@@ -29,6 +27,4 @@
   (i64.store (i32.sub (get_local $sp_ref) (i32.const 8))  (get_local $topb))
   (i64.store (i32.sub (get_local $sp_ref) (i32.const 16)) (get_local $topc))
   (i64.store (i32.sub (get_local $sp_ref) (i32.const 24)) (get_local $topd))
-
-  (get_local $sp)
 )

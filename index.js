@@ -24,7 +24,8 @@ const depMap = new Map([
   ['EXTCODECOPY', ['MEMUSEGAS', 'check_overflow', 'zero_mem']],
   ['LOG', ['MEMUSEGAS', 'check_overflow']],
   ['JUMPI', ['check_overflow']],
-  ['JUMP', ['check_overflow']]
+  ['JUMP', ['check_overflow']],
+  ['SHA3', ['MEMUSEGAS', 'check_overflow']],
 ])
 
 // this is used to generate the module's import table
@@ -165,6 +166,17 @@ exports.compileEVM = function (evmCode, stackTrace) {
     const op = opcodes(opint)
     let bytes
     gasCount += op.fee
+
+    segmentStackDeta += op.on
+    if (segmentStackDeta > segmentStackHigh) {
+      segmentStackHigh = segmentStackDeta
+    }
+
+    segmentStackDeta -= op.off
+    if (segmentStackDeta < segmentStackLow) {
+      segmentStackLow = segmentStackDeta
+    }
+
     switch (op.name) {
       case 'JUMP':
         jumpFound = true
@@ -199,11 +211,12 @@ exports.compileEVM = function (evmCode, stackTrace) {
                         )
                       )
                     ))))`
+        addStackCheck()
         addMetering()
         break
       case 'JUMPDEST':
-        addMetering()
         addStackCheck()
+        addMetering()
         jumpSegments.push([segment, jumpDestNum])
         segment = ''
         jumpDestNum = i
@@ -243,6 +256,9 @@ exports.compileEVM = function (evmCode, stackTrace) {
         wasmCode = `${wasmCode} \n (call $${op.name} ${push} (get_local $sp))`
         i--
         break
+      case 'POP':
+        // do nothing
+        break
       case 'STOP':
         wasmCode = `${wasmCode} (br $done)`
         if (jumpFound) {
@@ -270,14 +286,8 @@ exports.compileEVM = function (evmCode, stackTrace) {
     }
 
     opcodesUsed.add(op.name)
-    const stackDeta = op.on - op.off
-    segmentStackDeta += stackDeta
-    if (segmentStackDeta > segmentStackHigh) {
-      segmentStackHigh = segmentStackDeta
-    } else if (segmentStackDeta < segmentStackLow) {
-      segmentStackLow = segmentStackDeta
-    }
 
+    const stackDeta = op.on - op.off
     // update the stack pointer
     if (stackDeta !== 0) {
       wasmCode = `${wasmCode} (set_local $sp (i32.add (get_local $sp) (i32.const ${stackDeta * 32})))`
@@ -288,8 +298,8 @@ exports.compileEVM = function (evmCode, stackTrace) {
       wasmCode = `${wasmCode} \n (call_import $stackTrace (get_local $sp) (i32.const ${opint}))`
     }
   }
-  addMetering()
   addStackCheck()
+  addMetering()
   jumpSegments.push([segment, jumpDestNum])
 
   let mainFunc = '(export "main" $main)' + assmebleSegments(jumpSegments)
@@ -314,14 +324,14 @@ exports.compileEVM = function (evmCode, stackTrace) {
   function addStackCheck () {
     let check = ''
     if (segmentStackHigh !== 0) {
-      check = `(if (i32.gt_s (get_local $sp) (i32.const ${1024 * 32 - segmentStackHigh * 32})) 
+      check = `(if (i32.gt_s (get_local $sp) (i32.const ${(1023 - segmentStackHigh) * 32})) 
                  (then (unreachable)))`
     }
     if (segmentStackLow !== 0) {
       check += `(if (i32.lt_s (get_local $sp) (i32.const ${-segmentStackLow * 32 - 32})) 
                   (then (unreachable)))`
     }
-    segment = check + segment
+    wasmCode = check + wasmCode
     segmentStackHigh = 0
     segmentStackLow = 0
     segmentStackDeta = 0
