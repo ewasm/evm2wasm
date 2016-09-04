@@ -1,5 +1,5 @@
 ;; is a less than or equal to b // a >= b
-(func $gte 
+(func $gte_256
   (param $a0 i64)
   (param $a1 i64)
   (param $a2 i64)
