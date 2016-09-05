@@ -20,15 +20,15 @@
 
   (set_local $memstart (i32.const 33832))
 
-  (set_local $length0 (i64.load (i32.sub (get_local $sp) (i32.const 64))))
-  (set_local $length1 (i64.load (i32.sub (get_local $sp) (i32.const 56))))
-  (set_local $length2 (i64.load (i32.sub (get_local $sp) (i32.const 48))))
-  (set_local $length3 (i64.load (i32.sub (get_local $sp) (i32.const 40))))
+  (set_local $length0 (i64.load (i32.sub (get_local $sp) (i32.const 32))))
+  (set_local $length1 (i64.load (i32.sub (get_local $sp) (i32.const 24))))
+  (set_local $length2 (i64.load (i32.sub (get_local $sp) (i32.const 16))))
+  (set_local $length3 (i64.load (i32.sub (get_local $sp) (i32.const 8))))
 
-  (set_local $dataOffset0 (i64.load (i32.sub (get_local $sp) (i32.const 32))))
-  (set_local $dataOffset1 (i64.load (i32.sub (get_local $sp) (i32.const 24))))
-  (set_local $dataOffset2 (i64.load (i32.sub (get_local $sp) (i32.const 16))))
-  (set_local $dataOffset3 (i64.load (i32.sub (get_local $sp) (i32.const  8))))
+  (set_local $dataOffset0 (i64.load (i32.add (get_local $sp) (i32.const 0))))
+  (set_local $dataOffset1 (i64.load (i32.add (get_local $sp) (i32.const 8))))
+  (set_local $dataOffset2 (i64.load (i32.add (get_local $sp) (i32.const 16))))
+  (set_local $dataOffset3 (i64.load (i32.add (get_local $sp) (i32.const 24))))
 
   (set_local $length 
              (call $check_overflow (get_local $length0)
@@ -46,7 +46,7 @@
   (set_local $dataOffset (i32.add (get_local $memstart) (get_local $dataOffset)))
 
   (set_local $contextOffset (i32.const 32808))
-  (set_local $outputOffset (i32.sub (get_local $sp) (i32.const 64)))
+  (set_local $outputOffset (i32.sub (get_local $sp) (i32.const 32)))
 
   ;; 30 + words * 6
   (set_local $cost
@@ -59,4 +59,6 @@
   (call_import $useGas (get_local $cost))
 
   (call $KECCAK (get_local $contextOffset) (get_local $dataOffset) (get_local $length) (get_local $outputOffset))
+
+  (call $swap_word (get_local $outputOffset))
 )
