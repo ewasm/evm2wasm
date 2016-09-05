@@ -13,7 +13,7 @@ const evm2wasm = require('../index.js')
 // kill the test once we hit a failer
 tape.createStream().pipe(spy((info) => {
   if (info.toString().slice(0, 6) === 'not ok') {
-    console.log(info.toString());
+    console.log(info.toString())
     process.exit()
   }
 })).pipe(process.stdout)
