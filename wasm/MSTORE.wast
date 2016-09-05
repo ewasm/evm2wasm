@@ -30,7 +30,7 @@
   (set_local $sp (i32.sub (get_local $sp) (i32.const 32)))
 
   ;; swap top stack item
-  (call $swap_word (get_local $sp))
+  (call $bswap_m256 (get_local $sp))
 
   ;; FIXME: how to deal with overflow?
   (set_local $offset (i32.add (get_local $offset) (get_local $memstart)))
