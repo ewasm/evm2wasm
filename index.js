@@ -25,7 +25,7 @@ const depMap = new Map([
   ['LOG', ['memusegas', 'check_overflow']],
   ['JUMPI', ['check_overflow']],
   ['JUMP', ['check_overflow']],
-  ['SHA3', ['MEMUSEGAS', 'check_overflow']]
+  ['SHA3', ['memusegas', 'check_overflow']]
 ])
 
 // this is used to generate the module's import table
