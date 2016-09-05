@@ -55,7 +55,7 @@
 
 
  (call $memUseGas (get_local $writeOffset) (get_local $length))
- (call $zero_mem (get_local $writeOffset) (get_local $length))
+ (call $memset (get_local $writeOffset) (i32.const 0) (get_local $length))
 
  (call_import $callDataCopy 
               (i32.add (get_local $writeOffset) (get_local $memstart))
