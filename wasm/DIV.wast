@@ -57,7 +57,7 @@
         ;; check to make sure we are not overflowing
         (i32.or (i64.eqz (i64.clz (get_local $a1)))
         ;;  divisor < dividend
-        (call $gte (get_local $a1) (get_local $b1) (get_local $c1) (get_local $d1) (get_local $a) (get_local $b) (get_local $c) (get_local $d)))
+        (call $gte_256 (get_local $a1) (get_local $b1) (get_local $c1) (get_local $d1) (get_local $a) (get_local $b) (get_local $c) (get_local $d)))
         (br $done)
       )
 
@@ -83,7 +83,7 @@
         (br $done)
       )
       ;; if dividend >= divisor
-      (if (call $gte (get_local $a) (get_local $b) (get_local $c) (get_local $d) (get_local $a1) (get_local $b1) (get_local $c1) (get_local $d1))
+      (if (call $gte_256 (get_local $a) (get_local $b) (get_local $c) (get_local $d) (get_local $a1) (get_local $b1) (get_local $c1) (get_local $d1))
         (then
           ;; dividend = dividend - divisor
           (set_local $carry (i64.lt_u (get_local $d) (get_local $d1)))
