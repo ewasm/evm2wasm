@@ -3,16 +3,17 @@
   (param $sp i32)
 
   (local $memstart i32)
-  (local $offset i32)
-  (local $length i32)
-  (local $offset0 i64)
-  (local $offset1 i64)
-  (local $offset2 i64)
-  (local $offset3 i64)
-  (local $length0 i64)
-  (local $length1 i64)
-  (local $length2 i64)
-  (local $length3 i64)
+  (local $offset   i32)
+  (local $length   i32)
+
+  (local $offset0  i64)
+  (local $offset1  i64)
+  (local $offset2  i64)
+  (local $offset3  i64)
+  (local $length0  i64)
+  (local $length1  i64)
+  (local $length2  i64)
+  (local $length3  i64)
 
   (set_local $memstart (i32.const 33832))
 
@@ -27,9 +28,17 @@
   (set_local $length2 (i64.load (i32.sub (get_local $sp) (i32.const 24))))
   (set_local $length3 (i64.load (i32.sub (get_local $sp) (i32.const 32))))
 
-  ;; FIXME: how to deal with overflow?
-  (set_local $offset (i32.wrap/i64 (get_local $offset3)))
-  (set_local $length (i32.wrap/i64 (get_local $length3)))
+  (set_local $offset
+             (call $check_overflow (get_local $offset3)
+                                   (get_local $offset2)
+                                   (get_local $offset1)
+                                   (get_local $offset0)))
+  (set_local $length 
+             (call $check_overflow (get_local $length3)
+                                   (get_local $length2)
+                                   (get_local $length1)
+                                   (get_local $length0)))
 
+  ;; (call $memUseGas (get_local $offset) (get_local $length))
   (call_import $return (i32.add (get_local $offset) (get_local $memstart)) (get_local $length))
 )
