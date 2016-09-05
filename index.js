@@ -25,7 +25,7 @@ const depMap = new Map([
   ['LOG', ['memusegas', 'check_overflow']],
   ['JUMPI', ['check_overflow']],
   ['JUMP', ['check_overflow']],
-  ['SHA3', ['memusegas', 'check_overflow']],
+  ['SHA3', ['MEMUSEGAS', 'check_overflow']]
 ])
 
 // this is used to generate the module's import table
@@ -151,7 +151,7 @@ exports.compileEVM = function (evmCode, stackTrace) {
   let wasmCode = ''
   let segment = ''
   // used to translate the local in EVM of JUMPDEST to a wasm block label
-  let jumpDestNum = 0
+  let jumpDestNum = -1
   // keeps track of the gas that each section uses
   let gasCount = 0
   // used for pruning dead code
@@ -355,6 +355,7 @@ function assmebleSegments (segments) {
            (local $sp i32) 
            (local $jump_dest i32)
            (set_local $sp (i32.const -32)) 
+           (set_local $jump_dest (i32.const -1)) 
            (loop $done $loop
             ${wasm}))`
 }

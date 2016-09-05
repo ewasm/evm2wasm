@@ -16,6 +16,10 @@
   ;; the number of new words being allocated
   (local $newWordCount i32)
 
+  (if (i32.eqz (get_local $length))
+    (then (return))
+  )
+
   ;; set globals
   (set_local $memstart (i32.const 33832))
   (set_local $wordCountLoc   (i32.const 32768))
