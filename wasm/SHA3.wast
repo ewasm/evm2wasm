@@ -14,9 +14,9 @@
   (local $length2 i64)
   (local $length3 i64)
 
-  (local $cost i32)
   (local $contextOffset i32)
   (local $outputOffset i32)
+
 
   (set_local $memstart (i32.const 33832))
 
@@ -41,6 +41,8 @@
                                    (get_local $dataOffset2)
                                    (get_local $dataOffset3)))
 
+  ;; charge copy fee ceil(words/32) * 6 
+  (call_import $useGas (i32.mul (i32.div_u (i32.add (get_local $length) (i32.const 31)) (i32.const 32)) (i32.const 6)))
   (call $memUseGas (get_local $dataOffset) (get_local $length))
 
   (set_local $dataOffset (i32.add (get_local $memstart) (get_local $dataOffset)))
@@ -48,15 +50,6 @@
   (set_local $contextOffset (i32.const 32808))
   (set_local $outputOffset (i32.sub (get_local $sp) (i32.const 32)))
 
-  ;; 30 + words * 6
-  (set_local $cost
-     (i32.add
-       (i32.const 30)
-       (i32.mul (i32.div_u (get_local $length) (i32.const 32)) (i32.const 6))
-     )
-  )
-
-  (call_import $useGas (get_local $cost))
 
   (call $KECCAK (get_local $contextOffset) (get_local $dataOffset) (get_local $length) (get_local $outputOffset))
 

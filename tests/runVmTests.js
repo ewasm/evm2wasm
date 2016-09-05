@@ -1,4 +1,5 @@
 const argv = require('minimist')(process.argv.slice(2))
+const spy = require('through2-spy')
 const tape = require('tape')
 const ethUtil = require('ethereumjs-util')
 const testing = require('ethereumjs-testing')
@@ -8,6 +9,14 @@ const Address = require('ewasm-kernel/address.js')
 const U256 = require('ewasm-kernel/u256.js')
 const Interface = require('ewasm-kernel/interface')
 const evm2wasm = require('../index.js')
+
+// kill the test once we hit a failer
+tape.createStream().pipe(spy((info) => {
+  if (info.toString().slice(0, 6) === 'not ok') {
+    console.log(info.toString());
+    process.exit()
+  }
+})).pipe(process.stdout)
 
 function runner (testData, t, cb) {
   const code = Buffer.from(testData.exec.code.slice(2), 'hex')
