@@ -50,7 +50,6 @@
   (set_local $contextOffset (i32.const 32808))
   (set_local $outputOffset (i32.sub (get_local $sp) (i32.const 32)))
 
-
   (call $KECCAK (get_local $contextOffset) (get_local $dataOffset) (get_local $length) (get_local $outputOffset))
 
   (call $swap_word (get_local $outputOffset))
