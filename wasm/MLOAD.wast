@@ -34,5 +34,5 @@
   (i64.store          (get_local $sp)                 (i64.load          (get_local $offset)))
 
   ;; swap
-  (call $swap_word (get_local $sp))
+  (call $bswap_m256 (get_local $sp))
 )
