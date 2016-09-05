@@ -1,4 +1,3 @@
-;; Signed division 0x03
 (func $SDIV
   (param $sp i32)
 

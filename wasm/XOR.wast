@@ -1,4 +1,3 @@
-;; XOR(sp[-1], sp[-2])
 (func $XOR
   (param $sp i32)
 

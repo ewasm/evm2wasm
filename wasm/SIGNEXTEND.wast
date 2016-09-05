@@ -1,4 +1,3 @@
-;; sign extend
 (func $SIGNEXTEND
   (param $sp i32)
 

@@ -1,4 +1,3 @@
-;; division 0x04
 (func $DIV
   (param $sp i32)
 

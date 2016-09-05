@@ -1,4 +1,3 @@
-;; less than 0x0c
 (func $LT
   (param $sp i32)
 

@@ -1,4 +1,3 @@
-;; Multiplication 0x02 
 (func $MUL
   (param $sp i32)
   (call $mul_256

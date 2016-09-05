@@ -1,3 +1,7 @@
+;; stack:
+;;  0: outputOffset
+;; -1: inputOffset
+;; -2: inputLength
 (func $CALLDATACOPY
   (param $sp i32)
   (local $memstart i32)

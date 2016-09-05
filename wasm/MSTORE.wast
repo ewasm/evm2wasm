@@ -1,4 +1,6 @@
-;; MSTORE(word: sp[-1], offset: sp[-2])
+;; stack:
+;;  0: word
+;; -1: offset
 (func $MSTORE
   (param $sp i32)
 

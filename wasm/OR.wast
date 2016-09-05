@@ -1,4 +1,3 @@
-;; OR(sp[-1], sp[-2])
 (func $OR
   (param $sp i32)
 

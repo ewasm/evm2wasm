@@ -1,4 +1,3 @@
-;; Add 0x01
 (func $ADD
   (param $sp i32)
 

@@ -1,4 +1,3 @@
-;; signed less than
 (func $SLT
   (param $sp i32)
 
