@@ -16,17 +16,17 @@ const depMap = new Map([
   ['EXP', ['iszero_32', 'mul_256']],
   ['MUL', ['mul_256']],
   ['ISZERO', ['iszero_32']],
-  ['MSTORE', ['memusegas', 'swap_word', 'check_overflow']],
-  ['MLOAD', ['memusegas', 'swap_word', 'check_overflow']],
+  ['MSTORE', ['memusegas', 'swap_word', 'bswap_i64', 'check_overflow']],
+  ['MLOAD', ['memusegas', 'swap_word', 'bswap_i64', 'check_overflow']],
   ['MSTORE8', ['memusegas', 'check_overflow']],
   ['CODECOPY', ['memusegas', 'check_overflow', 'zero_mem']],
-  ['CALLDATALOAD', ['swap_word', 'check_overflow']],
+  ['CALLDATALOAD', ['swap_word', 'bswap_i64', 'check_overflow']],
   ['CALLDATACOPY', ['memusegas', 'check_overflow', 'zero_mem']],
   ['EXTCODECOPY', ['memusegas', 'check_overflow', 'zero_mem']],
   ['LOG', ['memusegas', 'check_overflow']],
   ['JUMPI', ['check_overflow']],
   ['JUMP', ['check_overflow']],
-  ['SHA3', ['memusegas', 'swap_word', 'check_overflow', 'keccak', 'memcpy']]
+  ['SHA3', ['memusegas', 'swap_word', 'bswap_i64', 'check_overflow', 'keccak', 'memcpy']]
 ])
 
 // this is used to generate the module's import table
