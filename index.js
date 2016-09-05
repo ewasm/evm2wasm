@@ -26,7 +26,7 @@ const depMap = new Map([
   ['LOG', ['memusegas', 'check_overflow']],
   ['JUMPI', ['check_overflow']],
   ['JUMP', ['check_overflow']],
-  ['SHA3', ['memusegas', 'bswap_m256', 'bswap_i64', 'check_overflow', 'keccak', 'memcpy']]
+  ['SHA3', ['memusegas', 'bswap_m256', 'bswap_i64', 'check_overflow', 'keccak', 'memcpy', 'memset']]
 ])
 
 // this is used to generate the module's import table
