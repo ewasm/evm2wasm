@@ -8,7 +8,8 @@ const path = require('path')
 // map to track dependent WASM functions
 const depMap = new Map([
   ['MOD', ['iszero_32', 'gte_256']],
-  ['ADDMOD', ['MOD', 'ADD']],
+  ['ADDMOD', ['MOD', 'ADD', 'mod_320', 'iszero_320', 'gte_320']],
+  ['MULMOD', ['mod_512', 'iszero_512', 'gte_512']],
   ['SDIV', ['iszero_32', 'gte_256']],
   ['SMOD', ['iszero_32', 'gte_256']],
   ['DIV', ['iszero_32', 'gte_256']],
