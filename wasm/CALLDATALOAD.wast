@@ -24,5 +24,5 @@
 
   (call_import $callDataCopy256 (get_local $sp) (get_local $writeOffset))
   ;; swap top stack item
-  (call $swap_word (get_local $sp))
+  (call $bswap_m256 (get_local $sp))
 )

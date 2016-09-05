@@ -1,4 +1,4 @@
-(func $swap_word
+(func $bswap_m256
   (param $sp i32)
   (local $temp i64)
 
