@@ -1,4 +1,3 @@
-;; Modulo 0x06
 (func $MOD
   (param $sp i32)
 

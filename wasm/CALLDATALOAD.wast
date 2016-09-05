@@ -1,3 +1,5 @@
+;; stack:
+;;  0: dataOffset
 (func $CALLDATALOAD
   (param $sp i32)
   (local $writeOffset i32)

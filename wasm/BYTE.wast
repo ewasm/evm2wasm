@@ -1,4 +1,6 @@
-;; BYTE(offset: sp[-1], value: sp[-2])
+;; stack:
+;;  0: offset
+;; -1: value
 (func $BYTE
   (param $sp i32)
 

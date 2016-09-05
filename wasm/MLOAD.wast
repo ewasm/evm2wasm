@@ -1,4 +1,5 @@
-;; MLOAD(offset: sp[-2])
+;; stack:
+;;  0: offset
 (func $MLOAD
   (param $sp i32)
 

@@ -1,4 +1,6 @@
-;; RETURN(length: sp[-1], offset: sp[-2])
+;; stack:
+;;  0: length
+;; -1: offset
 (func $RETURN
   (param $sp i32)
 

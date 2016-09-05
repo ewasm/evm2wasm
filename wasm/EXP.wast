@@ -1,4 +1,3 @@
-;; Exponential 0x0a
 (func $EXP
   (param $sp i32)
 

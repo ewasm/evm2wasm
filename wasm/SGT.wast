@@ -1,4 +1,3 @@
-;; signed greater than
 (func $SGT
   (param $sp i32)
 

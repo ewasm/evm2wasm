@@ -1,4 +1,3 @@
-;; sign modulo 0x07
 (func $SMOD
   (param $sp i32)
   ;; dividend

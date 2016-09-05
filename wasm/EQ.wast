@@ -1,4 +1,3 @@
-;; equals 0x14
 (func $EQ
   (param  $sp i32)
 

@@ -1,4 +1,3 @@
-;; greater than
 (func $GT
   (param $sp i32)
 

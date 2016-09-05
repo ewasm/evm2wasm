@@ -1,3 +1,7 @@
+;; stack:
+;;  0: A
+;; -1: B
+;; -2: MOD
 (func $ADDMOD
   (param $sp i32)
 

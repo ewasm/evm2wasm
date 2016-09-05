@@ -1,4 +1,3 @@
-;; Subtraction 0x03
 (func $SUB
   (param $sp i32)
 

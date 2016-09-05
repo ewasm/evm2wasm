@@ -1,4 +1,3 @@
-;; NOT(sp[-1])
 (func $NOT
   (param $sp i32)
 

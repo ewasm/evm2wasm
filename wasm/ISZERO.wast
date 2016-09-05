@@ -1,4 +1,3 @@
-;; is zero
 (func $ISZERO
   (param $sp i32)
 

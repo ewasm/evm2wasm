@@ -1,4 +1,3 @@
-;; PUSH
 (func $PUSH
   (param $a0 i64)
   (param $a1 i64)
