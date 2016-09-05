@@ -19,7 +19,7 @@
         "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470"
       ],
       "memory": {},
-      "gasUsed": 30
+      "gasUsed": 0
     },
     "environment": {
       "callData": "0x00",
@@ -48,7 +48,7 @@
         "0x290decd9548b62a8d60345a988386fc84ba6bc95484008f6362f93160ef3e563"
       ],
       "memory": {},
-      "gasUsed": 36
+      "gasUsed": 6
     },
     "environment": {
       "callData": "0x00",
@@ -84,7 +84,7 @@
         "0xd397b3b043d87fcd6fad1291ff0bfd16401c274896d8c63a923727f077b8e0b5"
       ],
       "memory": {},
-      "gasUsed": 78
+      "gasUsed": 48
     },
     "environment": {
       "callData": "0x00",
@@ -109,7 +109,7 @@
         "0x290decd9548b62a8d60345a988386fc84ba6bc95484008f6362f93160ef3e563"
       ],
       "memory": {},
-      "gasUsed": 36
+      "gasUsed": 6
     },
     "environment": {
       "callData": "0x00",
