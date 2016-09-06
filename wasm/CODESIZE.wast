@@ -1,3 +1,4 @@
+(import $getCodeSize "ethereum" "getCodeSize" (result i32))
 (func $CODESIZE
   (param $sp i32)
 

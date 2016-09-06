@@ -1,3 +1,4 @@
+(import $codeCopy "ethereum" "codeCopy" (param i32 i32 i32))
 (func $CODECOPY
   (param $sp i32)
   (local $memstart i32)

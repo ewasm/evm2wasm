@@ -1,3 +1,4 @@
+(import $getCaller "ethereum" "getCaller" (param i32))
 (func $CALLER
   (param $sp i32)
   ;; there's no input item for us to overwrite

@@ -1,3 +1,4 @@
+(import $getTxGasPrice "ethereum" "getTxGasPrice" (result i32))
 (func $GASPRICE
   (param $sp i32)
 

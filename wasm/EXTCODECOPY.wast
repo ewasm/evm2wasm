@@ -1,3 +1,4 @@
+(import $externalCodeCopy "ethereum" "externalCodeCopy" (param i32 i32 i32 i32))
 (func $EXTCODECOPY
   (param $sp i32)
   (local $memstart i32)

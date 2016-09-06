@@ -1,3 +1,4 @@
+(import $getBlockNumber "ethereum" "getBlockNumber" (result i32))
 (func $NUMBER
   (param $sp i32)
 

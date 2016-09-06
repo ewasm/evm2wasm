@@ -1,3 +1,4 @@
+(import $getAddress "ethereum" "getAddress" (param i32))
 (func $ADDRESS
   (param $sp i32)
   ;; there's no input item for us to overwrite

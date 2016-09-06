@@ -32,90 +32,6 @@ const depMap = new Map([
   ['RETURN', ['memusegas', 'check_overflow']]
 ])
 
-// this is used to generate the module's import table
-const interfaceImportMap = {
-  'selfDestruct': {
-    'inputs': [ 'i32' ]
-  },
-  'storageStore': {
-    'inputs': [ 'i32', 'i32' ]
-  },
-  'storageLoad': {
-    'inputs': ['i32', 'i32']
-  },
-  'useGas': {
-    'inputs': [ 'i32' ]
-  },
-  'return': {
-    'inputs': [ 'i32', 'i32' ]
-  },
-  'getBlockHash': {
-    'inputs': ['i32', 'i32']
-  },
-  'getCaller': {
-    'inputs': [ 'i32' ]
-  },
-  'getTxOrigin': {
-    'inputs': [ 'i32' ]
-  },
-  'getAddress': {
-    'inputs': [ 'i32' ]
-  },
-  'getBlockDifficulty': {
-    'inputs': [ 'i32' ]
-  },
-  'getBlockCoinbase': {
-    'inputs': [ 'i32' ]
-  },
-  'getBlockGasLimit': {
-    'output': 'i32'
-  },
-  'getBlockNumber': {
-    'output': 'i32'
-  },
-  'getBlockTimestamp': {
-    'output': 'i32'
-  },
-  'getCallDataSize': {
-    'output': 'i32'
-  },
-  'getGasLeft': {
-    'output': 'i64'
-  },
-  'codeCopy': {
-    'inputs': ['i32', 'i32', 'i32']
-  },
-  'getCodeSize': {
-    'output': 'i32'
-  },
-  'getTxGasPrice': {
-    'output': 'i32'
-  },
-  'callDataCopy': {
-    'inputs': ['i32', 'i32', 'i32']
-  },
-  'callDataCopy256': {
-    'inputs': ['i32', 'i32']
-  },
-  'getBalance': {
-    'inputs': ['i32', 'i32']
-  },
-  'getCallValue': {
-    'inputs': ['i32']
-  },
-  'getExternalCodeSize': {
-    'inputs': ['i32'],
-    'output': 'i32'
-  },
-  'externalCodeCopy': {
-    'inputs': ['i32', 'i32', 'i32', 'i32'],
-    'output': 'i32'
-  },
-  'log': {
-    'inputs': ['i32', 'i32', 'i32', 'i32', 'i32', 'i32', 'i32']
-  }
-}
-
 // compiles evmCode to wasm in the binary format
 // @param {Array} evmCode
 // @param {Boolean}  stackTrace set to true if you want a stacktrace
@@ -448,50 +364,17 @@ exports.resolveFunctions = function resolveFunctions (funcSet, dir = '/wasm/') {
   return funcs
 }
 
-// builds the import table
-// @return {String}
-exports.buildInterfaceImports = function () {
-  let importStr = ''
-
-  Object.keys(interfaceImportMap).forEach((key) => {
-    let options = interfaceImportMap[key]
-
-    importStr += `(import $${key} "ethereum" "${key}"`
-
-    if (options.inputs) {
-      importStr += ' (param '
-      for (let input of options.inputs) {
-        importStr += `${input} `
-      }
-      importStr += ')'
-    }
-
-    if (options.output) {
-      importStr += ` (result ${options.output})`
-    }
-
-    importStr += `)\n`
-  })
-
-  return importStr
-}
-
 // builds a wasm module
 // @param {Array} funcs the function to include in the module
 // @param {Array} imports the imports for the module's import table
-// @param {Array} exports the exports for the module's export table
 // @return {String}
-exports.buildModule = function buildModule (funcs, imports = [], exports = []) {
+exports.buildModule = function buildModule (funcs, imports = []) {
   let funcStr = ''
   for (let func of funcs) {
     funcStr += func
   }
-  for (let exprt of exports) {
-    funcStr += `(export "${exprt}" $${exprt})`
-  }
-  let importStr = this.buildInterfaceImports()
   return `(module
-          ${importStr}
+          (import $useGas "ethereum" "useGas" (param i32))
           (memory 1)
           (export "memory" memory)
             ${funcStr}

@@ -1,6 +1,7 @@
 ;; stack:
 ;;  0: length
 ;; -1: offset
+(import $return "ethereum" "return" (param i32 i32))
 (func $RETURN
   (param $sp i32)
 

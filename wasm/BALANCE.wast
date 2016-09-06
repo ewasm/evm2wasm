@@ -1,3 +1,4 @@
+(import $getBalance "ethereum" "getBalance" (param i32 i32))
 (func $BALANCE
   (param $sp i32)
 
