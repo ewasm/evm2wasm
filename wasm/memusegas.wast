@@ -33,7 +33,6 @@
                              (f32.div
                                (f32.convert_u/i32
                                  (i32.add (get_local $offset) (get_local $length))) (f32.const 32)))))
-
   ;;if (runState.highestMem >= highestMem)  return
   (if (i32.le_u (get_local $newWordCount) (get_local $wordCount))
     (then (return))
@@ -41,11 +40,12 @@
 
   ;; words * 3 + words ^2 / 512
   (set_local $cost
-    (i64.sub 
      (i64.add
        (i64.extend_u/i32 (i32.mul (get_local $newWordCount) (i32.const 3)))
-       (i64.div_u (i64.mul (i64.extend_u/i32 (get_local $newWordCount)) (i64.extend_u/i32 (get_local $newWordCount))) (i64.const 512)))
-     (get_local $prevMemCost)))
+       (i64.div_u (i64.mul (i64.extend_u/i32 (get_local $newWordCount)) (i64.extend_u/i32 (get_local $newWordCount))) (i64.const 512))))
+
+  (i64.store (get_local $prevMemCostLoc) (get_local $cost))
+  (set_local $cost (i64.sub (get_local $cost) (get_local $prevMemCost)))
 
   ;; TODO remove once useGas can use i64
   (loop $done $loop
@@ -60,7 +60,6 @@
   (call_import $useGas  (i32.wrap/i64 (get_local $cost)))
 
   (i32.store (get_local $wordCountLoc) (get_local $newWordCount))
-  (i64.store (get_local $prevMemCostLoc) (get_local $cost))
 
   ;; grow actual memory
   ;; the first 31704 bytes are guaranteed to be available

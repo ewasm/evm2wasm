@@ -1,8 +1,5 @@
-;; stack:
-;;  0: length
-;; -1: offset
-(func $RETURN
-  (param $sp i32)
+(func $CREATE
+  (param $sp i32)      
 
   (local $memstart i32)
   (local $offset   i32)
@@ -19,7 +16,8 @@
 
   (set_local $memstart (i32.const 33832))
 
-  ;; load args from the stack
+  (set_local $sp (i32.sub (get_local $sp) (i32.const 32)))
+
   (set_local $offset0 (i64.load (i32.add (get_local $sp) (i32.const 24))))
   (set_local $offset1 (i64.load (i32.add (get_local $sp) (i32.const 16))))
   (set_local $offset2 (i64.load (i32.add (get_local $sp) (i32.const  8))))
@@ -41,6 +39,12 @@
                                    (get_local $length1)
                                    (get_local $length0)))
 
-  ;; (call $memUseGas (get_local $offset) (get_local $length))
-  (call_import $return (i32.add (get_local $offset) (get_local $memstart)) (get_local $length))
+  (call $memUseGas (get_local $offset) (get_local $length))
+  (set_local $sp (i32.sub (get_local $sp) (i32.const 32)))
+  ;; zero out rest of stack
+  (i64.store (i32.add (get_local $sp) (i32.const 0)) (i64.const 0))
+  (i64.store (i32.add (get_local $sp) (i32.const 8)) (i64.const 0))
+  (i64.store (i32.add (get_local $sp) (i32.const 16)) (i64.const 0))
+  (i64.store (i32.add (get_local $sp) (i32.const 24)) (i64.const 0))
+
 )

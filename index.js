@@ -26,7 +26,10 @@ const depMap = new Map([
   ['LOG', ['memusegas', 'check_overflow']],
   ['JUMPI', ['check_overflow']],
   ['JUMP', ['check_overflow']],
-  ['SHA3', ['memusegas', 'bswap_m256', 'bswap_i64', 'check_overflow', 'keccak', 'memcpy']]
+  ['SHA3', ['memusegas', 'bswap_m256', 'bswap_i64', 'check_overflow', 'keccak', 'memcpy']],
+  ['CALL', ['memusegas', 'check_overflow']],
+  ['CREATE', ['memusegas', 'check_overflow']],
+  ['RETURN', ['memusegas', 'check_overflow']]
 ])
 
 // this is used to generate the module's import table
@@ -259,6 +262,15 @@ exports.compileEVM = function (evmCode, stackTrace) {
         break
       case 'POP':
         // do nothing
+        break
+      case 'SUICIDE':
+        wasmCode = `${wasmCode} \n (call $${op.name} (get_local $sp)) (br $done)`
+        if (jumpFound) {
+          i = findNextJumpDest(evmCode, i)
+        } else {
+          // the rest is dead code
+          i = evmCode.length
+        }
         break
       case 'STOP':
         wasmCode = `${wasmCode} (br $done)`
