@@ -266,15 +266,6 @@ exports.compileEVM = function (evmCode, stackTrace) {
       case 'POP':
         // do nothing
         break
-      case 'SUICIDE':
-        wasmCode = `${wasmCode} \n (call $${op.name} (get_local $sp)) (br $done)`
-        if (jumpFound) {
-          i = findNextJumpDest(evmCode, i)
-        } else {
-          // the rest is dead code
-          i = evmCode.length
-        }
-        break
       case 'STOP':
         wasmCode = `${wasmCode} (br $done)`
         if (jumpFound) {
@@ -284,6 +275,7 @@ exports.compileEVM = function (evmCode, stackTrace) {
           i = evmCode.length
         }
         break
+      case 'SUICIDE':
       case 'RETURN':
         wasmCode = `${wasmCode} \n (call $${op.name} (get_local $sp)) (br $done)`
         if (jumpFound) {
@@ -318,7 +310,7 @@ exports.compileEVM = function (evmCode, stackTrace) {
   addMetering()
   jumpSegments.push([segment, jumpDestNum])
 
-  let mainFunc = '(export "main" $main)' + assmebleSegments(jumpSegments)
+  let mainFunc = assmebleSegments(jumpSegments)
 
   // import stack trace function
   if (stackTrace) {
@@ -367,7 +359,8 @@ function assmebleSegments (segments) {
                ${wasm}
                ${seg[0]})`
   })
-  return `(func $main 
+  return `(export "main" $main)
+      (func $main 
            (local $sp i32) 
            (local $jump_dest i32)
            (set_local $sp (i32.const -32)) 
@@ -450,12 +443,7 @@ exports.resolveFunctions = function resolveFunctions (funcSet, dir = '/wasm/') {
     try {
       const wast = fs.readFileSync(wastPath)
       funcs.push(wast.toString())
-    } catch (e) {
-      // FIXME: remove this once every opcode is implemented
-      //        (though it should not cause any issues)
-      console.error('Inserting MISSING opcode', func)
-      funcs.push(`(func $${func} (param $sp i32) (result i32) (unreachable))`)
-    }
+    } catch (e) {}
   }
   return funcs
 }
