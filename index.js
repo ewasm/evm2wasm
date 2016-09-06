@@ -34,6 +34,9 @@ const depMap = new Map([
 
 // this is used to generate the module's import table
 const interfaceImportMap = {
+  'selfDestruct': {
+    'inputs': [ 'i32' ]
+  },
   'storageStore': {
     'inputs': [ 'i32', 'i32' ]
   },

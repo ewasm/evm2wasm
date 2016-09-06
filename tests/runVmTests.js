@@ -42,7 +42,6 @@ function setupEnviroment (testData) {
   env.callData = new Uint8Array(Buffer.from(testData.exec.data.slice(2), 'hex'))
   env.gasPrice = ethUtil.bufferToInt(Buffer.from(testData.exec.gasPrice.slice(2), 'hex'))
 
-  // TODO: fix tests
   env.address = new Address(testData.exec.address)
   env.caller = new Address(testData.exec.caller)
   env.origin = new Address(testData.exec.origin)
@@ -76,17 +75,21 @@ function checkResults (testData, t, instance, environment) {
   // check gas used
   t.equals(ethUtil.intToHex(environment.gasLeft), testData.gas, 'should have the correct gas')
   // check storage
-  const testsStorage = testData.post[testData.exec.address].storage
-  if (testsStorage) {
-    for (let testKey in testsStorage) {
-      const testValue = testsStorage[testKey]
-      const key = new Buffer(testKey.slice(2), 'hex').reverse().toString('hex')
-      let value = environment.state.get(key)
-      if (value) {
-        value = '0x' + new Buffer(value).reverse().toString('hex')
-      }
+  const account = testData.post[testData.exec.address]
+  // TODO: check all accounts
+  if (account) {
+    const testsStorage = account.storage
+    if (testsStorage) {
+      for (let testKey in testsStorage) {
+        const testValue = testsStorage[testKey]
+        const key = new Buffer(testKey.slice(2), 'hex').reverse().toString('hex')
+        let value = environment.state.get(key)
+        if (value) {
+          value = '0x' + new Buffer(value).reverse().toString('hex')
+        }
 
-      t.equals(value, testValue, `should have correct storage value at key ${key}`)
+        t.equals(value, testValue, `should have correct storage value at key ${key}`)
+      }
     }
   }
 }
