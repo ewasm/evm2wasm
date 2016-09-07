@@ -35,7 +35,6 @@ tape('testing EVM1 Ops', (t) => {
         return
       }
 
-
       // populate the environment
       testEnvironment.caller = new Address(test.environment.caller)
       testEnvironment.address = new Address(test.environment.address)
