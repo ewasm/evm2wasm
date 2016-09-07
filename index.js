@@ -32,87 +32,6 @@ const depMap = new Map([
   ['RETURN', ['memusegas', 'check_overflow']]
 ])
 
-// this is used to generate the module's import table
-const interfaceImportMap = {
-  'storageStore': {
-    'inputs': [ 'i32', 'i32' ]
-  },
-  'storageLoad': {
-    'inputs': ['i32', 'i32']
-  },
-  'useGas': {
-    'inputs': [ 'i32' ]
-  },
-  'return': {
-    'inputs': [ 'i32', 'i32' ]
-  },
-  'getBlockHash': {
-    'inputs': ['i32', 'i32']
-  },
-  'getCaller': {
-    'inputs': [ 'i32' ]
-  },
-  'getTxOrigin': {
-    'inputs': [ 'i32' ]
-  },
-  'getAddress': {
-    'inputs': [ 'i32' ]
-  },
-  'getBlockDifficulty': {
-    'inputs': [ 'i32' ]
-  },
-  'getBlockCoinbase': {
-    'inputs': [ 'i32' ]
-  },
-  'getBlockGasLimit': {
-    'output': 'i32'
-  },
-  'getBlockNumber': {
-    'output': 'i32'
-  },
-  'getBlockTimestamp': {
-    'output': 'i32'
-  },
-  'getCallDataSize': {
-    'output': 'i32'
-  },
-  'getGasLeft': {
-    'output': 'i64'
-  },
-  'codeCopy': {
-    'inputs': ['i32', 'i32', 'i32']
-  },
-  'getCodeSize': {
-    'output': 'i32'
-  },
-  'getTxGasPrice': {
-    'output': 'i32'
-  },
-  'callDataCopy': {
-    'inputs': ['i32', 'i32', 'i32']
-  },
-  'callDataCopy256': {
-    'inputs': ['i32', 'i32']
-  },
-  'getBalance': {
-    'inputs': ['i32', 'i32']
-  },
-  'getCallValue': {
-    'inputs': ['i32']
-  },
-  'getExternalCodeSize': {
-    'inputs': ['i32'],
-    'output': 'i32'
-  },
-  'externalCodeCopy': {
-    'inputs': ['i32', 'i32', 'i32', 'i32'],
-    'output': 'i32'
-  },
-  'log': {
-    'inputs': ['i32', 'i32', 'i32', 'i32', 'i32', 'i32', 'i32']
-  }
-}
-
 // compiles evmCode to wasm in the binary format
 // @param {Array} evmCode
 // @param {Boolean}  stackTrace set to true if you want a stacktrace
@@ -263,15 +182,6 @@ exports.compileEVM = function (evmCode, stackTrace) {
       case 'POP':
         // do nothing
         break
-      case 'SUICIDE':
-        wasmCode = `${wasmCode} \n (call $${op.name} (get_local $sp)) (br $done)`
-        if (jumpFound) {
-          i = findNextJumpDest(evmCode, i)
-        } else {
-          // the rest is dead code
-          i = evmCode.length
-        }
-        break
       case 'STOP':
         wasmCode = `${wasmCode} (br $done)`
         if (jumpFound) {
@@ -281,6 +191,7 @@ exports.compileEVM = function (evmCode, stackTrace) {
           i = evmCode.length
         }
         break
+      case 'SUICIDE':
       case 'RETURN':
         wasmCode = `${wasmCode} \n (call $${op.name} (get_local $sp)) (br $done)`
         if (jumpFound) {
@@ -315,7 +226,7 @@ exports.compileEVM = function (evmCode, stackTrace) {
   addMetering()
   jumpSegments.push([segment, jumpDestNum])
 
-  let mainFunc = '(export "main" $main)' + assmebleSegments(jumpSegments)
+  let mainFunc = assmebleSegments(jumpSegments)
 
   // import stack trace function
   if (stackTrace) {
@@ -364,7 +275,8 @@ function assmebleSegments (segments) {
                ${wasm}
                ${seg[0]})`
   })
-  return `(func $main 
+  return `(export "main" $main)
+      (func $main 
            (local $sp i32) 
            (local $jump_dest i32)
            (set_local $sp (i32.const -32)) 
@@ -447,60 +359,22 @@ exports.resolveFunctions = function resolveFunctions (funcSet, dir = '/wasm/') {
     try {
       const wast = fs.readFileSync(wastPath)
       funcs.push(wast.toString())
-    } catch (e) {
-      // FIXME: remove this once every opcode is implemented
-      //        (though it should not cause any issues)
-      console.error('Inserting MISSING opcode', func)
-      funcs.push(`(func $${func} (param $sp i32) (result i32) (unreachable))`)
-    }
+    } catch (e) {}
   }
   return funcs
-}
-
-// builds the import table
-// @return {String}
-exports.buildInterfaceImports = function () {
-  let importStr = ''
-
-  Object.keys(interfaceImportMap).forEach((key) => {
-    let options = interfaceImportMap[key]
-
-    importStr += `(import $${key} "ethereum" "${key}"`
-
-    if (options.inputs) {
-      importStr += ' (param '
-      for (let input of options.inputs) {
-        importStr += `${input} `
-      }
-      importStr += ')'
-    }
-
-    if (options.output) {
-      importStr += ` (result ${options.output})`
-    }
-
-    importStr += `)\n`
-  })
-
-  return importStr
 }
 
 // builds a wasm module
 // @param {Array} funcs the function to include in the module
 // @param {Array} imports the imports for the module's import table
-// @param {Array} exports the exports for the module's export table
 // @return {String}
-exports.buildModule = function buildModule (funcs, imports = [], exports = []) {
+exports.buildModule = function buildModule (funcs, imports = []) {
   let funcStr = ''
   for (let func of funcs) {
     funcStr += func
   }
-  for (let exprt of exports) {
-    funcStr += `(export "${exprt}" $${exprt})`
-  }
-  let importStr = this.buildInterfaceImports()
   return `(module
-          ${importStr}
+          (import $useGas "ethereum" "useGas" (param i32))
           (memory 1)
           (export "memory" memory)
             ${funcStr}

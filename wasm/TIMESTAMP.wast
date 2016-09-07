@@ -1,3 +1,4 @@
+(import $getBlockTimestamp "ethereum" "getBlockTimestamp" (result i32))
 (func $TIMESTAMP
   (param $sp i32)
 

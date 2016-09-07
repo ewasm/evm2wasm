@@ -17,7 +17,6 @@
   (local $contextOffset i32)
   (local $outputOffset i32)
 
-
   (set_local $memstart (i32.const 33832))
 
   (set_local $length0 (i64.load (i32.sub (get_local $sp) (i32.const 32))))

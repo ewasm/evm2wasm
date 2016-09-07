@@ -1,3 +1,4 @@
+(import $getCallDataSize "ethereum" "getCallDataSize" (result i32))
 (func $CALLDATASIZE
   (param $sp i32)
 

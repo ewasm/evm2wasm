@@ -1,5 +1,6 @@
 ;; stack:
 ;;  0: dataOffset
+(import $callDataCopy256 "ethereum" "callDataCopy256" (param i32 i32))
 (func $CALLDATALOAD
   (param $sp i32)
   (local $writeOffset i32)

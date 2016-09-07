@@ -1,3 +1,4 @@
+(import $log "ethereum" "log" (param i32 i32 i32 i32 i32 i32 i32))
 (func $LOG
   (param $number i32)
   (param $sp i32)

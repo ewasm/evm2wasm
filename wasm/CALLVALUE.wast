@@ -1,3 +1,4 @@
+(import $getCallValue "ethereum" "getCallValue" (param i32))
 (func $CALLVALUE
   (param $sp i32)
 

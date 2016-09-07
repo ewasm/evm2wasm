@@ -1,3 +1,4 @@
+(import $getGasLeft "ethereum" "getGasLeft" (result i64))
 (func $GAS
   (param $sp i32)
 

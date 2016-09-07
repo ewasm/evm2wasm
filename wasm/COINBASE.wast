@@ -1,3 +1,4 @@
+(import $getBlockCoinbase "ethereum" "getBlockCoinbase" (param i32))
 (func $COINBASE
   (param $sp i32)
   ;; there's no input item for us to overwrite

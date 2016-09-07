@@ -1,3 +1,4 @@
+(import $getBlockHash "ethereum" "getBlockHash" (param i32 i32))
 (func $BLOCKHASH
   (param $sp i32)
 

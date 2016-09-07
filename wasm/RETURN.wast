@@ -1,6 +1,7 @@
 ;; stack:
 ;;  0: length
 ;; -1: offset
+(import $return "ethereum" "return" (param i32 i32))
 (func $RETURN
   (param $sp i32)
 
@@ -41,6 +42,6 @@
                                    (get_local $length1)
                                    (get_local $length0)))
 
-  ;; (call $memUseGas (get_local $offset) (get_local $length))
+  (call $memUseGas (get_local $offset) (get_local $length))
   (call_import $return (i32.add (get_local $offset) (get_local $memstart)) (get_local $length))
 )

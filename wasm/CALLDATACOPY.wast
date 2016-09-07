@@ -2,6 +2,7 @@
 ;;  0: outputOffset
 ;; -1: inputOffset
 ;; -2: inputLength
+(import $callDataCopy "ethereum" "callDataCopy" (param i32 i32 i32))
 (func $CALLDATACOPY
   (param $sp i32)
   (local $memstart i32)

@@ -1,3 +1,4 @@
+(import $getBlockGasLimit "ethereum" "getBlockGasLimit" (result i32))
 (func $GASLIMIT
   (param $sp i32)
 

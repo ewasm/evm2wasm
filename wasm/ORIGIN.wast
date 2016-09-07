@@ -1,3 +1,4 @@
+(import $getTxOrigin "ethereum" "getTxOrigin" (param i32))
 (func $ORIGIN
   (param $sp i32)
   ;; there's no input item for us to overwrite

@@ -1,3 +1,4 @@
+(import $getExternalCodeSize "ethereum" "getExternalCodeSize" (param i32) (result i32))
 (func $EXTCODESIZE
   (param $sp i32)
 
