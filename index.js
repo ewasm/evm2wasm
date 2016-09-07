@@ -369,10 +369,13 @@ exports.resolveFunctions = function resolveFunctions (funcSet, dir = '/wasm/') {
 // @param {Array} funcs the function to include in the module
 // @param {Array} imports the imports for the module's import table
 // @return {String}
-exports.buildModule = function buildModule (funcs, imports = []) {
+exports.buildModule = function buildModule (funcs, imports = [], exports = []) {
   let funcStr = ''
   for (let func of funcs) {
     funcStr += func
+  }
+  for (let exprt of exports) {
+    funcStr += `(export "${exprt}" $${exprt})`
   }
   return `(module
           (import $useGas "ethereum" "useGas" (param i32))
