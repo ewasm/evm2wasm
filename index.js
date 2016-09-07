@@ -26,8 +26,8 @@ const depMap = new Map([
   ['LOG', ['memusegas', 'check_overflow']],
   ['BLOCKHASH', ['check_overflow']],
   ['SHA3', ['memusegas', 'bswap_m256', 'bswap_i64', 'check_overflow', 'keccak', 'memcpy', 'memset']],
-  ['CALL', ['memusegas', 'check_overflow']],
-  ['CALLCODE', ['memusegas', 'check_overflow']],
+  ['CALL', ['memusegas', 'check_overflow', 'memset']],
+  ['CALLCODE', ['memusegas', 'check_overflow', 'memset']],
   ['CREATE', ['memusegas', 'check_overflow']],
   ['RETURN', ['memusegas', 'check_overflow']]
 ])
