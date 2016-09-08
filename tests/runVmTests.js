@@ -25,7 +25,6 @@ tape.createStream().pipe(spy((info) => {
 })).pipe(process.stdout)
 
 function runner (testData, t, cb) {
-  console.log(testData)
   const code = Buffer.from(testData.exec.code.slice(2), 'hex')
   const evm = evm2wasm.compile(code, argv.trace)
   const enviroment = setupEnviroment(testData)
@@ -56,6 +55,7 @@ function setupEnviroment (testData) {
   env.address = new Address(testData.exec.address)
   env.caller = new Address(testData.exec.caller)
   env.origin = new Address(testData.exec.origin)
+  env.value = new U256(testData.exec.value)
 
   env.callValue = new U256(testData.exec.value)
   env.code = new Uint8Array(new Buffer(testData.exec.code.slice(2), 'hex'))
