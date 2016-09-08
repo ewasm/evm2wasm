@@ -24,10 +24,10 @@ const depMap = new Map([
   ['CALLDATACOPY', ['memusegas', 'check_overflow', 'memset']],
   ['EXTCODECOPY', ['memusegas', 'check_overflow', 'memset']],
   ['LOG', ['memusegas', 'check_overflow']],
-  ['JUMPI', ['check_overflow']],
-  ['JUMP', ['check_overflow']],
+  ['BLOCKHASH', ['check_overflow']],
   ['SHA3', ['memusegas', 'bswap_m256', 'bswap_i64', 'check_overflow', 'keccak', 'memcpy', 'memset']],
-  ['CALL', ['memusegas', 'check_overflow']],
+  ['CALL', ['memusegas', 'check_overflow', 'memset']],
+  ['CALLCODE', ['memusegas', 'check_overflow', 'memset']],
   ['CREATE', ['memusegas', 'check_overflow']],
   ['RETURN', ['memusegas', 'check_overflow']]
 ])
@@ -68,6 +68,7 @@ exports.compileEVM = function (evmCode, stackTrace) {
   // this keep track of the opcode we have found so far. This will be used to
   // to figure out what .wast files to include
   const opcodesUsed = new Set()
+  const ignoredOps = new Set(['JUMP', 'JUMPI', 'JUMPDEST', 'POP', 'STOP', 'INVALID'])
   // an array of found segments
   const jumpSegments = []
   // the transcompiled EVM code
@@ -112,6 +113,7 @@ exports.compileEVM = function (evmCode, stackTrace) {
                                              (i64.load (i32.add (get_local $sp) (i32.const 24)))))
                       (set_local $sp (i32.sub (get_local $sp) (i32.const 32)))
                       (br $loop)`
+        opcodesUsed.add('check_overflow')
         i = findNextJumpDest(evmCode, i)
         break
       case 'JUMPI':
@@ -134,6 +136,7 @@ exports.compileEVM = function (evmCode, stackTrace) {
                         )
                       )
                     ))))`
+        opcodesUsed.add('check_overflow')
         addStackCheck()
         addMetering()
         break
@@ -209,7 +212,9 @@ exports.compileEVM = function (evmCode, stackTrace) {
         wasmCode = `${wasmCode} \n  (call $${op.name} (get_local $sp))`
     }
 
-    opcodesUsed.add(op.name)
+    if (!ignoredOps.has(op.name)) {
+      opcodesUsed.add(op.name)
+    }
 
     const stackDeta = op.on - op.off
     // update the stack pointer
@@ -356,10 +361,8 @@ exports.resolveFunctions = function resolveFunctions (funcSet, dir = '/wasm/') {
   let funcs = []
   for (let func of exports.resolveFunctionDeps(funcSet)) {
     const wastPath = path.join(__dirname, dir, func) + '.wast'
-    try {
-      const wast = fs.readFileSync(wastPath)
-      funcs.push(wast.toString())
-    } catch (e) {}
+    const wast = fs.readFileSync(wastPath)
+    funcs.push(wast.toString())
   }
   return funcs
 }
@@ -368,10 +371,13 @@ exports.resolveFunctions = function resolveFunctions (funcSet, dir = '/wasm/') {
 // @param {Array} funcs the function to include in the module
 // @param {Array} imports the imports for the module's import table
 // @return {String}
-exports.buildModule = function buildModule (funcs, imports = []) {
+exports.buildModule = function buildModule (funcs, imports = [], exports = []) {
   let funcStr = ''
   for (let func of funcs) {
     funcStr += func
+  }
+  for (let exprt of exports) {
+    funcStr += `(export "${exprt}" $${exprt})`
   }
   return `(module
           (import $useGas "ethereum" "useGas" (param i32))

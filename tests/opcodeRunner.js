@@ -26,15 +26,14 @@ tape('testing EVM1 Ops', (t) => {
       const testEnvironment = new KernelEnvironment()
       const testInterface = new KernelInterface(testEnvironment)
       let testInstance
+      // FIXME: have separate `t.test()` for better grouping
+      t.comment(`testing ${test.op} ${test.description}`)
       try {
         testInstance = buildTest(test.op, testInterface)
       } catch (e) {
         t.fail('WASM exception: ' + e)
         return
       }
-
-      // FIXME: have separate `t.test()` for better grouping
-      t.comment(`testing ${test.op} ${test.description}`)
 
       // populate the environment
       testEnvironment.caller = new Address(test.environment.caller)
