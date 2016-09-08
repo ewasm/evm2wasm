@@ -11,7 +11,9 @@ const Interface = require('ewasm-kernel/interface')
 const evm2wasm = require('../index.js')
 
 const skipList = [
-  'sha3_bigOffset2' // some wierd memory error when we try to allocate 16mb of mem
+  'sha3_bigOffset2', // some wierd memory error when we try to allocate 16mb of mem
+  'ABAcalls1', // uses `gasLeft` when gas is over 32bits which gets truncated
+  'ABAcalls2'
 ]
 
 // kill the test once we hit a failer
@@ -23,12 +25,17 @@ tape.createStream().pipe(spy((info) => {
 })).pipe(process.stdout)
 
 function runner (testData, t, cb) {
+  console.log(testData)
   const code = Buffer.from(testData.exec.code.slice(2), 'hex')
   const evm = evm2wasm.compile(code, argv.trace)
   const enviroment = setupEnviroment(testData)
   const ethInterface = new Interface(enviroment)
 
   try {
+    // TODO: move to the kernel
+    // if (enviroment.gasLeft > ethUtil.bufferToInt(enviroment.block.header.gasLimit)) {
+    //   throw new Error('invalid starting gas amount')
+    // }
     const kernel = new Kernel()
     const instance = kernel.codeHandler(evm, ethInterface)
     checkResults(testData, t, instance, enviroment)

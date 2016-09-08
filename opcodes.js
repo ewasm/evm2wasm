@@ -142,11 +142,11 @@ const codes = {
   0xa4: ['LOG', 0, 6, 0],
 
   // '0xf0' range - closures
-  0xf0: ['CREATE', 32000, 3, 1],
-  0xf1: ['CALL', 40, 7, 1],
-  0xf2: ['CALLCODE', 40, 7, 1],
+  0xf0: ['CREATE', 0, 3, 1],
+  0xf1: ['CALL', 0, 7, 1],
+  0xf2: ['CALLCODE', 0, 7, 1],
   0xf3: ['RETURN', 0, 2, 0],
-  0xf4: ['DELEGATECALL', 40, 6, 1],
+  0xf4: ['DELEGATECALL', 0, 6, 1],
 
   // '0x70', range - other
   0xff: ['SUICIDE', 0, 1, 0]
