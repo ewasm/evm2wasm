@@ -6,6 +6,7 @@
   "scripts": {
     "test": "node --expose-wasm ./tests/allRunner.js",
     "vmTest": "node --expose-wasm ./tests/runVmTests.js | tap-bail",
+    "build": "node ./wasm/generateInterface.js && node ./wasm/generateJson.js",
     "lint": "standard"
   },
   "author": "mjbecze <mjbecze@gmail.com>",

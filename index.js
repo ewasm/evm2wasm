@@ -3,7 +3,7 @@ const ethUtil = require('ethereumjs-util')
 const fs = require('fs')
 const cp = require('child_process')
 const opcodes = require('./opcodes.js')
-const path = require('path')
+const wastFiles = require('./wasm/wast.json')
 
 // map to track dependent WASM functions
 const depMap = new Map([
@@ -360,9 +360,7 @@ exports.resolveFunctionDeps = function resolveFunctionDeps (funcSet) {
 exports.resolveFunctions = function resolveFunctions (funcSet, dir = '/wasm/') {
   let funcs = []
   for (let func of exports.resolveFunctionDeps(funcSet)) {
-    const wastPath = path.join(__dirname, dir, func) + '.wast'
-    const wast = fs.readFileSync(wastPath)
-    funcs.push(wast.toString())
+    funcs.push(wastFiles[func + '.wast'])
   }
   return funcs
 }

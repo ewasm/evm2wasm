@@ -1,4 +1,5 @@
 const fs = require('fs')
+const path = require('path')
 
 const interfaceManifest = {
   // LOG: {
@@ -280,5 +281,5 @@ for (let opcode in interfaceManifest) {
 
   wasm += `${locals} ${body} ${call})`
 
-  fs.writeFileSync(opcode + '.wast', wasm)
+  fs.writeFileSync(path.join(__dirname, opcode + '.wast'), wasm)
 }
