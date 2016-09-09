@@ -109,8 +109,8 @@ const interfaceManifest = {
   },
   CREATE: {
     name: 'create',
-    input: ['pointer', 'readOffset', 'length', 'pointer'],
-    output: []
+    input: ['pointer', 'readOffset', 'length'],
+    output: ['address']
   },
   CALL: {
     name: 'call',

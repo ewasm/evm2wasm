@@ -25,4 +25,8 @@
    (get_local $sp)
   (get_local $offset0)
   (get_local $length0)
-   (i32.add (get_local $sp) (i32.const -96))))
+    (i32.add (get_local $sp) (i32.const -64)))
+
+  ;; zero out mem
+  (i64.store (i32.add (get_local $sp) (i32.const -40)) (i64.const 0))
+  (i32.store (i32.add (get_local $sp) (i32.const -44)) (i32.const 0)))

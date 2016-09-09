@@ -11,7 +11,9 @@ const Interface = require('ewasm-kernel/interface')
 const evm2wasm = require('../index.js')
 
 const skipList = [
-  'sha3_bigOffset2' // some wierd memory error when we try to allocate 16mb of mem
+  'sha3_bigOffset2', // some wierd memory error when we try to allocate 16mb of mem
+  'ABAcalls1', // uses `gasLeft` when gas is over 32bits which gets truncated
+  'ABAcalls2'  // uses `gasLeft` when gas is over 32bits which gets truncated
 ]
 
 // kill the test once we hit a failer
@@ -29,6 +31,10 @@ function runner (testData, t, cb) {
   const ethInterface = new Interface(enviroment)
 
   try {
+    // TODO: move to the kernel
+    // if (enviroment.gasLeft > ethUtil.bufferToInt(enviroment.block.header.gasLimit)) {
+    //   throw new Error('invalid starting gas amount')
+    // }
     const kernel = new Kernel()
     const instance = kernel.codeHandler(evm, ethInterface)
     checkResults(testData, t, instance, enviroment)
@@ -49,6 +55,7 @@ function setupEnviroment (testData) {
   env.address = new Address(testData.exec.address)
   env.caller = new Address(testData.exec.caller)
   env.origin = new Address(testData.exec.origin)
+  env.value = new U256(testData.exec.value)
 
   env.callValue = new U256(testData.exec.value)
   env.code = new Uint8Array(new Buffer(testData.exec.code.slice(2), 'hex'))
@@ -78,6 +85,8 @@ function setupEnviroment (testData) {
 function checkResults (testData, t, instance, environment) {
   // check gas used
   t.equals(ethUtil.intToHex(environment.gasLeft), testData.gas, 'should have the correct gas')
+  // check return value
+  t.equals(new Buffer(environment.returnValue).toString('hex'), testData.out.slice(2), 'should have correct return value')
   // check storage
   const account = testData.post[testData.exec.address]
   // TODO: check all accounts
