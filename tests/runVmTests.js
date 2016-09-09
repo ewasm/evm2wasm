@@ -13,7 +13,7 @@ const evm2wasm = require('../index.js')
 const skipList = [
   'sha3_bigOffset2', // some wierd memory error when we try to allocate 16mb of mem
   'ABAcalls1', // uses `gasLeft` when gas is over 32bits which gets truncated
-  'ABAcalls2'
+  'ABAcalls2'  // uses `gasLeft` when gas is over 32bits which gets truncated
 ]
 
 // kill the test once we hit a failer
@@ -85,6 +85,8 @@ function setupEnviroment (testData) {
 function checkResults (testData, t, instance, environment) {
   // check gas used
   t.equals(ethUtil.intToHex(environment.gasLeft), testData.gas, 'should have the correct gas')
+  // check return value
+  t.equals(new Buffer(environment.returnValue).toString('hex'), testData.out.slice(2), 'should have correct return value')
   // check storage
   const account = testData.post[testData.exec.address]
   // TODO: check all accounts
