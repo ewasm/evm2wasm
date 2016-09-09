@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "node --expose-wasm ./tests/allRunner.js",
+    "vmTest": "node --expose-wasm ./tests/runVmTests.js",
     "lint": "standard"
   },
   "author": "mjbecze <mjbecze@gmail.com>",
@@ -17,8 +18,7 @@
     "ewasm-kernel": "git+https://github.com/ewasm/ewasm-kernel.git",
     "minimist": "^1.2.0",
     "standard": "^7.1.2",
-    "tape": "^4.6.0",
-    "through2-spy": "^2.0.0"
+    "tape": "^4.6.0"
   },
   "repository": {
     "type": "git",
