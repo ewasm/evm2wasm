@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "node --expose-wasm ./tests/allRunner.js",
-    "vmTest": "node --expose-wasm ./tests/runVmTests.js",
+    "vmTest": "node --expose-wasm ./tests/runVmTests.js | tap-bail",
     "lint": "standard"
   },
   "author": "mjbecze <mjbecze@gmail.com>",
@@ -18,6 +18,7 @@
     "ewasm-kernel": "git+https://github.com/ewasm/ewasm-kernel.git",
     "minimist": "^1.2.0",
     "standard": "^7.1.2",
+    "tap-bail": "0.0.0",
     "tape": "^4.6.0"
   },
   "repository": {
@@ -36,6 +37,8 @@
     "transcompiler"
   ],
   "dependencies": {
+    "bulk-require": "^1.0.0",
+    "bulkify": "^1.4.2",
     "ethereumjs-util": "^4.5.0"
   },
   "standard": {
