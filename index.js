@@ -64,7 +64,7 @@ exports.compileWAST = function (wast) {
 // @param {Integer[]} evmCode the evm byte code
 // @param {Boolean} stackTrace if `true` generates a stack trace
 // @return {String}
-exports.compileEVM = function (evmCode, stackTrace) {
+exports.compileEVM = function (evmCode, stackTrace = false, inlineOps = true) {
   // this keep track of the opcode we have found so far. This will be used to
   // to figure out what .wast files to include
   const opcodesUsed = new Set()
@@ -238,7 +238,11 @@ exports.compileEVM = function (evmCode, stackTrace) {
     mainFunc = '(import $stackTrace "debug" "evmStackTrace" (param i32 i32) (result i32))' + mainFunc
   }
 
-  const funcMap = exports.resolveFunctions(opcodesUsed)
+  let funcMap = []
+  if (inlineOps) {
+    funcMap = exports.resolveFunctions(opcodesUsed)
+  }
+
   funcMap.push(mainFunc)
   return exports.buildModule(funcMap)
 
