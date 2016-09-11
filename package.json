@@ -38,10 +38,7 @@
     "transcompiler"
   ],
   "dependencies": {
-    "bulk-require": "^1.0.0",
-    "bulkify": "^1.4.2",
     "ethereumjs-util": "^4.5.0",
-    "s-expression": "^3.0.3"
   },
   "standard": {
     "ignore": [
