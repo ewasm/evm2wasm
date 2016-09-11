@@ -35,8 +35,8 @@ const depMap = new Map([
 // compiles evmCode to wasm in the binary format
 // @param {Array} evmCode
 // @param {Boolean}  stackTrace set to true if you want a stacktrace
-exports.compile = function (evmCode, stackTrace = false) {
-  const wast = exports.compileEVM(evmCode, stackTrace)
+exports.compile = function (evmCode, opts = {'stackTrace': false, 'pprint': false, 'inlineOps': true}) {
+  const wast = exports.compileEVM(evmCode, opts)
   return exports.compileWAST(wast)
 }
 
@@ -64,7 +64,7 @@ exports.compileWAST = function (wast) {
 // @param {Integer[]} evmCode the evm byte code
 // @param {Boolean} stackTrace if `true` generates a stack trace
 // @return {String}
-exports.compileEVM = function (evmCode, stackTrace = false, inlineOps = true) {
+exports.compileEVM = function (evmCode, opts = {'stackTrace': false, 'pprint': false, 'inlineOps': true}) {
   // this keep track of the opcode we have found so far. This will be used to
   // to figure out what .wast files to include
   const opcodesUsed = new Set()
@@ -149,19 +149,19 @@ exports.compileEVM = function (evmCode, stackTrace = false, inlineOps = true) {
         gasCount = 1
         break
       case 'GAS':
-        wasmCode = `${wasmCode} \n (call $${op.name} (get_local $sp))`
+        wasmCode = `${wasmCode} (call $${op.name} (get_local $sp))`
         addMetering()
         break
       case 'LOG':
-        wasmCode = `${wasmCode} \n (call $${op.name} (i32.const ${op.number}) (get_local $sp))`
+        wasmCode = `${wasmCode} (call $${op.name} (i32.const ${op.number}) (get_local $sp))`
         break
       case 'DUP':
       case 'SWAP':
         // adds the number on the stack to SWAP
-        wasmCode = `${wasmCode} \n (call $${op.name} (i32.const ${op.number - 1}) (get_local $sp)) `
+        wasmCode = `${wasmCode} (call $${op.name} (i32.const ${op.number - 1}) (get_local $sp)) `
         break
       case 'PC':
-        wasmCode = `${wasmCode} \n (call $${op.name} (i32.const ${i}) (get_local $sp))`
+        wasmCode = `${wasmCode} (call $${op.name} (i32.const ${i}) (get_local $sp))`
         break
       case 'PUSH':
         i++
@@ -179,7 +179,7 @@ exports.compileEVM = function (evmCode, stackTrace = false, inlineOps = true) {
           push = push + `(i64.const ${int64})`
         }
 
-        wasmCode = `${wasmCode} \n (call $${op.name} ${push} (get_local $sp))`
+        wasmCode = `${wasmCode} (call $${op.name} ${push} (get_local $sp))`
         i--
         break
       case 'POP':
@@ -196,7 +196,7 @@ exports.compileEVM = function (evmCode, stackTrace = false, inlineOps = true) {
         break
       case 'SUICIDE':
       case 'RETURN':
-        wasmCode = `${wasmCode} \n (call $${op.name} (get_local $sp)) (br $done)`
+        wasmCode = `${wasmCode} (call $${op.name} (get_local $sp)) (br $done)`
         if (jumpFound) {
           i = findNextJumpDest(evmCode, i)
         } else {
@@ -209,7 +209,7 @@ exports.compileEVM = function (evmCode, stackTrace = false, inlineOps = true) {
         i = findNextJumpDest(evmCode, i)
         break
       default:
-        wasmCode = `${wasmCode} \n  (call $${op.name} (get_local $sp))`
+        wasmCode = `${wasmCode} (call $${op.name} (get_local $sp))`
     }
 
     if (!ignoredOps.has(op.name)) {
@@ -223,8 +223,8 @@ exports.compileEVM = function (evmCode, stackTrace = false, inlineOps = true) {
     }
 
     // creates a stack trace
-    if (stackTrace) {
-      wasmCode = `${wasmCode} \n (call_import $stackTrace (get_local $sp) (i32.const ${opint}))`
+    if (opts.stackTrace) {
+      wasmCode = `${wasmCode} (call_import $stackTrace (get_local $sp) (i32.const ${opint}))`
     }
   }
   addStackCheck()
@@ -234,17 +234,21 @@ exports.compileEVM = function (evmCode, stackTrace = false, inlineOps = true) {
   let mainFunc = assmebleSegments(jumpSegments)
 
   // import stack trace function
-  if (stackTrace) {
+  if (opts.stackTrace) {
     mainFunc = '(import $stackTrace "debug" "evmStackTrace" (param i32 i32) (result i32))' + mainFunc
   }
 
   let funcMap = []
-  if (inlineOps) {
+  if (opts.inlineOps) {
     funcMap = exports.resolveFunctions(opcodesUsed)
   }
 
   funcMap.push(mainFunc)
-  return exports.buildModule(funcMap)
+  wasmCode = exports.buildModule(funcMap)
+  if (opts.pprint) {
+    wasmCode = pprint(wasmCode)
+  }
+  return wasmCode
 
   // add a metering statment at the beginning of a segment
   function addMetering () {
@@ -284,7 +288,8 @@ function assmebleSegments (segments) {
                ${wasm}
                ${seg[0]})`
   })
-  return `(export "main" $main)
+  return `
+    (export "main" $main)
       (func $main 
            (local $sp i32) 
            (local $jump_dest i32)
@@ -387,4 +392,25 @@ exports.buildModule = function buildModule (funcs, imports = [], exports = []) {
           (export "memory" memory)
             ${funcStr}
           )`
+}
+
+// a s-expression pretty pring function
+// TODO: handle comments
+function pprint (sexp) {
+  // removes all newlins
+  sexp = sexp.replace(/[^\x20-\x7E]/gmi, '').split('(')
+  let numSpaces = 0
+  for (let i in sexp) {
+    let statement = sexp[i]
+    statement = statement.split(')').map(a => a.trim())
+    let length = statement.length
+    statement = statement.join(')')
+    if (statement !== '') {
+      statement = '(' + statement
+      statement = '\n' + ' '.repeat(numSpaces * 2) + statement
+      numSpaces += -length + 2
+    }
+    sexp[i] = statement
+  }
+  return sexp.join('')
 }

@@ -94,133 +94,133 @@
   (set_local $rowCarry (i64.shr_u (get_local $temp7) (i64.const 32)))
 
   ;; second row
-  ;; o * h + $temp1 (pg)
+  ;; o * h + $temp1 
   (set_local $temp1 (i64.add (i64.mul (get_local $o) (get_local $h)) (i64.and (get_local $temp1) (i64.const 4294967295))))
-  ;; o * g + $temp2 (pf) + carry
+  ;; o * g + $temp2 + carry
   (set_local $temp2 (i64.add (i64.add (i64.mul (get_local $o) (get_local $g)) (i64.and (get_local $temp2) (i64.const 4294967295))) (i64.shr_u (get_local $temp1) (i64.const 32))))
-  ;; o * f + $temp3 (pe) + carry
+  ;; o * f + $temp3 + carry
   (set_local $temp3 (i64.add (i64.add (i64.mul (get_local $o) (get_local $f)) (i64.and (get_local $temp3) (i64.const 4294967295))) (i64.shr_u (get_local $temp2) (i64.const 32))))
-  ;; o * e + $temp4 (pd) + carry
+  ;; o * e + $temp4 + carry
   (set_local $temp4 (i64.add (i64.add (i64.mul (get_local $o) (get_local $e)) (i64.and (get_local $temp4) (i64.const 4294967295))) (i64.shr_u (get_local $temp3) (i64.const 32))))
-  ;; o * d + $temp5 (pc) + carry
+  ;; o * d + $temp5 + carry
   (set_local $temp5 (i64.add (i64.add (i64.mul (get_local $o) (get_local $d)) (i64.and (get_local $temp5) (i64.const 4294967295))) (i64.shr_u (get_local $temp4) (i64.const 32))))
-  ;; o * c + $temp6 (pb) + carry
+  ;; o * c + $temp6 + carry
   (set_local $temp6 (i64.add (i64.add (i64.mul (get_local $o) (get_local $c)) (i64.and (get_local $temp6) (i64.const 4294967295))) (i64.shr_u (get_local $temp5) (i64.const 32))))
-  ;; o * b + $temp7 (pa) + carry
+  ;; o * b + $temp7 + carry
   (set_local $temp7 (i64.add (i64.add (i64.mul (get_local $o) (get_local $b)) (i64.and (get_local $temp7) (i64.const 4294967295))) (i64.shr_u (get_local $temp6) (i64.const 32))))
   ;; o * a + carry + rowCarry
   (set_local $p (i64.add (i64.add (i64.mul (get_local $o) (get_local $a)) (i64.shr_u (get_local $temp7) (i64.const 32))) (get_local $rowCarry)))
   (set_local $rowCarry (i64.shr_u (get_local $p) (i64.const 32)))
 
   ;; third row - n
-  ;; n * h + $temp2 (og)
+  ;; n * h + $temp2 
   (set_local $temp2 (i64.add (i64.mul (get_local $n) (get_local $h)) (i64.and (get_local $temp2) (i64.const 4294967295))))
-  ;; n * g + $temp3 (of) + carry
+  ;; n * g + $temp3  carry
   (set_local $temp3 (i64.add (i64.add (i64.mul (get_local $n) (get_local $g)) (i64.and (get_local $temp3) (i64.const 4294967295))) (i64.shr_u (get_local $temp2) (i64.const 32))))
-  ;; n * f + $temp4 (oe) + carry
+  ;; n * f + $temp4) + carry
   (set_local $temp4 (i64.add (i64.add (i64.mul (get_local $n) (get_local $f)) (i64.and (get_local $temp4) (i64.const 4294967295))) (i64.shr_u (get_local $temp3) (i64.const 32))))
-  ;; n * e + $temp5 (od) + carry
+  ;; n * e + $temp5 + carry
   (set_local $temp5 (i64.add (i64.add (i64.mul (get_local $n) (get_local $e)) (i64.and (get_local $temp5) (i64.const 4294967295))) (i64.shr_u (get_local $temp4) (i64.const 32))))
-  ;; n * d + $temp6 (oc) + carry
+  ;; n * d + $temp6 + carry
   (set_local $temp6 (i64.add (i64.add (i64.mul (get_local $n) (get_local $d)) (i64.and (get_local $temp6) (i64.const 4294967295))) (i64.shr_u (get_local $temp5) (i64.const 32))))
-  ;; n * c + $temp7 (ob) + carry
+  ;; n * c + $temp7 + carry
   (set_local $temp7 (i64.add (i64.add (i64.mul (get_local $n) (get_local $c)) (i64.and (get_local $temp7) (i64.const 4294967295))) (i64.shr_u (get_local $temp6) (i64.const 32))))
-  ;; n * b + $p (oa) + carry
+  ;; n * b + $p + carry
   (set_local $p     (i64.add (i64.add (i64.mul (get_local $n) (get_local $b)) (i64.and (get_local $p)     (i64.const 4294967295))) (i64.shr_u (get_local $temp7) (i64.const 32))))
   ;; n * a + carry
   (set_local $o (i64.add (i64.add (i64.mul (get_local $n) (get_local $a)) (i64.shr_u (get_local $p) (i64.const 32))) (get_local $rowCarry)))
   (set_local $rowCarry (i64.shr_u (get_local $o) (i64.const 32)))
 
   ;; forth row 
-  ;; m * h + $temp3 (ng)
+  ;; m * h + $temp3
   (set_local $temp3 (i64.add (i64.mul (get_local $m) (get_local $h)) (i64.and (get_local $temp3) (i64.const 4294967295))))
-  ;; m * g + $temp4 (nf) + carry
+  ;; m * g + $temp4 + carry
   (set_local $temp4 (i64.add (i64.add (i64.mul (get_local $m) (get_local $g)) (i64.and (get_local $temp4) (i64.const 4294967295))) (i64.shr_u (get_local $temp3) (i64.const 32))))
-  ;; m * f + $temp5 (ne) + carry
+  ;; m * f + $temp5 + carry
   (set_local $temp5 (i64.add (i64.add (i64.mul (get_local $m) (get_local $f)) (i64.and (get_local $temp5) (i64.const 4294967295))) (i64.shr_u (get_local $temp4) (i64.const 32))))
-  ;; m * e + $temp6 (nd) + carry
+  ;; m * e + $temp6 + carry
   (set_local $temp6 (i64.add (i64.add (i64.mul (get_local $m) (get_local $e)) (i64.and (get_local $temp6) (i64.const 4294967295))) (i64.shr_u (get_local $temp5) (i64.const 32))))
-  ;; m * d + $temp7 (nc) + carry
+  ;; m * d + $temp7 + carry
   (set_local $temp7 (i64.add (i64.add (i64.mul (get_local $m) (get_local $d)) (i64.and (get_local $temp7) (i64.const 4294967295))) (i64.shr_u (get_local $temp6) (i64.const 32))))
-  ;; m * c + $p (nb) + carry
+  ;; m * c + $p + carry
   (set_local $p     (i64.add (i64.add (i64.mul (get_local $m) (get_local $c)) (i64.and (get_local $p)     (i64.const 4294967295))) (i64.shr_u (get_local $temp7) (i64.const 32))))
-  ;; m * b + $o (na) + carry
+  ;; m * b + $o + carry
   (set_local $o     (i64.add (i64.add (i64.mul (get_local $m) (get_local $b)) (i64.and (get_local $o)     (i64.const 4294967295))) (i64.shr_u (get_local $p)     (i64.const 32))))
   ;; m * a + carry + rowCarry
   (set_local $n     (i64.add (i64.add (i64.mul (get_local $m) (get_local $a)) (i64.shr_u (get_local $o) (i64.const 32))) (get_local $rowCarry)))
   (set_local $rowCarry (i64.shr_u (get_local $n) (i64.const 32)))
 
   ;; fith row
-  ;; l * h + $temp4 (mg)
+  ;; l * h + $temp4
   (set_local $temp4 (i64.add (i64.mul (get_local $l) (get_local $h)) (i64.and (get_local $temp4) (i64.const 4294967295))))
-  ;; l * g + $temp5 (mf) + carry
+  ;; l * g + $temp5 + carry
   (set_local $temp5 (i64.add (i64.add (i64.mul (get_local $l) (get_local $g)) (i64.and (get_local $temp5) (i64.const 4294967295))) (i64.shr_u (get_local $temp4) (i64.const 32))))
-  ;; l * f + $temp6 (me) + carry
+  ;; l * f + $temp6 + carry
   (set_local $temp6 (i64.add (i64.add (i64.mul (get_local $l) (get_local $f)) (i64.and (get_local $temp6) (i64.const 4294967295))) (i64.shr_u (get_local $temp5) (i64.const 32))))
-  ;; l * e + $temp7 (md) + carry
+  ;; l * e + $temp7 + carry
   (set_local $temp7 (i64.add (i64.add (i64.mul (get_local $l) (get_local $e)) (i64.and (get_local $temp7) (i64.const 4294967295))) (i64.shr_u (get_local $temp6) (i64.const 32))))
-  ;; l * d + $p (mc) + carry
+  ;; l * d + $p + carry
   (set_local $p     (i64.add (i64.add (i64.mul (get_local $l) (get_local $d)) (i64.and (get_local $p)     (i64.const 4294967295))) (i64.shr_u (get_local $temp7) (i64.const 32))))
-  ;; l * c + $o (mb) + carry
+  ;; l * c + $o + carry
   (set_local $o     (i64.add (i64.add (i64.mul (get_local $l) (get_local $c)) (i64.and (get_local $o)     (i64.const 4294967295))) (i64.shr_u (get_local $p)     (i64.const 32))))
-  ;; l * b + $n (ma) + carry
+  ;; l * b + $n + carry
   (set_local $n     (i64.add (i64.add (i64.mul (get_local $l) (get_local $b)) (i64.and (get_local $n)     (i64.const 4294967295))) (i64.shr_u (get_local $o)     (i64.const 32))))
   ;; l * a + carry + rowCarry
   (set_local $m     (i64.add (i64.add (i64.mul (get_local $l) (get_local $a)) (i64.shr_u (get_local $n) (i64.const 32))) (get_local $rowCarry)))
   (set_local $rowCarry (i64.shr_u (get_local $m) (i64.const 32)))
 
   ;; sixth row 
-  ;; k * h + $temp5 (lg)
+  ;; k * h + $temp5
   (set_local $temp5 (i64.add (i64.mul (get_local $k) (get_local $h)) (i64.and (get_local $temp5) (i64.const 4294967295))))
-  ;; k * g + $temp6 (lf) + carry
+  ;; k * g + $temp6 + carry
   (set_local $temp6 (i64.add (i64.add (i64.mul (get_local $k) (get_local $g)) (i64.and (get_local $temp6) (i64.const 4294967295))) (i64.shr_u (get_local $temp5) (i64.const 32))))
-  ;; k * f + $temp7 (le) + carry
+  ;; k * f + $temp7 + carry
   (set_local $temp7 (i64.add (i64.add (i64.mul (get_local $k) (get_local $f)) (i64.and (get_local $temp7) (i64.const 4294967295))) (i64.shr_u (get_local $temp6) (i64.const 32))))
-  ;; k * e + $p (ld) + carry
+  ;; k * e + $p + carry
   (set_local $p     (i64.add (i64.add (i64.mul (get_local $k) (get_local $e)) (i64.and (get_local $p)     (i64.const 4294967295))) (i64.shr_u (get_local $temp7) (i64.const 32))))
-  ;; k * d + $o (lc) + carry
+  ;; k * d + $o + carry
   (set_local $o     (i64.add (i64.add (i64.mul (get_local $k) (get_local $d)) (i64.and (get_local $o)     (i64.const 4294967295))) (i64.shr_u (get_local $p)     (i64.const 32))))
-  ;; k * c + $n (lb) + carry
+  ;; k * c + $n + carry
   (set_local $n     (i64.add (i64.add (i64.mul (get_local $k) (get_local $c)) (i64.and (get_local $n)     (i64.const 4294967295))) (i64.shr_u (get_local $o)     (i64.const 32))))
-  ;; k * b + $m (la) + carry
+  ;; k * b + $m + carry
   (set_local $m     (i64.add (i64.add (i64.mul (get_local $k) (get_local $b)) (i64.and (get_local $m)     (i64.const 4294967295))) (i64.shr_u (get_local $n)     (i64.const 32))))
   ;; k * a + carry
   (set_local $l     (i64.add (i64.add (i64.mul (get_local $k) (get_local $a)) (i64.shr_u (get_local $m) (i64.const 32))) (get_local $rowCarry)))
   (set_local $rowCarry (i64.shr_u (get_local $l) (i64.const 32)))
 
   ;; seventh row
-  ;; j * h + $temp6 (kg)
+  ;; j * h + $temp6
   (set_local $temp6 (i64.add (i64.mul (get_local $j) (get_local $h)) (i64.and (get_local $temp6) (i64.const 4294967295))))
-  ;; j * g + $temp7 (kf) + carry
+  ;; j * g + $temp7 + carry
   (set_local $temp7 (i64.add (i64.add (i64.mul (get_local $j) (get_local $g)) (i64.and (get_local $temp7) (i64.const 4294967295))) (i64.shr_u (get_local $temp6) (i64.const 32))))
-  ;; j * f + $p (ke) + carry
+  ;; j * f + $p +carry
   (set_local $p     (i64.add (i64.add (i64.mul (get_local $j) (get_local $f)) (i64.and (get_local $p)     (i64.const 4294967295))) (i64.shr_u (get_local $temp7) (i64.const 32))))
-  ;; j * e + $o (kd) + carry
+  ;; j * e + $o + carry
   (set_local $o     (i64.add (i64.add (i64.mul (get_local $j) (get_local $e)) (i64.and (get_local $o)     (i64.const 4294967295))) (i64.shr_u (get_local $p)     (i64.const 32))))
-  ;; j * d + $n (kc) + carry
+  ;; j * d + $n + carry
   (set_local $n     (i64.add (i64.add (i64.mul (get_local $j) (get_local $d)) (i64.and (get_local $n)     (i64.const 4294967295))) (i64.shr_u (get_local $o)     (i64.const 32))))
-  ;; j * c + $m (kb) + carry
+  ;; j * c + $m + carry
   (set_local $m     (i64.add (i64.add (i64.mul (get_local $j) (get_local $c)) (i64.and (get_local $m)     (i64.const 4294967295))) (i64.shr_u (get_local $n)     (i64.const 32))))
-  ;; j * b + $l (ka) + carry
+  ;; j * b + $l + carry
   (set_local $l     (i64.add (i64.add (i64.mul (get_local $j) (get_local $b)) (i64.and (get_local $l)     (i64.const 4294967295))) (i64.shr_u (get_local $m)     (i64.const 32))))
   ;; j * a + carry
   (set_local $k     (i64.add (i64.add (i64.mul (get_local $j) (get_local $a)) (i64.shr_u (get_local $l) (i64.const 32))) (get_local $rowCarry)))
   (set_local $rowCarry (i64.shr_u (get_local $k) (i64.const 32)))
 
   ;; eigth row
-  ;; i * h + $temp7 (jg)
+  ;; i * h + $temp7 
   (set_local $temp7 (i64.add (i64.mul (get_local $i) (get_local $h)) (i64.and (get_local $temp7) (i64.const 4294967295))))
-  ;; i * g + $p (jf) 
+  ;; i * g + $p 
   (set_local $p     (i64.add (i64.add (i64.mul (get_local $i) (get_local $g)) (i64.and (get_local $p)     (i64.const 4294967295))) (i64.shr_u (get_local $temp7) (i64.const 32))))
-  ;; i * f + $o (je) + carry
+  ;; i * f + $o + carry
   (set_local $o     (i64.add (i64.add (i64.mul (get_local $i) (get_local $f)) (i64.and (get_local $o)     (i64.const 4294967295))) (i64.shr_u (get_local $p)     (i64.const 32))))
-  ;; i * e + $n (jd) + carry
+  ;; i * e + $n + carry
   (set_local $n     (i64.add (i64.add (i64.mul (get_local $i) (get_local $e)) (i64.and (get_local $n)     (i64.const 4294967295))) (i64.shr_u (get_local $o)     (i64.const 32))))
-  ;; i * d + $m (jc) + carry
+  ;; i * d + $m + carry
   (set_local $m     (i64.add (i64.add (i64.mul (get_local $i) (get_local $d)) (i64.and (get_local $m)     (i64.const 4294967295))) (i64.shr_u (get_local $n)     (i64.const 32))))
-  ;; i * c + $l (jb) + carry
+  ;; i * c + $l + carry
   (set_local $l     (i64.add (i64.add (i64.mul (get_local $i) (get_local $c)) (i64.and (get_local $l)     (i64.const 4294967295))) (i64.shr_u (get_local $m)     (i64.const 32))))
-  ;; i * b + $k (ja) + carry
+  ;; i * b + $k + carry
   (set_local $k     (i64.add (i64.add (i64.mul (get_local $i) (get_local $b)) (i64.and (get_local $k)     (i64.const 4294967295))) (i64.shr_u (get_local $l)     (i64.const 32))))
   ;; i * a + carry
   (set_local $j     (i64.add (i64.add (i64.mul (get_local $i) (get_local $a)) (i64.shr_u (get_local $k) (i64.const 32))) (get_local $rowCarry)))

@@ -16,5 +16,5 @@
         (i64.and (i64.shl (get_local $int) (i64.const 24))   (i64.const 0xff0000000000))) ;; 2 -> 5
       (i64.or
         (i64.and (i64.shl (get_local $int) (i64.const 40))   (i64.const 0xff000000000000)) ;; 1 -> 6
-        (i64.and (i64.shl (get_local $int) (i64.const 56))   (i64.const 0xff00000000000000))))) ;; 0 -> 7
-)
+        (i64.and (i64.shl (get_local $int) (i64.const 56))   (i64.const 0xff00000000000000)))))) ;; 0 -> 7
+
