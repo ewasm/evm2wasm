@@ -38,7 +38,7 @@
     "transcompiler"
   ],
   "dependencies": {
-    "ethereumjs-util": "^4.5.0",
+    "ethereumjs-util": "^4.5.0"
   },
   "standard": {
     "ignore": [
