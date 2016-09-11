@@ -394,7 +394,7 @@ exports.buildModule = function buildModule (funcs, imports = [], exports = []) {
           )`
 }
 
-// a s-expression pretty pring function
+// a s-expression pretty print function
 // TODO: handle comments
 function pprint (sexp) {
   // removes all newlins
