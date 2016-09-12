@@ -2,7 +2,7 @@
 
 # compile
 
-[index.js:45-51](https://github.com/ewasm/evm2wasm/blob/89bddaa9db2429b848f3c563c7a440f32030235b/index.js#L45-L51 "Source code on GitHub")
+[index.js:45-51](https://github.com/ewasm/evm2wasm/blob/eac7c9e016fea163aa2d44f80df6356943c2ddb9/index.js#L45-L51 "Source code on GitHub")
 
 compiles evmCode to wasm in the binary format
 
@@ -22,7 +22,7 @@ Returns **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Refer
 
 # wast2wasm
 
-[index.js:58-62](https://github.com/ewasm/evm2wasm/blob/89bddaa9db2429b848f3c563c7a440f32030235b/index.js#L58-L62 "Source code on GitHub")
+[index.js:58-62](https://github.com/ewasm/evm2wasm/blob/eac7c9e016fea163aa2d44f80df6356943c2ddb9/index.js#L58-L62 "Source code on GitHub")
 
 compiles wasm text format to binary
 
@@ -34,7 +34,7 @@ Returns **[buffer](https://nodejs.org/api/buffer.html)**
 
 # compileEVM
 
-[index.js:85-298](https://github.com/ewasm/evm2wasm/blob/89bddaa9db2429b848f3c563c7a440f32030235b/index.js#L85-L298 "Source code on GitHub")
+[index.js:85-298](https://github.com/ewasm/evm2wasm/blob/eac7c9e016fea163aa2d44f80df6356943c2ddb9/index.js#L85-L298 "Source code on GitHub")
 
 Transcompiles EVM code to ewasm in the sexpression text format. The EVM code
 is broken into segments and each instruction in those segments is replaced
@@ -66,7 +66,7 @@ Returns **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Refer
 
 # resolveFunctions
 
-[index.js:391-397](https://github.com/ewasm/evm2wasm/blob/89bddaa9db2429b848f3c563c7a440f32030235b/index.js#L391-L397 "Source code on GitHub")
+[index.js:391-397](https://github.com/ewasm/evm2wasm/blob/eac7c9e016fea163aa2d44f80df6356943c2ddb9/index.js#L391-L397 "Source code on GitHub")
 
 given a Set of wasm function this return an array for wasm equivalents
 
@@ -78,7 +78,7 @@ Returns **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Refere
 
 # buildModule
 
-[index.js:405-419](https://github.com/ewasm/evm2wasm/blob/89bddaa9db2429b848f3c563c7a440f32030235b/index.js#L405-L419 "Source code on GitHub")
+[index.js:405-419](https://github.com/ewasm/evm2wasm/blob/eac7c9e016fea163aa2d44f80df6356943c2ddb9/index.js#L405-L419 "Source code on GitHub")
 
 builds a wasm module
 
