@@ -34,7 +34,6 @@ const depMap = new Map([
 
 /**
  * compiles evmCode to wasm in the binary format
- * @memberof exports
  * @param {Array} evmCode
  * @param {Object} opts
  * @param {boolean} opts.stackTrace if `true` generates a stack trace
@@ -74,7 +73,6 @@ exports.wast2wasm = function (wast) {
  * * a GAS opcode
  * * a JUMPDEST opcode
  * * After a JUMPI opcode
- * @method compileEVM
  * @param {Integer} evmCode the evm byte code
  * @param {Object} opts
  * @param {boolean} opts.stackTrace if `true` generates a stack trace
