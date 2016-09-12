@@ -2,7 +2,7 @@
 
 # compile
 
-[index.js:45-52](https://github.com/ewasm/evm2wasm/blob/6d31b4c1b1066d3965bc77dda886385205d9b312/index.js#L45-L52 "Source code on GitHub")
+[index.js:45-51](https://github.com/ewasm/evm2wasm/blob/89bddaa9db2429b848f3c563c7a440f32030235b/index.js#L45-L51 "Source code on GitHub")
 
 compiles evmCode to wasm in the binary format
 
@@ -20,9 +20,9 @@ compiles evmCode to wasm in the binary format
 
 Returns **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 
 
-# compileWAST
+# wast2wasm
 
-[index.js:59-63](https://github.com/ewasm/evm2wasm/blob/6d31b4c1b1066d3965bc77dda886385205d9b312/index.js#L59-L63 "Source code on GitHub")
+[index.js:58-62](https://github.com/ewasm/evm2wasm/blob/89bddaa9db2429b848f3c563c7a440f32030235b/index.js#L58-L62 "Source code on GitHub")
 
 compiles wasm text format to binary
 
@@ -34,7 +34,7 @@ Returns **[buffer](https://nodejs.org/api/buffer.html)**
 
 # compileEVM
 
-[index.js:86-299](https://github.com/ewasm/evm2wasm/blob/6d31b4c1b1066d3965bc77dda886385205d9b312/index.js#L86-L299 "Source code on GitHub")
+[index.js:85-298](https://github.com/ewasm/evm2wasm/blob/89bddaa9db2429b848f3c563c7a440f32030235b/index.js#L85-L298 "Source code on GitHub")
 
 Transcompiles EVM code to ewasm in the sexpression text format. The EVM code
 is broken into segments and each instruction in those segments is replaced
@@ -64,21 +64,9 @@ All segments start at
 
 Returns **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 
 
-# resolveFunctionDeps
-
-[index.js:376-387](https://github.com/ewasm/evm2wasm/blob/6d31b4c1b1066d3965bc77dda886385205d9b312/index.js#L376-L387 "Source code on GitHub")
-
-Ensure that dependencies are only imported once (use the Set)
-
-**Parameters**
-
--   `funcSet` **[Set](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set)** a set of wasm function that need to be linked to their dependencies
-
-Returns **[Set](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set)** 
-
 # resolveFunctions
 
-[index.js:394-400](https://github.com/ewasm/evm2wasm/blob/6d31b4c1b1066d3965bc77dda886385205d9b312/index.js#L394-L400 "Source code on GitHub")
+[index.js:391-397](https://github.com/ewasm/evm2wasm/blob/89bddaa9db2429b848f3c563c7a440f32030235b/index.js#L391-L397 "Source code on GitHub")
 
 given a Set of wasm function this return an array for wasm equivalents
 
@@ -90,7 +78,7 @@ Returns **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Refere
 
 # buildModule
 
-[index.js:408-422](https://github.com/ewasm/evm2wasm/blob/6d31b4c1b1066d3965bc77dda886385205d9b312/index.js#L408-L422 "Source code on GitHub")
+[index.js:405-419](https://github.com/ewasm/evm2wasm/blob/89bddaa9db2429b848f3c563c7a440f32030235b/index.js#L405-L419 "Source code on GitHub")
 
 builds a wasm module
 

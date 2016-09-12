@@ -47,8 +47,7 @@ exports.compile = function (evmCode, opts = {
   'pprint': false,
   'inlineOps': true
 }) {
-  const wast = exports.compileEVM(evmCode, opts)
-  return exports.compileWAST(wast)
+  return exports.wast2wasm(exports.evm2wast(evmCode, opts))
 }
 
 /**
@@ -56,7 +55,7 @@ exports.compile = function (evmCode, opts = {
  * @param {string} wast
  * @return {buffer}
  */
-exports.compileWAST = function (wast) {
+exports.wast2wasm = function (wast) {
   fs.writeFileSync('temp.wast', wast)
   cp.execSync(`${__dirname}/tools/sexpr-wasm-prototype/out/sexpr-wasm ./temp.wast -o ./temp.wasm`)
   return fs.readFileSync('./temp.wasm')
@@ -83,7 +82,7 @@ exports.compileWAST = function (wast) {
  * @param {boolean} opts.inlineOps if `true` inlines the EVM1 operations
  * @return {string}
  */
-exports.compileEVM = function (evmCode, opts = {
+exports.evm2wast = function (evmCode, opts = {
   'stackTrace': false,
   'pprint': false,
   'inlineOps': true
@@ -368,12 +367,10 @@ function bytes2int64 (bytes) {
   return new BN(bytes).fromTwos(64).toString()
 }
 
-/**
- * Ensure that dependencies are only imported once (use the Set)
- * @param {Set} funcSet a set of wasm function that need to be linked to their dependencies
- * @return {Set}
- */
-exports.resolveFunctionDeps = function (funcSet) {
+ // Ensure that dependencies are only imported once (use the Set)
+ // @param {Set} funcSet a set of wasm function that need to be linked to their dependencies
+ // @return {Set}
+function resolveFunctionDeps (funcSet) {
   let funcs = funcSet
   for (let func of funcSet) {
     const deps = depMap.get(func)
@@ -393,7 +390,7 @@ exports.resolveFunctionDeps = function (funcSet) {
  */
 exports.resolveFunctions = function (funcSet) {
   let funcs = []
-  for (let func of exports.resolveFunctionDeps(funcSet)) {
+  for (let func of resolveFunctionDeps(funcSet)) {
     funcs.push(wastFiles[func + '.wast'])
   }
   return funcs

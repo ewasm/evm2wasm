@@ -115,7 +115,7 @@ tape('testing EVM1 Ops', (t) => {
 function buildTest (op, ethInterface) {
   const funcs = compiler.resolveFunctions(new Set([op]))
   const linked = compiler.buildModule(funcs, [], [op])
-  const wasm = compiler.compileWAST(linked)
+  const wasm = compiler.wast2wasm(linked)
   return new Kernel().codeHandler(wasm, ethInterface)
 }
 
