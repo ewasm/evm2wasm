@@ -5,9 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "node --expose-wasm ./tests/allRunner.js",
-    "vmTest": "node --expose-wasm ./tests/runVmTests.js | tap-bail",
-    "build": "node ./wasm/generateInterface.js && node ./wasm/generateJson.js",
+    "vmTests": "node --expose-wasm ./tests/runVmTests.js | tap-bail",
     "lint": "standard",
+    "build": "node ./wasm/generateInterface.js && node ./wasm/generateJson.js",
     "build:docs": "documentation build --github  -f md ./index.js > ./docs/index.md"
   },
   "author": "mjbecze <mjbecze@gmail.com>",
