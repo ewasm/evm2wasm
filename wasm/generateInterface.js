@@ -1,4 +1,5 @@
 const fs = require('fs')
+const path = require('path')
 
 const interfaceManifest = {
   // LOG: {
@@ -181,47 +182,47 @@ for (let opcode in interfaceManifest) {
   op.input.forEach((input) => {
     if (input === 'pointer') {
       if (spOffset) {
-        call += `\n   (i32.add (get_local $sp) (i32.const ${spOffset * 32}))`
+        call += `(i32.add (get_local $sp) (i32.const ${spOffset * 32}))`
       } else {
-        call += '\n   (get_local $sp)'
+        call += '(get_local $sp)'
       }
     } else if (input === 'i32') {
-      call += `\n        (call $check_overflow
+      call += `(call $check_overflow
            (i64.load (i32.add (get_local $sp) (i32.const ${spOffset * 32})))
            (i64.load (i32.add (get_local $sp) (i32.const ${spOffset * 32 + 8})))
            (i64.load (i32.add (get_local $sp) (i32.const ${spOffset * 32 + 8 * 2})))
            (i64.load (i32.add (get_local $sp) (i32.const ${spOffset * 32 + 8 * 3}))))`
     } else if (input === 'writeOffset' || input === 'readOffset') {
       lastOffset = input
-      locals += `\n  (local $offset${numOfLocals} i32)`
-      body += `\n\n  (set_local $offset${numOfLocals} 
+      locals += `(local $offset${numOfLocals} i32)`
+      body += `(set_local $offset${numOfLocals} 
     (call $check_overflow
       (i64.load (i32.add (get_local $sp) (i32.const ${spOffset * 32})))
       (i64.load (i32.add (get_local $sp) (i32.const ${spOffset * 32 + 8})))
       (i64.load (i32.add (get_local $sp) (i32.const ${spOffset * 32 + 8 * 2})))
       (i64.load (i32.add (get_local $sp) (i32.const ${spOffset * 32 + 8 * 3})))))`
-      call += `\n  (get_local $offset${numOfLocals})`
+      call += `(get_local $offset${numOfLocals})`
       usesMem = true
     } else if (input === 'length') {
       locals += `(local $length${numOfLocals} i32)`
-      body += `\n\n  (set_local $length${numOfLocals} 
+      body += `(set_local $length${numOfLocals} 
     (call $check_overflow 
       (i64.load (i32.add (get_local $sp) (i32.const ${spOffset * 32})))
       (i64.load (i32.add (get_local $sp) (i32.const ${spOffset * 32 + 8})))
       (i64.load (i32.add (get_local $sp) (i32.const ${spOffset * 32 + 8 * 2})))
       (i64.load (i32.add (get_local $sp) (i32.const ${spOffset * 32 + 8 * 3})))))
 
-  (call $memUseGas (get_local $offset${numOfLocals}) (get_local $length${numOfLocals}))
-  (set_local $offset${numOfLocals} (i32.add (get_local $memstart) (get_local $offset${numOfLocals})))`
+    (call $memUseGas (get_local $offset${numOfLocals}) (get_local $length${numOfLocals}))
+    (set_local $offset${numOfLocals} (i32.add (get_local $memstart) (get_local $offset${numOfLocals})))`
 
       if (lastOffset === 'writeOffset') {
-        body += `\n\n  (call $memset 
+        body += `(call $memset 
     (get_local $offset${numOfLocals}) 
     (i32.const 0)
     (get_local $length${numOfLocals}))`
       }
 
-      call += `\n  (get_local $length${numOfLocals})`
+      call += `(get_local $length${numOfLocals})`
       numOfLocals++
     }
     spOffset--
@@ -233,38 +234,37 @@ for (let opcode in interfaceManifest) {
   const output = op.output.shift()
   if (output === 'i32') {
     call =
-  `\n\n  (i64.store
+   `(i64.store
     (i32.add (get_local $sp) (i32.const ${spOffset * 32}))
     (i64.extend_u/i32
       ${call})))
 
-  ;; zero out mem
-  (i64.store (i32.add (get_local $sp) (i32.const ${spOffset * 32 + 8 * 3})) (i64.const 0))
-  (i64.store (i32.add (get_local $sp) (i32.const ${spOffset * 32 + 8 * 2})) (i64.const 0))
-  (i64.store (i32.add (get_local $sp) (i32.const ${spOffset * 32 + 8})) (i64.const 0))`
+    ;; zero out mem
+    (i64.store (i32.add (get_local $sp) (i32.const ${spOffset * 32 + 8 * 3})) (i64.const 0))
+    (i64.store (i32.add (get_local $sp) (i32.const ${spOffset * 32 + 8 * 2})) (i64.const 0))
+    (i64.store (i32.add (get_local $sp) (i32.const ${spOffset * 32 + 8})) (i64.const 0))`
   } else if (output === 'i64') {
     call =
-  `\n\n  (i64.store (i32.add (get_local $sp) (i32.const ${spOffset * 32})) ${call}))
+    `(i64.store (i32.add (get_local $sp) (i32.const ${spOffset * 32})) ${call}))
 
-  ;; zero out mem
-  (i64.store (i32.add (get_local $sp) (i32.const ${spOffset * 32 + 8 * 3})) (i64.const 0))
-  (i64.store (i32.add (get_local $sp) (i32.const ${spOffset * 32 + 8 * 2})) (i64.const 0))
-  (i64.store (i32.add (get_local $sp) (i32.const ${spOffset * 32 + 8})) (i64.const 0))`
+    ;; zero out mem
+    (i64.store (i32.add (get_local $sp) (i32.const ${spOffset * 32 + 8 * 3})) (i64.const 0))
+    (i64.store (i32.add (get_local $sp) (i32.const ${spOffset * 32 + 8 * 2})) (i64.const 0))
+    (i64.store (i32.add (get_local $sp) (i32.const ${spOffset * 32 + 8})) (i64.const 0))`
   } else if (output === 'i128') {
     call =
-  `${call} (i32.add (get_local $sp) (i32.const ${spOffset * 32})))
+    `${call} (i32.add (get_local $sp) (i32.const ${spOffset * 32})))
 
-  ;; zero out mem
-  (i64.store (i32.add (get_local $sp) (i32.const ${spOffset * 32 + 8 * 3})) (i64.const 0))
-  (i64.store (i32.add (get_local $sp) (i32.const ${spOffset * 32 + 8 * 2})) (i64.const 0))`
+    ;; zero out mem
+    (i64.store (i32.add (get_local $sp) (i32.const ${spOffset * 32 + 8 * 3})) (i64.const 0))
+    (i64.store (i32.add (get_local $sp) (i32.const ${spOffset * 32 + 8 * 2})) (i64.const 0))`
   } else if (output === 'address') {
     call =
-  `${call}
-    (i32.add (get_local $sp) (i32.const ${spOffset * 32})))
+    `${call} (i32.add (get_local $sp) (i32.const ${spOffset * 32})))
 
-  ;; zero out mem
-  (i64.store (i32.add (get_local $sp) (i32.const ${spOffset * 32 + 8 * 3})) (i64.const 0))
-  (i32.store (i32.add (get_local $sp) (i32.const ${spOffset * 32 + 8 * 2 + 4})) (i32.const 0))`
+    ;; zero out mem
+    (i64.store (i32.add (get_local $sp) (i32.const ${spOffset * 32 + 8 * 3})) (i64.const 0))
+    (i32.store (i32.add (get_local $sp) (i32.const ${spOffset * 32 + 8 * 2 + 4})) (i32.const 0))`
   } else if (output === 'i256') {
     call = `${call} 
     (i32.add (get_local $sp) 
@@ -274,11 +274,10 @@ for (let opcode in interfaceManifest) {
   }
 
   if (usesMem) {
-    locals += `\n  (local $memstart i32)
-  (set_local $memstart (i32.const 33832))`
+    locals += '(local $memstart i32) (set_local $memstart (i32.const 33832))'
   }
 
   wasm += `${locals} ${body} ${call})`
 
-  fs.writeFileSync(opcode + '.wast', wasm)
+  fs.writeFileSync(path.join(__dirname, opcode + '.wast'), wasm)
 }

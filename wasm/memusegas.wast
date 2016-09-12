@@ -28,12 +28,12 @@
   (set_local $wordCount   (i32.load (get_local $wordCountLoc)))
   (set_local $prevMemCost (i64.load (get_local $prevMemCostLoc)))
 
-  ;; const newMemoryWordCount = Math.ceil((offset + length) / 32)
+  ;; const newMemoryWordCount = Math.ceil[[offset + length] / 32]
   (set_local $newWordCount (i32.trunc_u/f32 (f32.ceil
                              (f32.div
                                (f32.convert_u/i32
                                  (i32.add (get_local $offset) (get_local $length))) (f32.const 32)))))
-  ;;if (runState.highestMem >= highestMem)  return
+  ;;if [runState.highestMem >= highestMem]  return
   (if (i32.le_u (get_local $newWordCount) (get_local $wordCount))
     (then (return))
   )
@@ -63,7 +63,7 @@
 
   ;; grow actual memory
   ;; the first 31704 bytes are guaranteed to be available
-  ;; adjust for 32 bytes (the maximal size of MSTORE write)
+  ;; adjust for 32 bytes  - the maximal size of MSTORE write
   ;; TODO it should be current_memory * page_size
   (set_local $offset (i32.add (get_local $length) (i32.add (get_local $offset) (get_local $memstart))))
   (if (i32.gt_u (get_local $offset) (current_memory))

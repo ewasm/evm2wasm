@@ -3,7 +3,7 @@ const ethUtil = require('ethereumjs-util')
 const fs = require('fs')
 const cp = require('child_process')
 const opcodes = require('./opcodes.js')
-const path = require('path')
+const wastFiles = require('./wasm/wast.json')
 
 // map to track dependent WASM functions
 const depMap = new Map([
@@ -32,39 +32,59 @@ const depMap = new Map([
   ['RETURN', ['memusegas', 'check_overflow']]
 ])
 
-// compiles evmCode to wasm in the binary format
-// @param {Array} evmCode
-// @param {Boolean}  stackTrace set to true if you want a stacktrace
-exports.compile = function (evmCode, stackTrace = false) {
-  const wast = exports.compileEVM(evmCode, stackTrace)
-  return exports.compileWAST(wast)
+/**
+ * compiles evmCode to wasm in the binary format
+ * @param {Array} evmCode
+ * @param {Object} opts
+ * @param {boolean} opts.stackTrace if `true` generates a stack trace
+ * @param {boolean} opts.pprint if `true` pretty prints the sexpressions
+ * @param {boolean} opts.inlineOps if `true` inlines the EVM1 operations
+ * @return {string}
+ */
+exports.compile = function (evmCode, opts = {
+  'stackTrace': false,
+  'pprint': false,
+  'inlineOps': true
+}) {
+  return exports.wast2wasm(exports.evm2wast(evmCode, opts))
 }
 
-// compiles wasm text format to binary
-// @param {String} wast
-// @return {buffer}
-exports.compileWAST = function (wast) {
+/**
+ * compiles wasm text format to binary
+ * @param {string} wast
+ * @return {buffer}
+ */
+exports.wast2wasm = function (wast) {
   fs.writeFileSync('temp.wast', wast)
   cp.execSync(`${__dirname}/tools/sexpr-wasm-prototype/out/sexpr-wasm ./temp.wast -o ./temp.wasm`)
   return fs.readFileSync('./temp.wasm')
 }
 
-// Transcompiles EVM code to ewasm in the sexpression text format. The EVM code
-// is broken into segments and each instruction in those segments is replaced
-// with a `call` to wasm function that does the equivalent operation. Each
-// opcode function takes in and returns the stack pointer.
-//
-// Segments are sections of EVM code in between flow control
-// opcodes (JUMPI. JUMP).
-// All segments start at
-// * the beginning for EVM code
-// * a GAS opcode
-// * a JUMPDEST opcode
-// * After a JUMPI opcode
-// @param {Integer[]} evmCode the evm byte code
-// @param {Boolean} stackTrace if `true` generates a stack trace
-// @return {String}
-exports.compileEVM = function (evmCode, stackTrace) {
+/**
+ * Transcompiles EVM code to ewasm in the sexpression text format. The EVM code
+ * is broken into segments and each instruction in those segments is replaced
+ * with a `call` to wasm function that does the equivalent operation. Each
+ * opcode function takes in and returns the stack pointer.
+ *
+ * Segments are sections of EVM code in between flow control
+ * opcodes (JUMPI. JUMP).
+ * All segments start at
+ * * the beginning for EVM code
+ * * a GAS opcode
+ * * a JUMPDEST opcode
+ * * After a JUMPI opcode
+ * @param {Integer} evmCode the evm byte code
+ * @param {Object} opts
+ * @param {boolean} opts.stackTrace if `true` generates a stack trace
+ * @param {boolean} opts.pprint if `true` pretty prints the sexpressions
+ * @param {boolean} opts.inlineOps if `true` inlines the EVM1 operations
+ * @return {string}
+ */
+exports.evm2wast = function (evmCode, opts = {
+  'stackTrace': false,
+  'pprint': false,
+  'inlineOps': true
+}) {
   // this keep track of the opcode we have found so far. This will be used to
   // to figure out what .wast files to include
   const opcodesUsed = new Set()
@@ -149,19 +169,19 @@ exports.compileEVM = function (evmCode, stackTrace) {
         gasCount = 1
         break
       case 'GAS':
-        wasmCode = `${wasmCode} \n (call $${op.name} (get_local $sp))`
+        wasmCode = `${wasmCode} (call $${op.name} (get_local $sp))`
         addMetering()
         break
       case 'LOG':
-        wasmCode = `${wasmCode} \n (call $${op.name} (i32.const ${op.number}) (get_local $sp))`
+        wasmCode = `${wasmCode} (call $${op.name} (i32.const ${op.number}) (get_local $sp))`
         break
       case 'DUP':
       case 'SWAP':
         // adds the number on the stack to SWAP
-        wasmCode = `${wasmCode} \n (call $${op.name} (i32.const ${op.number - 1}) (get_local $sp)) `
+        wasmCode = `${wasmCode} (call $${op.name} (i32.const ${op.number - 1}) (get_local $sp)) `
         break
       case 'PC':
-        wasmCode = `${wasmCode} \n (call $${op.name} (i32.const ${i}) (get_local $sp))`
+        wasmCode = `${wasmCode} (call $${op.name} (i32.const ${i}) (get_local $sp))`
         break
       case 'PUSH':
         i++
@@ -179,7 +199,7 @@ exports.compileEVM = function (evmCode, stackTrace) {
           push = push + `(i64.const ${int64})`
         }
 
-        wasmCode = `${wasmCode} \n (call $${op.name} ${push} (get_local $sp))`
+        wasmCode = `${wasmCode} (call $${op.name} ${push} (get_local $sp))`
         i--
         break
       case 'POP':
@@ -196,7 +216,7 @@ exports.compileEVM = function (evmCode, stackTrace) {
         break
       case 'SUICIDE':
       case 'RETURN':
-        wasmCode = `${wasmCode} \n (call $${op.name} (get_local $sp)) (br $done)`
+        wasmCode = `${wasmCode} (call $${op.name} (get_local $sp)) (br $done)`
         if (jumpFound) {
           i = findNextJumpDest(evmCode, i)
         } else {
@@ -209,7 +229,7 @@ exports.compileEVM = function (evmCode, stackTrace) {
         i = findNextJumpDest(evmCode, i)
         break
       default:
-        wasmCode = `${wasmCode} \n  (call $${op.name} (get_local $sp))`
+        wasmCode = `${wasmCode} (call $${op.name} (get_local $sp))`
     }
 
     if (!ignoredOps.has(op.name)) {
@@ -223,8 +243,8 @@ exports.compileEVM = function (evmCode, stackTrace) {
     }
 
     // creates a stack trace
-    if (stackTrace) {
-      wasmCode = `${wasmCode} \n (call_import $stackTrace (get_local $sp) (i32.const ${opint}))`
+    if (opts.stackTrace) {
+      wasmCode = `${wasmCode} (call_import $stackTrace (get_local $sp) (i32.const ${opint}))`
     }
   }
   addStackCheck()
@@ -234,13 +254,21 @@ exports.compileEVM = function (evmCode, stackTrace) {
   let mainFunc = assmebleSegments(jumpSegments)
 
   // import stack trace function
-  if (stackTrace) {
+  if (opts.stackTrace) {
     mainFunc = '(import $stackTrace "debug" "evmStackTrace" (param i32 i32) (result i32))' + mainFunc
   }
 
-  const funcMap = exports.resolveFunctions(opcodesUsed)
+  let funcMap = []
+  if (opts.inlineOps) {
+    funcMap = exports.resolveFunctions(opcodesUsed)
+  }
+
   funcMap.push(mainFunc)
-  return exports.buildModule(funcMap)
+  wasmCode = exports.buildModule(funcMap)
+  if (opts.pprint) {
+    wasmCode = pprint(wasmCode)
+  }
+  return wasmCode
 
   // add a metering statment at the beginning of a segment
   function addMetering () {
@@ -280,7 +308,8 @@ function assmebleSegments (segments) {
                ${wasm}
                ${seg[0]})`
   })
-  return `(export "main" $main)
+  return `
+    (export "main" $main)
       (func $main 
            (local $sp i32) 
            (local $jump_dest i32)
@@ -336,11 +365,10 @@ function bytes2int64 (bytes) {
   return new BN(bytes).fromTwos(64).toString()
 }
 
-// Ensure that dependencies are only imported once (use the Set)
-// @param {Set} funcSet a set of wasm function that need to be linked to their
-// dependencies
-// @return {Set}
-exports.resolveFunctionDeps = function resolveFunctionDeps (funcSet) {
+ // Ensure that dependencies are only imported once (use the Set)
+ // @param {Set} funcSet a set of wasm function that need to be linked to their dependencies
+ // @return {Set}
+function resolveFunctionDeps (funcSet) {
   let funcs = funcSet
   for (let func of funcSet) {
     const deps = depMap.get(func)
@@ -353,25 +381,26 @@ exports.resolveFunctionDeps = function resolveFunctionDeps (funcSet) {
   return funcs
 }
 
-// given a set of wasm function this return an array for wasm equivalents
-// @param {Set} funcSet
-// @param {String} dir
-// @return {Array}
-exports.resolveFunctions = function resolveFunctions (funcSet, dir = '/wasm/') {
+/**
+ * given a Set of wasm function this return an array for wasm equivalents
+ * @param {Set} funcSet
+ * @return {Array}
+ */
+exports.resolveFunctions = function (funcSet) {
   let funcs = []
-  for (let func of exports.resolveFunctionDeps(funcSet)) {
-    const wastPath = path.join(__dirname, dir, func) + '.wast'
-    const wast = fs.readFileSync(wastPath)
-    funcs.push(wast.toString())
+  for (let func of resolveFunctionDeps(funcSet)) {
+    funcs.push(wastFiles[func + '.wast'])
   }
   return funcs
 }
 
-// builds a wasm module
-// @param {Array} funcs the function to include in the module
-// @param {Array} imports the imports for the module's import table
-// @return {String}
-exports.buildModule = function buildModule (funcs, imports = [], exports = []) {
+/**
+ * builds a wasm module
+ * @param {Array} funcs the function to include in the module
+ * @param {Array} imports the imports for the module's import table
+ * @return {string}
+ */
+exports.buildModule = function (funcs, imports = [], exports = []) {
   let funcStr = ''
   for (let func of funcs) {
     funcStr += func
@@ -385,4 +414,25 @@ exports.buildModule = function buildModule (funcs, imports = [], exports = []) {
           (export "memory" memory)
             ${funcStr}
           )`
+}
+
+// a s-expression pretty print function
+// TODO: handle comments
+function pprint (sexp) {
+  // removes all newlins
+  sexp = sexp.replace(/[^\x20-\x7E]/gmi, '').split('(')
+  let numSpaces = 0
+  for (let i in sexp) {
+    let statement = sexp[i]
+    statement = statement.split(')').map(a => a.trim())
+    let length = statement.length
+    statement = statement.join(')')
+    if (statement !== '') {
+      statement = '(' + statement
+      statement = '\n' + ' '.repeat(numSpaces * 2) + statement
+      numSpaces += -length + 2
+    }
+    sexp[i] = statement
+  }
+  return sexp.join('')
 }
