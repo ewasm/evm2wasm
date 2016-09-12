@@ -7,7 +7,8 @@
     "test": "node --expose-wasm ./tests/allRunner.js",
     "vmTest": "node --expose-wasm ./tests/runVmTests.js | tap-bail",
     "build": "node ./wasm/generateInterface.js && node ./wasm/generateJson.js",
-    "lint": "standard"
+    "lint": "standard",
+    "build:docs": "documentation build --github  -f md ./index.js > ./docs/index.md"
   },
   "author": "mjbecze <mjbecze@gmail.com>",
   "license": "MPL-2.0",

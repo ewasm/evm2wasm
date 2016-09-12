@@ -32,39 +32,62 @@ const depMap = new Map([
   ['RETURN', ['memusegas', 'check_overflow']]
 ])
 
-// compiles evmCode to wasm in the binary format
-// @param {Array} evmCode
-// @param {Boolean}  stackTrace set to true if you want a stacktrace
-exports.compile = function (evmCode, opts = {'stackTrace': false, 'pprint': false, 'inlineOps': true}) {
+/**
+ * compiles evmCode to wasm in the binary format
+ * @memberof exports
+ * @param {Array} evmCode
+ * @param {Object} opts
+ * @param {boolean} opts.stackTrace if `true` generates a stack trace
+ * @param {boolean} opts.pprint if `true` pretty prints the sexpressions
+ * @param {boolean} opts.inlineOps if `true` inlines the EVM1 operations
+ * @return {string}
+ */
+exports.compile = function (evmCode, opts = {
+  'stackTrace': false,
+  'pprint': false,
+  'inlineOps': true
+}) {
   const wast = exports.compileEVM(evmCode, opts)
   return exports.compileWAST(wast)
 }
 
-// compiles wasm text format to binary
-// @param {String} wast
-// @return {buffer}
+/**
+ * compiles wasm text format to binary
+ * @param {string} wast
+ * @return {buffer}
+ */
 exports.compileWAST = function (wast) {
   fs.writeFileSync('temp.wast', wast)
   cp.execSync(`${__dirname}/tools/sexpr-wasm-prototype/out/sexpr-wasm ./temp.wast -o ./temp.wasm`)
   return fs.readFileSync('./temp.wasm')
 }
 
-// Transcompiles EVM code to ewasm in the sexpression text format. The EVM code
-// is broken into segments and each instruction in those segments is replaced
-// with a `call` to wasm function that does the equivalent operation. Each
-// opcode function takes in and returns the stack pointer.
-//
-// Segments are sections of EVM code in between flow control
-// opcodes (JUMPI. JUMP).
-// All segments start at
-// * the beginning for EVM code
-// * a GAS opcode
-// * a JUMPDEST opcode
-// * After a JUMPI opcode
-// @param {Integer[]} evmCode the evm byte code
-// @param {Boolean} stackTrace if `true` generates a stack trace
-// @return {String}
-exports.compileEVM = function (evmCode, opts = {'stackTrace': false, 'pprint': false, 'inlineOps': true}) {
+/**
+ * Transcompiles EVM code to ewasm in the sexpression text format. The EVM code
+ * is broken into segments and each instruction in those segments is replaced
+ * with a `call` to wasm function that does the equivalent operation. Each
+ * opcode function takes in and returns the stack pointer.
+ *
+ * Segments are sections of EVM code in between flow control
+ * opcodes (JUMPI. JUMP).
+ * All segments start at
+ * * the beginning for EVM code
+ * * a GAS opcode
+ * * a JUMPDEST opcode
+ * * After a JUMPI opcode
+ * @method compileEVM
+ * @param {Integer} evmCode the evm byte code
+ * @param {Object} opts
+ * @param {boolean} opts.stackTrace if `true` generates a stack trace
+ * @param {boolean} opts.pprint if `true` pretty prints the sexpressions
+ * @param {boolean} opts.inlineOps if `true` inlines the EVM1 operations
+ * @return {string}
+ */
+exports.compileEVM = function (evmCode, opts = {
+  'stackTrace': false,
+  'pprint': false,
+  'inlineOps': true
+}) {
   // this keep track of the opcode we have found so far. This will be used to
   // to figure out what .wast files to include
   const opcodesUsed = new Set()
@@ -345,11 +368,12 @@ function bytes2int64 (bytes) {
   return new BN(bytes).fromTwos(64).toString()
 }
 
-// Ensure that dependencies are only imported once (use the Set)
-// @param {Set} funcSet a set of wasm function that need to be linked to their
-// dependencies
-// @return {Set}
-exports.resolveFunctionDeps = function resolveFunctionDeps (funcSet) {
+/**
+ * Ensure that dependencies are only imported once (use the Set)
+ * @param {Set} funcSet a set of wasm function that need to be linked to their dependencies
+ * @return {Set}
+ */
+exports.resolveFunctionDeps = function (funcSet) {
   let funcs = funcSet
   for (let func of funcSet) {
     const deps = depMap.get(func)
@@ -362,11 +386,12 @@ exports.resolveFunctionDeps = function resolveFunctionDeps (funcSet) {
   return funcs
 }
 
-// given a set of wasm function this return an array for wasm equivalents
-// @param {Set} funcSet
-// @param {String} dir
-// @return {Array}
-exports.resolveFunctions = function resolveFunctions (funcSet, dir = '/wasm/') {
+/**
+ * given a Set of wasm function this return an array for wasm equivalents
+ * @param {Set} funcSet
+ * @return {Array}
+ */
+exports.resolveFunctions = function (funcSet) {
   let funcs = []
   for (let func of exports.resolveFunctionDeps(funcSet)) {
     funcs.push(wastFiles[func + '.wast'])
@@ -374,11 +399,13 @@ exports.resolveFunctions = function resolveFunctions (funcSet, dir = '/wasm/') {
   return funcs
 }
 
-// builds a wasm module
-// @param {Array} funcs the function to include in the module
-// @param {Array} imports the imports for the module's import table
-// @return {String}
-exports.buildModule = function buildModule (funcs, imports = [], exports = []) {
+/**
+ * builds a wasm module
+ * @param {Array} funcs the function to include in the module
+ * @param {Array} imports the imports for the module's import table
+ * @return {string}
+ */
+exports.buildModule = function (funcs, imports = [], exports = []) {
   let funcStr = ''
   for (let func of funcs) {
     funcStr += func
