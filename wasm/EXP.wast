@@ -75,8 +75,8 @@
 
   ;; use gas
   ;; Log256[Exponent] * 10
-  (call_import $useGas (i32.mul (i32.const 10) (i32.trunc_s/f32 
-                         (f32.ceil (f32.div (get_local $gasCounter) (f32.const 8))))))
+  (call_import $useGas (i64.extend_u/i32 (i32.mul (i32.const 10) (i32.trunc_s/f32 
+                         (f32.ceil (f32.div (get_local $gasCounter) (f32.const 8)))))))
 
   ;; decement the stack pointer
   (i64.store (i32.add (get_local $sp) (i32.const 24)) (get_local $r0))
