@@ -115,7 +115,7 @@ const interfaceManifest = {
   },
   CALL: {
     name: 'call',
-    input: ['i32', 'pointer', 'pointer', 'readOffset', 'length', 'writeOffset', 'length'],
+    input: ['i64', 'pointer', 'pointer', 'readOffset', 'length', 'writeOffset', 'length'],
     output: ['i32']
   },
   CALLCODE: {
@@ -153,7 +153,7 @@ const interfaceManifest = {
 for (let opcode in interfaceManifest) {
   const op = interfaceManifest[opcode]
   // generate the import params
-  let inputs = op.input.map(() => 'i32').concat(op.output.filter(type => type !== 'i32' && type !== 'i64').map(() => 'i32'))
+  let inputs = op.input.map(input => input === 'i64' ? 'i64' : 'i32').concat(op.output.filter(type => type !== 'i32' && type !== 'i64').map(() => 'i32'))
   let params = ''
   if (inputs.length) {
     params = `(param ${inputs.join(' ')})`
@@ -188,6 +188,12 @@ for (let opcode in interfaceManifest) {
       }
     } else if (input === 'i32') {
       call += `(call $check_overflow
+           (i64.load (i32.add (get_local $sp) (i32.const ${spOffset * 32})))
+           (i64.load (i32.add (get_local $sp) (i32.const ${spOffset * 32 + 8})))
+           (i64.load (i32.add (get_local $sp) (i32.const ${spOffset * 32 + 8 * 2})))
+           (i64.load (i32.add (get_local $sp) (i32.const ${spOffset * 32 + 8 * 3}))))`
+    } else if (input === 'i64') {
+      call += `(call $check_overflow_i64
            (i64.load (i32.add (get_local $sp) (i32.const ${spOffset * 32})))
            (i64.load (i32.add (get_local $sp) (i32.const ${spOffset * 32 + 8})))
            (i64.load (i32.add (get_local $sp) (i32.const ${spOffset * 32 + 8 * 2})))

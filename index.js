@@ -26,7 +26,7 @@ const depMap = new Map([
   ['LOG', ['memusegas', 'check_overflow']],
   ['BLOCKHASH', ['check_overflow']],
   ['SHA3', ['memusegas', 'bswap_m256', 'bswap_i64', 'check_overflow', 'keccak', 'memcpy', 'memset']],
-  ['CALL', ['memusegas', 'check_overflow', 'memset']],
+  ['CALL', ['memusegas', 'check_overflow_i64', 'check_overflow', 'memset']],
   ['CALLCODE', ['memusegas', 'check_overflow', 'memset']],
   ['CREATE', ['memusegas', 'check_overflow']],
   ['RETURN', ['memusegas', 'check_overflow']]
@@ -272,7 +272,7 @@ exports.evm2wast = function (evmCode, opts = {
 
   // add a metering statment at the beginning of a segment
   function addMetering () {
-    segment = `${segment} (call_import $useGas (i32.const ${gasCount})) ${wasmCode}`
+    segment = `${segment} (call_import $useGas (i64.const ${gasCount})) ${wasmCode}`
     wasmCode = ''
     gasCount = 0
   }
@@ -409,7 +409,7 @@ exports.buildModule = function (funcs, imports = [], exports = []) {
     funcStr += `(export "${exprt}" $${exprt})`
   }
   return `(module
-          (import $useGas "ethereum" "useGas" (param i32))
+          (import $useGas "ethereum" "useGas" (param i64))
           (memory 1)
           (export "memory" memory)
             ${funcStr}
