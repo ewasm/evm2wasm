@@ -4,7 +4,7 @@
 
 [![js-standard-style](https://cdn.rawgit.com/feross/standard/master/badge.svg)](https://github.com/feross/standard)  
 
-EVM (Ethereum VM 1.0) to [eWASM](https://github.com/ethereum/evm2.0-design) transcompiler. Here is a online [frontend](ewasm.github.io/evm2wasm-frontend/dist/).
+EVM (Ethereum VM 1.0) to [eWASM](https://github.com/ethereum/evm2.0-design) transcompiler. Here is a online [frontend](https://ewasm.github.io/evm2wasm-frontend/dist/).
 
 # INSTALL
 `npm install evm2wasm`
