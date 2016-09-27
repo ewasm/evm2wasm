@@ -1,4 +1,4 @@
-(func $isZero_i32
+(func $iszero_256
   (param i64)
   (param i64)
   (param i64)

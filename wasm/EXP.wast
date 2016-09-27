@@ -38,7 +38,7 @@
 
   (loop $done $loop
      ;; while [exp > 0] {
-    (if (call $isZero_i32 (get_local $exp0) (get_local $exp1) (get_local $exp2) (get_local $exp3))
+    (if (call $iszero_256 (get_local $exp0) (get_local $exp1) (get_local $exp2) (get_local $exp3))
       (br $done) 
     )
 

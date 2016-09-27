@@ -14,7 +14,7 @@
 
   (i64.store (get_local $sp)
     (i64.extend_u/i32
-      (call $isZero_i32 (get_local $a0) (get_local $a1) (get_local $a2) (get_local $a3))
+      (call $iszero_256 (get_local $a0) (get_local $a1) (get_local $a2) (get_local $a3))
     )
   )
 
