@@ -26,7 +26,7 @@
                                    (get_local $offset2)
                                    (get_local $offset3)))
 
-  (call $memUseGas (get_local $offset) (i32.const 8))
+  (call $memusegas (get_local $offset) (i32.const 8))
 
   ;; pop stack
   (set_local $sp (i32.sub (get_local $sp) (i32.const 32)))

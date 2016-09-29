@@ -13,7 +13,7 @@
       (i64.load (i32.add (get_local $sp) (i32.const -112)))
       (i64.load (i32.add (get_local $sp) (i32.const -104)))))
 
-    (call $memUseGas (get_local $offset0) (get_local $length0))
+    (call $memusegas (get_local $offset0) (get_local $length0))
     (set_local $offset0 (i32.add (get_local $memstart) (get_local $offset0)))(set_local $offset1 
     (call $check_overflow
       (i64.load (i32.add (get_local $sp) (i32.const -160)))
@@ -26,7 +26,7 @@
       (i64.load (i32.add (get_local $sp) (i32.const -176)))
       (i64.load (i32.add (get_local $sp) (i32.const -168)))))
 
-    (call $memUseGas (get_local $offset1) (get_local $length1))
+    (call $memusegas (get_local $offset1) (get_local $length1))
     (set_local $offset1 (i32.add (get_local $memstart) (get_local $offset1)))(call $memset 
     (get_local $offset1) 
     (i32.const 0)

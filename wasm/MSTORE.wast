@@ -26,7 +26,7 @@
                                    (get_local $offset2)
                                    (get_local $offset3)))
   ;; subtrace gas useage
-  (call $memUseGas (get_local $offset) (i32.const 32))
+  (call $memusegas (get_local $offset) (i32.const 32))
 
   ;; pop itme from the stack
   (set_local $sp (i32.sub (get_local $sp) (i32.const 32)))

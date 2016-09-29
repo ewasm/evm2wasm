@@ -1,4 +1,4 @@
-(func $memUseGas
+(func $memusegas
   (param $offset i32)
   (param $length i32)
 

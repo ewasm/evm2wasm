@@ -13,7 +13,7 @@
       (i64.load (i32.add (get_local $sp) (i32.const -80)))
       (i64.load (i32.add (get_local $sp) (i32.const -72)))))
 
-    (call $memUseGas (get_local $offset0) (get_local $length0))
+    (call $memusegas (get_local $offset0) (get_local $length0))
     (set_local $offset0 (i32.add (get_local $memstart) (get_local $offset0)))(call $memset 
     (get_local $offset0) 
     (i32.const 0)

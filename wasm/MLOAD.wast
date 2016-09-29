@@ -24,7 +24,7 @@
                                    (get_local $offset2)
                                    (get_local $offset3)))
   ;; subttract gas useage
-  (call $memUseGas (get_local $offset) (i32.const  32))
+  (call $memusegas (get_local $offset) (i32.const  32))
 
   ;; FIXME: how to deal with overflow?
   (set_local $offset (i32.add (get_local $offset) (get_local $memstart)))
