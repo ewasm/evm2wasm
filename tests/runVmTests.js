@@ -11,14 +11,16 @@ const evm2wasm = require('../index.js')
 
 // tests that we are skipping
 const skipList = [
-  'sha3_bigOffset2', // some wierd memory error when we try to allocate 16mb of mem
-  'ABAcalls1', // uses `gasLeft` when gas is over 32bits which gets truncated
-  'ABAcalls2'  // uses `gasLeft` when gas is over 32bits which gets truncated
+  'sha3_bigOffset2' // some wierd memory error when we try to allocate 16mb of mem
 ]
 
 function runner (testData, t, cb) {
   const code = Buffer.from(testData.exec.code.slice(2), 'hex')
-  const evm = evm2wasm.compile(code, argv.trace)
+  const evm = evm2wasm.compile(code, {
+    stackTrace: argv.trace,
+    inlineOps: true,
+    pprint: false
+  })
   const enviroment = setupEnviroment(testData)
   const ethInterface = new Interface(enviroment)
 

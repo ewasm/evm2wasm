@@ -14,7 +14,7 @@
       (i32.and 
         (i64.eqz  (get_local $d))
         (i64.eqz  (get_local $c)))
-      (i32.and 
+      (i32.and
         (i64.eqz  (get_local $b))
         (i64.lt_u (get_local $a) (get_local $MAX_INT))))
       (then
