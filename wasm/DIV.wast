@@ -1,6 +1,5 @@
 (func $DIV
   (param $sp i32)
-
   ;; dividend
   (local $a i64)
   (local $b i64)
@@ -45,7 +44,7 @@
 
   (block $main
     ;; check div by 0
-    (if (call $isZero_i32 (get_local $a1) (get_local $b1) (get_local $c1) (get_local $d1))
+    (if (call $iszero_256 (get_local $a1) (get_local $b1) (get_local $c1) (get_local $d1))
       (br $main)
     )
 
@@ -78,7 +77,7 @@
 
     (loop $done $loop
       ;; loop while mask != 0
-      (if (call $isZero_i32 (get_local $maska) (get_local $maskb) (get_local $maskc) (get_local $maskd))
+      (if (call $iszero_256 (get_local $maska) (get_local $maskb) (get_local $maskc) (get_local $maskd))
         (br $done)
       )
       ;; if dividend >= divisor

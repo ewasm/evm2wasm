@@ -1,4 +1,4 @@
-(func $isZero_512
+(func $iszero_512
   (param i64)
   (param i64)
   (param i64)

@@ -218,7 +218,7 @@ for (let opcode in interfaceManifest) {
       (i64.load (i32.add (get_local $sp) (i32.const ${spOffset * 32 + 8 * 2})))
       (i64.load (i32.add (get_local $sp) (i32.const ${spOffset * 32 + 8 * 3})))))
 
-    (call $memUseGas (get_local $offset${numOfLocals}) (get_local $length${numOfLocals}))
+    (call $memusegas (get_local $offset${numOfLocals}) (get_local $length${numOfLocals}))
     (set_local $offset${numOfLocals} (i32.add (get_local $memstart) (get_local $offset${numOfLocals})))`
 
       if (lastOffset === 'writeOffset') {

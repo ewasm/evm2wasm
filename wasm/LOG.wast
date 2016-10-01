@@ -37,7 +37,7 @@
                                    (get_local $length2)
                                    (get_local $length3)))
 
-  (call $memUseGas (get_local $offset) (get_local $length))
+  (call $memusegas (get_local $offset) (get_local $length))
 
   (call_import $log 
              (get_local $offset)

@@ -7,17 +7,21 @@ const wastFiles = require('./wasm/wast.json')
 
 // map to track dependent WASM functions
 const depMap = new Map([
-  ['MOD', ['iszero_32', 'gte_256']],
-  ['ADDMOD', ['MOD', 'ADD', 'mod_320', 'iszero_320', 'gte_320']],
-  ['MULMOD', ['mod_512', 'iszero_512', 'gte_512']],
-  ['SDIV', ['iszero_32', 'gte_256']],
-  ['SMOD', ['iszero_32', 'gte_256']],
-  ['DIV', ['iszero_32', 'gte_256']],
-  ['EXP', ['iszero_32', 'mul_256']],
+  ['keccak', ['memcpy', 'memset']],
+  ['mod_320', ['iszero_320', 'gte_320']],
+  ['mod_512', ['iszero_512', 'gte_512']],
+  ['bswap_m256', ['bswap_i64']],
+  ['MOD', ['iszero_256', 'gte_256']],
+  ['ADDMOD', ['MOD', 'ADD', 'mod_320']],
+  ['MULMOD', ['mod_512']],
+  ['SDIV', ['iszero_256', 'gte_256']],
+  ['SMOD', ['iszero_256', 'gte_256']],
+  ['DIV', ['iszero_256', 'gte_256']],
+  ['EXP', ['iszero_256', 'mul_256']],
   ['MUL', ['mul_256']],
-  ['ISZERO', ['iszero_32']],
-  ['MSTORE', ['memusegas', 'bswap_m256', 'bswap_i64', 'check_overflow']],
-  ['MLOAD', ['memusegas', 'bswap_m256', 'bswap_i64', 'check_overflow']],
+  ['ISZERO', ['iszero_256']],
+  ['MSTORE', ['memusegas', 'bswap_m256', 'check_overflow']],
+  ['MLOAD', ['memusegas', 'bswap_m256', 'check_overflow']],
   ['MSTORE8', ['memusegas', 'check_overflow']],
   ['CODECOPY', ['memusegas', 'check_overflow', 'memset']],
   ['CALLDATALOAD', ['bswap_m256', 'bswap_i64', 'check_overflow']],
@@ -25,8 +29,9 @@ const depMap = new Map([
   ['EXTCODECOPY', ['memusegas', 'check_overflow', 'memset']],
   ['LOG', ['memusegas', 'check_overflow']],
   ['BLOCKHASH', ['check_overflow']],
-  ['SHA3', ['memusegas', 'bswap_m256', 'bswap_i64', 'check_overflow', 'keccak', 'memcpy', 'memset']],
+  ['SHA3', ['memusegas', 'bswap_m256', 'check_overflow', 'keccak']],
   ['CALL', ['memusegas', 'check_overflow_i64', 'check_overflow', 'memset']],
+  ['DELEGATECALL', ['memusegas', 'check_overflow', 'memset']],
   ['CALLCODE', ['memusegas', 'check_overflow', 'memset']],
   ['CREATE', ['memusegas', 'check_overflow']],
   ['RETURN', ['memusegas', 'check_overflow']]
@@ -56,8 +61,8 @@ exports.compile = function (evmCode, opts = {
  */
 exports.wast2wasm = function (wast) {
   fs.writeFileSync('temp.wast', wast)
-  cp.execSync(`${__dirname}/tools/sexpr-wasm-prototype/out/sexpr-wasm ./temp.wast -o ./temp.wasm`)
-  return fs.readFileSync('./temp.wasm')
+  cp.execSync(`${__dirname}/tools/sexpr-wasm-prototype/out/sexpr-wasm ${__dirname}/temp.wast -o ${__dirname}/temp.wasm`)
+  return fs.readFileSync(`${__dirname}/temp.wasm`)
 }
 
 /**

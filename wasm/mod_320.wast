@@ -36,7 +36,7 @@
   (set_local $maske (i64.const 1))
   (block $main
     ;; check div by 0
-    (if (call $isZero_320 (get_local $a1) (get_local $b1) (get_local $c1) (get_local $d1) (get_local $e1)) 
+    (if (call $iszero_320 (get_local $a1) (get_local $b1) (get_local $c1) (get_local $d1) (get_local $e1)) 
       (then
         (set_local $a (i64.const 0))
         (set_local $b (i64.const 0))
@@ -74,7 +74,7 @@
 
     (loop $done $loop
       ;; loop while mask != 0
-      (if (call $isZero_320 (get_local $maska) (get_local $maskb) (get_local $maskc) (get_local $maskd) (get_local $maske))
+      (if (call $iszero_320 (get_local $maska) (get_local $maskb) (get_local $maskc) (get_local $maskd) (get_local $maske))
         (br $done)
       )
       ;; if dividend >= divisor

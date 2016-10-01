@@ -42,14 +42,14 @@
 
   ;; charge copy fee ceil(words/32) * 6 
   (call_import $useGas (i64.extend_u/i32 (i32.mul (i32.div_u (i32.add (get_local $length) (i32.const 31)) (i32.const 32)) (i32.const 6))))
-  (call $memUseGas (get_local $dataOffset) (get_local $length))
+  (call $memusegas (get_local $dataOffset) (get_local $length))
 
   (set_local $dataOffset (i32.add (get_local $memstart) (get_local $dataOffset)))
 
   (set_local $contextOffset (i32.const 32808))
   (set_local $outputOffset (i32.sub (get_local $sp) (i32.const 32)))
 
-  (call $KECCAK (get_local $contextOffset) (get_local $dataOffset) (get_local $length) (get_local $outputOffset))
+  (call $keccak (get_local $contextOffset) (get_local $dataOffset) (get_local $length) (get_local $outputOffset))
 
   (call $bswap_m256 (get_local $outputOffset))
 )
