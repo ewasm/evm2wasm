@@ -95,7 +95,6 @@ exports.evm2wast = function (evmCode, opts = {
   const opcodesUsed = new Set()
   const ignoredOps = new Set(['JUMP', 'JUMPI', 'JUMPDEST', 'POP', 'STOP', 'INVALID'])
   const callBackOps = new Set(['SSTORE', 'SLOAD', 'CREATE', 'CALL', 'DELEGATECALL', 'CALLCODE', 'EXTCODECOPY', 'EXTCODESIZE', 'CODECOPY', 'CODESIZE', 'BALANCE'])
-  let callBackNumber = 0
   // an array of found segments
   const jumpSegments = []
   // the transcompiled EVM code
@@ -170,7 +169,7 @@ exports.evm2wast = function (evmCode, opts = {
       case 'JUMPDEST':
         addStackCheck()
         addMetering()
-        jumpSegments.push([segment, jumpDestNum])
+        jumpSegments.push([segment, jumpDestNum, 'jump_dest'])
         segment = ''
         jumpDestNum = i
         gasCount = 1
@@ -236,13 +235,11 @@ exports.evm2wast = function (evmCode, opts = {
         i = findNextJumpDest(evmCode, i)
         break
       default:
-        wasmCode = `${wasmCode} (call $${op.name} (get_local $sp)`
-
         if (callBackOps.has(op.name)) {
-          wasmCode += `(i32.const ${callBackNumber})`
-          callBackNumber++
+          wasmCode = `${wasmCode} (call $${op.name} (get_local $sp) (i32.const 0))`
+        } else {
+          wasmCode = `${wasmCode} (call $${op.name} (get_local $sp))`
         }
-        wasmCode += ')'
     }
 
     if (!ignoredOps.has(op.name)) {
@@ -262,7 +259,7 @@ exports.evm2wast = function (evmCode, opts = {
   }
   addStackCheck()
   addMetering()
-  jumpSegments.push([segment, jumpDestNum])
+  jumpSegments.push([segment, jumpDestNum, 'jump_dest'])
 
   let mainFunc = assmebleSegments(jumpSegments)
 
@@ -272,6 +269,7 @@ exports.evm2wast = function (evmCode, opts = {
   }
 
   let funcMap = []
+  // inline EVM opcode implemention
   if (opts.inlineOps) {
     funcMap = exports.resolveFunctions(opcodesUsed)
   }
@@ -324,7 +322,8 @@ function assmebleSegments (segments) {
   return `
     (export "main" $main)
       (func $main 
-           (param $jump_dest i32)
+           (param $contuation_dest i32)
+           (local $jump_dest i32)
            (local $sp i32) 
            (set_local $sp (i32.const -32)) 
            (set_local $jump_dest (i32.const -1)) 
@@ -341,7 +340,7 @@ function buildJumpMap (segments) {
 
   segments.forEach((seg, index) => {
     brTable += ' $' + index
-    wasm = `(if (i32.eq (get_local $jump_dest) (i32.const ${seg[1]}))
+    wasm = `(if (i32.eq (get_local $${seg[2]}) (i32.const ${seg[1]}))
                   (then (i32.const ${index}))
                   (else ${wasm}))`
   })
