@@ -94,6 +94,8 @@ exports.evm2wast = function (evmCode, opts = {
   // to figure out what .wast files to include
   const opcodesUsed = new Set()
   const ignoredOps = new Set(['JUMP', 'JUMPI', 'JUMPDEST', 'POP', 'STOP', 'INVALID'])
+  const callBackOps = new Set(['SSTORE', 'SLOAD', 'CREATE', 'CALL', 'DELEGATECALL', 'CALLCODE', 'EXTCODECOPY', 'EXTCODESIZE', 'CODECOPY', 'CODESIZE', 'BALANCE'])
+  let callBackNumber = 0
   // an array of found segments
   const jumpSegments = []
   // the transcompiled EVM code
@@ -234,7 +236,13 @@ exports.evm2wast = function (evmCode, opts = {
         i = findNextJumpDest(evmCode, i)
         break
       default:
-        wasmCode = `${wasmCode} (call $${op.name} (get_local $sp))`
+        wasmCode = `${wasmCode} (call $${op.name} (get_local $sp)`
+
+        if (callBackOps.has(op.name)) {
+          wasmCode += `(i32.const ${callBackNumber})`
+          callBackNumber++
+        }
+        wasmCode += ')'
     }
 
     if (!ignoredOps.has(op.name)) {
@@ -316,8 +324,8 @@ function assmebleSegments (segments) {
   return `
     (export "main" $main)
       (func $main 
+           (param $jump_dest i32)
            (local $sp i32) 
-           (local $jump_dest i32)
            (set_local $sp (i32.const -32)) 
            (set_local $jump_dest (i32.const -1)) 
            (loop $done $loop
