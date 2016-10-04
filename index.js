@@ -60,7 +60,7 @@ exports.compile = function (evmCode, opts = {
  * @return {buffer}
  */
 exports.wast2wasm = function (wast) {
-  fs.writeFileSync('temp.wast', wast)
+  fs.writeFileSync(`${__dirname}/temp.wast`, wast)
   cp.execSync(`${__dirname}/tools/sexpr-wasm-prototype/out/sexpr-wasm ${__dirname}/temp.wast -o ${__dirname}/temp.wasm`)
   return fs.readFileSync(`${__dirname}/temp.wasm`)
 }
@@ -130,8 +130,7 @@ exports.evm2wast = function (evmCode, opts = {
     switch (op.name) {
       case 'JUMP':
         jumpFound = true
-        wasmCode = `${wasmCode}
-                    ;; jump
+        segment += `;; jump
                       (set_local $jump_dest (call $check_overflow 
                                              (i64.load (get_local $sp))
                                              (i64.load (i32.add (get_local $sp) (i32.const 8)))
@@ -144,8 +143,7 @@ exports.evm2wast = function (evmCode, opts = {
         break
       case 'JUMPI':
         jumpFound = true
-        wasmCode = `${wasmCode}
-                    (set_local $jump_dest (call $check_overflow 
+        segment += `(set_local $jump_dest (call $check_overflow 
                                              (i64.load (get_local $sp))
                                              (i64.load (i32.add (get_local $sp) (i32.const 8)))
                                              (i64.load (i32.add (get_local $sp) (i32.const 16)))
@@ -167,27 +165,24 @@ exports.evm2wast = function (evmCode, opts = {
         addMetering()
         break
       case 'JUMPDEST':
-        addStackCheck()
-        addMetering()
-        jumpSegments.push([segment, jumpDestNum, 'jump_dest'])
-        segment = ''
+        addJumpSegment()
         jumpDestNum = i
         gasCount = 1
         break
       case 'GAS':
-        wasmCode = `${wasmCode} (call $${op.name} (get_local $sp))`
+        segment += `(call $${op.name} (get_local $sp))`
         addMetering()
         break
       case 'LOG':
-        wasmCode = `${wasmCode} (call $${op.name} (i32.const ${op.number}) (get_local $sp))`
+        segment += `(call $${op.name} (i32.const ${op.number}) (get_local $sp))`
         break
       case 'DUP':
       case 'SWAP':
         // adds the number on the stack to SWAP
-        wasmCode = `${wasmCode} (call $${op.name} (i32.const ${op.number - 1}) (get_local $sp)) `
+        segment += `(call $${op.name} (i32.const ${op.number - 1}) (get_local $sp)) `
         break
       case 'PC':
-        wasmCode = `${wasmCode} (call $${op.name} (i32.const ${i}) (get_local $sp))`
+        segment += `(call $${op.name} (i32.const ${i}) (get_local $sp))`
         break
       case 'PUSH':
         i++
@@ -205,14 +200,14 @@ exports.evm2wast = function (evmCode, opts = {
           push = push + `(i64.const ${int64})`
         }
 
-        wasmCode = `${wasmCode} (call $${op.name} ${push} (get_local $sp))`
+        segment += `(call $${op.name} ${push} (get_local $sp))`
         i--
         break
       case 'POP':
         // do nothing
         break
       case 'STOP':
-        wasmCode = `${wasmCode} (br $done)`
+        segment += '(br $done)'
         if (jumpFound) {
           i = findNextJumpDest(evmCode, i)
         } else {
@@ -222,7 +217,7 @@ exports.evm2wast = function (evmCode, opts = {
         break
       case 'SUICIDE':
       case 'RETURN':
-        wasmCode = `${wasmCode} (call $${op.name} (get_local $sp)) (br $done)`
+        segment += `(call $${op.name} (get_local $sp)) (br $done)`
         if (jumpFound) {
           i = findNextJumpDest(evmCode, i)
         } else {
@@ -231,14 +226,14 @@ exports.evm2wast = function (evmCode, opts = {
         }
         break
       case 'INVALID':
-        wasmCode = '(unreachable)'
+        segment = '(unreachable)'
         i = findNextJumpDest(evmCode, i)
         break
       default:
         if (callBackOps.has(op.name)) {
-          wasmCode = `${wasmCode} (call $${op.name} (get_local $sp) (i32.const 0))`
+          segment += `(call $${op.name} (get_local $sp) (i32.const 0))`
         } else {
-          wasmCode = `${wasmCode} (call $${op.name} (get_local $sp))`
+          segment += `(call $${op.name} (get_local $sp))`
         }
     }
 
@@ -249,19 +244,18 @@ exports.evm2wast = function (evmCode, opts = {
     const stackDeta = op.on - op.off
     // update the stack pointer
     if (stackDeta !== 0) {
-      wasmCode = `${wasmCode} (set_local $sp (i32.add (get_local $sp) (i32.const ${stackDeta * 32})))`
+      segment += `(set_local $sp (i32.add (get_local $sp) (i32.const ${stackDeta * 32})))`
     }
 
     // creates a stack trace
     if (opts.stackTrace) {
-      wasmCode = `${wasmCode} (call_import $stackTrace (get_local $sp) (i32.const ${opint}))`
+      segment += `(call_import $stackTrace (get_local $sp) (i32.const ${opint}))`
     }
   }
-  addStackCheck()
-  addMetering()
-  jumpSegments.push([segment, jumpDestNum, 'jump_dest'])
 
-  let mainFunc = assmebleSegments(jumpSegments)
+  addJumpSegment()
+
+  let mainFunc = assmebleSegments(jumpSegments) + wasmCode + '))'
 
   // import stack trace function
   if (opts.stackTrace) {
@@ -281,13 +275,6 @@ exports.evm2wast = function (evmCode, opts = {
   }
   return wasmCode
 
-  // add a metering statment at the beginning of a segment
-  function addMetering () {
-    segment = `${segment} (call_import $useGas (i64.const ${gasCount})) ${wasmCode}`
-    wasmCode = ''
-    gasCount = 0
-  }
-
   // adds stack height checks to the beginning of a segment
   function addStackCheck () {
     let check = ''
@@ -299,10 +286,24 @@ exports.evm2wast = function (evmCode, opts = {
       check += `(if (i32.lt_s (get_local $sp) (i32.const ${-segmentStackLow * 32 - 32})) 
                   (then (unreachable)))`
     }
-    wasmCode = check + wasmCode
+    segment = check + segment
     segmentStackHigh = 0
     segmentStackLow = 0
     segmentStackDeta = 0
+  }
+
+  // add a metering statment at the beginning of a segment
+  function addMetering () {
+    wasmCode += `(call_import $useGas (i64.const ${gasCount})) ` + segment
+    segment = ''
+    gasCount = 0
+  }
+
+  function addJumpSegment () {
+    segment += ')'
+    addStackCheck()
+    addMetering()
+    jumpSegments.push({number: jumpDestNum, type: 'jump_dest'})
   }
 }
 
@@ -311,15 +312,12 @@ exports.evm2wast = function (evmCode, opts = {
 // @return {String}
 function assmebleSegments (segments) {
   let wasm = buildJumpMap(segments)
-  let jumpSegOffset = 0
 
   segments.forEach((seg, index) => {
-    // if its a jump
-    wasm = `(block $${index + 1 - jumpSegOffset} 
-               ${wasm}
-               ${seg[0]})`
+    wasm = `(block $${index + 1} ${wasm}`
   })
-  return `
+
+  wasm = `
     (export "main" $main)
       (func $main 
            (param $contuation_dest i32)
@@ -328,7 +326,9 @@ function assmebleSegments (segments) {
            (set_local $sp (i32.const -32)) 
            (set_local $jump_dest (i32.const -1)) 
            (loop $done $loop
-            ${wasm}))`
+            ${wasm}`
+
+  return wasm
 }
 
 // Builds the Jump map, which maps EVM jump location to a block label
@@ -340,7 +340,7 @@ function buildJumpMap (segments) {
 
   segments.forEach((seg, index) => {
     brTable += ' $' + index
-    wasm = `(if (i32.eq (get_local $${seg[2]}) (i32.const ${seg[1]}))
+    wasm = `(if (i32.eq (get_local $${seg.type}) (i32.const ${seg.number}))
                   (then (i32.const ${index}))
                   (else ${wasm}))`
   })
