@@ -100,8 +100,6 @@ exports.evm2wast = function (evmCode, opts = {
   // the transcompiled EVM code
   let wasmCode = ''
   let segment = ''
-  // used to translate the local in EVM of JUMPDEST to a wasm block label
-  let jumpDestNum = -1
   // keeps track of the gas that each section uses
   let gasCount = 0
   // used for pruning dead code
@@ -110,6 +108,8 @@ exports.evm2wast = function (evmCode, opts = {
   let segmentStackDeta = 0
   let segmentStackHigh = 0
   let segmentStackLow = 0
+
+  jumpSegments.push({number: -1, type: 'jump_dest'})
 
   for (let i = 0; i < evmCode.length; i++) {
     const opint = evmCode[i]
@@ -165,8 +165,8 @@ exports.evm2wast = function (evmCode, opts = {
         addMetering()
         break
       case 'JUMPDEST':
-        addJumpSegment()
-        jumpDestNum = i
+        endSegment()
+        jumpSegments.push({number: i, type: 'jump_dest'})
         gasCount = 1
         break
       case 'GAS':
@@ -253,13 +253,13 @@ exports.evm2wast = function (evmCode, opts = {
     }
   }
 
-  addJumpSegment()
+  endSegment()
 
-  let mainFunc = assmebleSegments(jumpSegments) + wasmCode + '))'
+  wasmCode = assmebleSegments(jumpSegments) + wasmCode
 
   // import stack trace function
   if (opts.stackTrace) {
-    mainFunc = '(import $stackTrace "debug" "evmStackTrace" (param i32 i32) (result i32))' + mainFunc
+    wasmCode = '(import $stackTrace "debug" "evmStackTrace" (param i32 i32) (result i32))' + wasmCode
   }
 
   let funcMap = []
@@ -268,8 +268,9 @@ exports.evm2wast = function (evmCode, opts = {
     funcMap = exports.resolveFunctions(opcodesUsed)
   }
 
-  funcMap.push(mainFunc)
+  funcMap.push(wasmCode)
   wasmCode = exports.buildModule(funcMap)
+  // pretty print the s-exporesion
   if (opts.pprint) {
     wasmCode = pprint(wasmCode)
   }
@@ -299,11 +300,11 @@ exports.evm2wast = function (evmCode, opts = {
     gasCount = 0
   }
 
-  function addJumpSegment () {
+  // finishes off a segment
+  function endSegment () {
     segment += ')'
     addStackCheck()
     addMetering()
-    jumpSegments.push({number: jumpDestNum, type: 'jump_dest'})
   }
 }
 
@@ -317,18 +318,22 @@ function assmebleSegments (segments) {
     wasm = `(block $${index + 1} ${wasm}`
   })
 
-  wasm = `
+  return `
     (export "main" $main)
       (func $main 
-           (param $contuation_dest i32)
+           (local $cb_dest i32)
+           (local $cb_dest_loc i32)
            (local $jump_dest i32)
-           (local $sp i32) 
-           (set_local $sp (i32.const -32)) 
+           (local $sp i32)
+
+           (set_local $cb_dest_loc (i32.const 32780))
+           (set_local $cb_dest (i32.load (get_local $cb_dest_loc)))
+           ;; clear cb jump dest 
+           (i32.store (get_local $cb_dest_loc) (i32.const 0))
+           (set_local $sp (i32.const -32))
            (set_local $jump_dest (i32.const -1)) 
            (loop $done $loop
-            ${wasm}`
-
-  return wasm
+            ${wasm}))`
 }
 
 // Builds the Jump map, which maps EVM jump location to a block label
