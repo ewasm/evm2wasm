@@ -109,8 +109,6 @@ exports.evm2wast = function (evmCode, opts = {
   let segmentStackHigh = 0
   let segmentStackLow = 0
 
-  jumpSegments.push({number: -1, type: 'jump_dest'})
-
   for (let i = 0; i < evmCode.length; i++) {
     const opint = evmCode[i]
     const op = opcodes(opint)
@@ -231,7 +229,14 @@ exports.evm2wast = function (evmCode, opts = {
         break
       default:
         if (callBackOps.has(op.name)) {
-          segment += `(call $${op.name} (get_local $sp) (i32.const 0))`
+          segment += `(call $${op.name} (get_local $sp) (i32.const 0))
+          (i32.store (get_local $cb_dest_loc) (i32.const ${jumpSegments.length + 1}))
+          (i32.store (get_local $sp_loc) (get_local $sp))
+          (br $done))
+          ;; zero out the callback jumpdestion 
+          (set_local $cb_dest (i32.const 0))
+          `
+          jumpSegments.push({type: 'cb_dest'})
         } else {
           segment += `(call $${op.name} (get_local $sp))`
         }
@@ -255,7 +260,7 @@ exports.evm2wast = function (evmCode, opts = {
 
   endSegment()
 
-  wasmCode = assmebleSegments(jumpSegments) + wasmCode
+  wasmCode = assmebleSegments(jumpSegments) + wasmCode + ')'
 
   // import stack trace function
   if (opts.stackTrace) {
@@ -320,34 +325,55 @@ function assmebleSegments (segments) {
 
   return `
     (export "main" $main)
-      (func $main 
-           (local $cb_dest i32)
-           (local $cb_dest_loc i32)
-           (local $jump_dest i32)
-           (local $sp i32)
+    (export "0" $callback)
+    (func $callback
+      (call $main (i32.const 1))
+    )
+    (func $main
+         (param $notFirstRun i32)
+         (local $cb_dest i32)
+         (local $cb_dest_loc i32)
+         (local $jump_dest i32)
+         (local $sp i32)
+         (local $sp_loc i32)
 
-           (set_local $cb_dest_loc (i32.const 32780))
-           (set_local $cb_dest (i32.load (get_local $cb_dest_loc)))
-           ;; clear cb jump dest 
-           (i32.store (get_local $cb_dest_loc) (i32.const 0))
-           (set_local $sp (i32.const -32))
-           (set_local $jump_dest (i32.const -1)) 
-           (loop $done $loop
-            ${wasm}))`
+         ;; set up call back destion
+         (set_local $cb_dest_loc (i32.const 32780))
+         (set_local $cb_dest (i32.load (get_local $cb_dest_loc)))
+
+         ;; set up the stack pointer
+         (set_local $sp_loc (i32.const 32788))
+         (set_local $sp (i32.load (get_local $sp_loc)))
+
+         (set_local $jump_dest (i32.const -1))
+         (loop $done $loop
+          ${wasm}`
 }
 
 // Builds the Jump map, which maps EVM jump location to a block label
 // @param {Array} segments
 // @return {String}
 function buildJumpMap (segments) {
-  let wasm = '(unreachable)'
+  let wasm = `
+  (if (i32.eqz (get_local $notFirstRun))
+    (then 
+     (set_local $notFirstRun (i32.const 1))
+     (set_local $sp (i32.const -32))
+     (i32.const 0))
+    (else 
+     (if (i32.eq (get_local $cb_dest) (i32.const 0)) 
+      (then (unreachable))
+      (else (get_local $cb_dest)))))`
+
   let brTable = '(block $0 (br_table'
 
   segments.forEach((seg, index) => {
     brTable += ' $' + index
-    wasm = `(if (i32.eq (get_local $${seg.type}) (i32.const ${seg.number}))
-                  (then (i32.const ${index}))
-                  (else ${wasm}))`
+    if (seg.type === 'jump_dest') {
+      wasm = `(if (i32.eq (get_local $${seg.type}) (i32.const ${seg.number}))
+                    (then (i32.const ${index + 1}))
+                    (else ${wasm}))`
+    }
   })
 
   brTable += wasm + '))'

@@ -4,23 +4,21 @@
     "source": [
       "PUSH1",
       "0x04",
-      "JUMP",
-      "STOP",
-      "JUMPDEST",
       "PUSH1",
       "0x03",
+      "SSTORE",
       "PUSH1",
-      "0x03",
-      "ADD"
+      "0x04",
+      "SLOAD"
     ],
-    "code": "0x600456005b6003600301",
+    "code": "0x6004600355600454",
     "result": {
       "stack": [
-        "0x06"
+        "0x03"
       ],
       "memory": []
     },
-    "gasUsed": 21,
+    "gasUsed": 20009,
     "environment": {
       "coinbase": "0x0000000000000000000000000000000000000000",
       "origin": "0x0000000000000000000000000000000000000000"
