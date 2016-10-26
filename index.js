@@ -330,7 +330,7 @@ function assmebleSegments (segments) {
       (call $main (i32.const 1))
     )
     (func $main
-         (param $notFirstRun i32)
+         (param $isCallback i32)
          (local $cb_dest i32)
          (local $cb_dest_loc i32)
          (local $jump_dest i32)
@@ -345,7 +345,16 @@ function assmebleSegments (segments) {
          (set_local $sp_loc (i32.const 32788))
          (set_local $sp (i32.load (get_local $sp_loc)))
 
-         (set_local $jump_dest (i32.const -1))
+         (if (i32.eqz (get_local $isCallback))
+           (then 
+             (set_local $sp (i32.const -32))
+             (set_local $jump_dest (i32.const -1)))
+           (else 
+             ;; sets jump dest to a invalid location
+             (set_local $jump_dest (i32.const -2))
+           )
+         )
+
          (loop $done $loop
           ${wasm}`
 }
@@ -355,22 +364,23 @@ function assmebleSegments (segments) {
 // @return {String}
 function buildJumpMap (segments) {
   let wasm = `
-  (if (i32.eqz (get_local $notFirstRun))
-    (then 
-     (set_local $notFirstRun (i32.const 1))
-     (set_local $sp (i32.const -32))
-     (i32.const 0))
-    (else 
-     (if (i32.eq (get_local $cb_dest) (i32.const 0)) 
-      (then (unreachable))
-      (else (get_local $cb_dest)))))`
+    (if (i32.eq (get_local $jump_dest) (i32.const -1))
+      (then (i32.const 0))
+      (else 
+        ;; the callback dest can never be in the first block
+        (if (i32.eq (get_local $cb_dest) (i32.const 0)) 
+          (then (unreachable))
+          (else 
+            ;; use sp_loc as temp
+            (set_local $sp_loc (get_local $cb_dest))
+            (set_local $cb_dest (i32.const 0))
+            (get_local $sp_loc)))))`
 
-  let brTable = '(block $0 (br_table'
-
+  let brTable = '(block $0 (br_table $0'
   segments.forEach((seg, index) => {
     brTable += ' $' + index
     if (seg.type === 'jump_dest') {
-      wasm = `(if (i32.eq (get_local $${seg.type}) (i32.const ${seg.number}))
+      wasm = `(if (i32.eq (get_local $jump_dest) (i32.const ${seg.number}))
                     (then (i32.const ${index + 1}))
                     (else ${wasm}))`
     }
@@ -416,7 +426,7 @@ function resolveFunctionDeps (funcSet) {
   for (let func of funcSet) {
     const deps = depMap.get(func)
     if (deps) {
-      for (var dep of deps) {
+      for (const dep of deps) {
         funcs.add(dep)
       }
     }
