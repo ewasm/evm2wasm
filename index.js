@@ -233,8 +233,6 @@ exports.evm2wast = function (evmCode, opts = {
           (i32.store (get_local $cb_dest_loc) (i32.const ${jumpSegments.length + 1}))
           (i32.store (get_local $sp_loc) (get_local $sp))
           (br $done))
-          ;; zero out the callback jumpdestion 
-          (set_local $cb_dest (i32.const 0))
           `
           jumpSegments.push({type: 'cb_dest'})
         } else {
@@ -337,19 +335,18 @@ function assmebleSegments (segments) {
          (local $sp i32)
          (local $sp_loc i32)
 
-         ;; set up call back destion
          (set_local $cb_dest_loc (i32.const 32780))
-         (set_local $cb_dest (i32.load (get_local $cb_dest_loc)))
-
-         ;; set up the stack pointer
          (set_local $sp_loc (i32.const 32788))
-         (set_local $sp (i32.load (get_local $sp_loc)))
 
          (if (i32.eqz (get_local $isCallback))
            (then 
              (set_local $sp (i32.const -32))
              (set_local $jump_dest (i32.const -1)))
            (else 
+             ;; set up the stack pointer
+             (set_local $sp (i32.load (get_local $sp_loc)))
+             ;; set up call back destion
+             (set_local $cb_dest (i32.load (get_local $cb_dest_loc)))
              ;; sets jump dest to a invalid location
              (set_local $jump_dest (i32.const -2))
            )
@@ -366,7 +363,7 @@ function buildJumpMap (segments) {
   let wasm = `
     (if (i32.eq (get_local $jump_dest) (i32.const -1))
       (then (i32.const 0))
-      (else 
+      (else
         ;; the callback dest can never be in the first block
         (if (i32.eq (get_local $cb_dest) (i32.const 0)) 
           (then (unreachable))

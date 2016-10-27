@@ -3,15 +3,15 @@
     "description": "tests sstore",
     "source": [
       "PUSH1",
-      "0x04",
-      "PUSH1",
       "0x03",
+      "PUSH1",
+      "0x04",
       "SSTORE",
       "PUSH1",
       "0x04",
       "SLOAD"
     ],
-    "code": "0x6004600355600454",
+    "code": "0x6003600455600454",
     "result": {
       "stack": [
         "0x03"
