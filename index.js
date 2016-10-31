@@ -94,7 +94,7 @@ exports.evm2wast = function (evmCode, opts = {
   // to figure out what .wast files to include
   const opcodesUsed = new Set()
   const ignoredOps = new Set(['JUMP', 'JUMPI', 'JUMPDEST', 'POP', 'STOP', 'INVALID'])
-  const callBackOps = new Set(['SSTORE', 'SLOAD', 'CREATE', 'CALL', 'DELEGATECALL', 'CALLCODE', 'EXTCODECOPY', 'EXTCODESIZE', 'CODECOPY', 'CODESIZE', 'BALANCE'])
+  const callBackOps = new Set(['SSTORE', 'SLOAD', 'CREATE', 'CALL', 'DELEGATECALL', 'CALLCODE', 'EXTCODECOPY', 'EXTCODESIZE', 'CODECOPY', 'CODESIZE', 'BALANCE', 'BLOCKHASH'])
   // an array of found segments
   const jumpSegments = []
   // the transcompiled EVM code

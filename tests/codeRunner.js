@@ -45,19 +45,21 @@ tape('testing transcompiler', async (t) => {
       } catch (e) {
         t.comment('WASM exception: ' + e)
         t.true(test.trapped, 'should trap')
-        return
       }
-      // check the gas used
-      const gasUsed = startGas - environment.gasLeft
-      t.equals(gasUsed, test.gasUsed, 'should have correct gas')
 
-      // check the results
-      test.result.stack.forEach((item, index) => {
-        const sp = index * 32
-        const expectedItem = new Uint8Array(ethUtil.setLength(new Buffer(item.slice(2), 'hex'), 32)).reverse()
-        const result = new Uint8Array(kernel.instance.exports.memory).slice(sp, sp + 32)
-        t.equals(result.toString(), expectedItem.toString(), 'should have correct item on stack')
-      })
+      if (!test.trapped) {
+        // check the gas used
+        const gasUsed = startGas - environment.gasLeft
+        t.equals(gasUsed, test.gasUsed, 'should have correct gas')
+
+        // check the results
+        test.result.stack.forEach((item, index) => {
+          const sp = index * 32
+          const expectedItem = new Uint8Array(ethUtil.setLength(new Buffer(item.slice(2), 'hex'), 32)).reverse()
+          const result = new Uint8Array(kernel.instance.exports.memory).slice(sp, sp + 32)
+          t.equals(result.toString(), expectedItem.toString(), 'should have correct item on stack')
+        })
+      }
     }
   }
   t.end()

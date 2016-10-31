@@ -85,6 +85,7 @@ const interfaceManifest = {
   },
   BLOCKHASH: {
     name: 'getBlockHash',
+    async: true,
     input: ['i32'],
     output: ['i256']
   },
