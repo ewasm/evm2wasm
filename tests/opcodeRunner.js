@@ -2,7 +2,7 @@ const fs = require('fs')
 const tape = require('tape')
 const Kernel = require('ewasm-kernel')
 const KernelInterface = require('ewasm-kernel/interface.js')
-const KernelEnvironment = require('ewasm-kernel/environment.js')
+const KernelEnvironment = require('ewasm-kernel/testEnvironment.js')
 const Address = require('ewasm-kernel/deps/address.js')
 const ethUtil = require('ethereumjs-util')
 const compiler = require('../index.js')
@@ -29,6 +29,10 @@ tape('testing EVM1 Ops', async t => {
       t.comment(`testing ${test.op} ${test.description}`)
 
       const funcs = compiler.resolveFunctions(new Set([test.op]))
+      funcs.push(`
+        (export "0" $callback)
+        (func $callback)`)
+
       const linked = compiler.buildModule(funcs, [], [test.op])
       const wasm = compiler.wast2wasm(linked)
       const kernel = new Kernel()
@@ -72,6 +76,7 @@ tape('testing EVM1 Ops', async t => {
 
       try {
         testInstance.exports[test.op](...(test.params || []), sp) + 32
+        await kernel.onDone()
       } catch (e) {
         t.fail('WASM exception: ' + e)
       }
@@ -118,9 +123,6 @@ tape('testing EVM1 Ops', async t => {
   }
   t.end()
 })
-
-function buildTest (op, ethInterface) {
-}
 
 function hexToUint8Array (item, length) {
   return new Uint8Array(ethUtil.setLength(new Buffer(item.slice(2), 'hex'), length || 32))
