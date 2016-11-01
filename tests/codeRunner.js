@@ -2,10 +2,9 @@ const fs = require('fs')
 const tape = require('tape')
 const evm2wasm = require('../index.js')
 const ethUtil = require('ethereumjs-util')
-const Kernel = require('ewasm-kernel')
+const Kernel = require('ewasm-kernel/debugKernel')
 const Enviroment = require('ewasm-kernel/environment')
 const Address = require('ewasm-kernel/deps/address')
-const Interface = require('ewasm-kernel/interface')
 const argv = require('minimist')(process.argv.slice(2))
 
 const dir = `${__dirname}/code/`
@@ -18,7 +17,7 @@ if (argv.file) {
   testFiles = fs.readdirSync(dir).filter((name) => name.endsWith('.json'))
 }
 
-tape('testing transcompiler', async (t) => {
+tape('testing transcompiler', async t => {
   for (let path of testFiles) {
     t.comment(path)
     let codeTests = require(dir + path)
@@ -34,16 +33,14 @@ tape('testing transcompiler', async (t) => {
       }
 
       const startGas = environment.gasLeft
-      const ethInterface = new Interface(environment)
 
       const code = new Buffer(test.code.slice(2), 'hex')
       const compiled = evm2wasm.compile(code)
       const kernel = new Kernel()
 
       try {
-        await kernel.codeHandler(compiled, ethInterface)
+        await kernel.codeHandler(compiled, environment)
       } catch (e) {
-        t.comment('WASM exception: ' + e)
         t.true(test.trapped, 'should trap')
       }
 
@@ -56,7 +53,7 @@ tape('testing transcompiler', async (t) => {
         test.result.stack.forEach((item, index) => {
           const sp = index * 32
           const expectedItem = new Uint8Array(ethUtil.setLength(new Buffer(item.slice(2), 'hex'), 32)).reverse()
-          const result = new Uint8Array(kernel.instance.exports.memory).slice(sp, sp + 32)
+          const result = new Uint8Array(kernel.memory).slice(sp, sp + 32)
           t.equals(result.toString(), expectedItem.toString(), 'should have correct item on stack')
         })
       }
