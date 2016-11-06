@@ -2,7 +2,7 @@ const fs = require('fs')
 const tape = require('tape')
 const evm2wasm = require('../index.js')
 const ethUtil = require('ethereumjs-util')
-const Kernel = require('ewasm-kernel/debugKernel')
+const Kernel = require('ewasm-kernel')
 const Enviroment = require('ewasm-kernel/environment')
 const Address = require('ewasm-kernel/deps/address')
 const argv = require('minimist')(process.argv.slice(2))
@@ -36,11 +36,14 @@ tape('testing transcompiler', async t => {
 
       const code = new Buffer(test.code.slice(2), 'hex')
       const compiled = evm2wasm.compile(code)
-      const kernel = new Kernel()
+      const kernel = new Kernel({
+        code: compiled
+      })
 
       try {
-        await kernel.codeHandler(compiled, environment)
+        await kernel.run(environment)
       } catch (e) {
+        console.log(e);
         t.true(test.trapped, 'should trap')
       }
 
@@ -53,7 +56,7 @@ tape('testing transcompiler', async t => {
         test.result.stack.forEach((item, index) => {
           const sp = index * 32
           const expectedItem = new Uint8Array(ethUtil.setLength(new Buffer(item.slice(2), 'hex'), 32)).reverse()
-          const result = new Uint8Array(kernel.memory).slice(sp, sp + 32)
+          const result = new Uint8Array(kernel.interfaceAPI.memory).slice(sp, sp + 32)
           t.equals(result.toString(), expectedItem.toString(), 'should have correct item on stack')
         })
       }

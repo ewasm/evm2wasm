@@ -1,6 +1,6 @@
 const fs = require('fs')
 const tape = require('tape')
-const Kernel = require('ewasm-kernel/debugKernel')
+const Kernel = require('ewasm-kernel')
 const KernelEnvironment = require('ewasm-kernel/testEnvironment.js')
 const Address = require('ewasm-kernel/deps/address.js')
 const ethUtil = require('ethereumjs-util')
@@ -33,16 +33,18 @@ tape('testing EVM1 Ops', async t => {
 
       const linked = compiler.buildModule(funcs, [], [test.op])
       const wasm = compiler.wast2wasm(linked)
-      const kernel = new Kernel()
+      const kernel = new Kernel({
+        code: wasm
+      })
 
       try {
-        await kernel.codeHandler(wasm, testEnvironment)
+        await kernel.run(testEnvironment)
       } catch (e) {
         t.fail('WASM exception: ' + e)
         return
       }
 
-      let testInstance = kernel.instance
+      let testInstance = kernel.interfaceAPI._instance
 
       // populate the environment
       testEnvironment.caller = new Address(test.environment.caller)
@@ -74,7 +76,7 @@ tape('testing EVM1 Ops', async t => {
 
       try {
         testInstance.exports[test.op](...(test.params || []), sp) + 32
-        await kernel.onDone()
+        await kernel.interfaceAPI.onDone()
       } catch (e) {
         t.fail('WASM exception: ' + e)
       }

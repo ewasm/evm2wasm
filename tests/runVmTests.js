@@ -4,38 +4,39 @@ const ethUtil = require('ethereumjs-util')
 const testing = require('ethereumjs-testing')
 const Kernel = require('ewasm-kernel')
 const Environment = require('ewasm-kernel/environment.js')
-const Address = require('ewasm-kernel/address.js')
-const U256 = require('ewasm-kernel/u256.js')
-const Interface = require('ewasm-kernel/interface')
+const Address = require('ewasm-kernel/deps/address.js')
+const U256 = require('ewasm-kernel/deps/u256.js')
 const evm2wasm = require('../index.js')
+const Vertex = require('merkle-trie')
 
 // tests that we are skipping
-const skipList = [
-  'sha3_bigOffset2' // some wierd memory error when we try to allocate 16mb of mem
-]
+// const skipList = [
+//   'sha3_bigOffset2' // some wierd memory error when we try to allocate 16mb of mem
+// ]
 
-function runner (testData, t, cb) {
+async function runner (testData, t) {
   const code = Buffer.from(testData.exec.code.slice(2), 'hex')
   const evm = evm2wasm.compile(code, {
     stackTrace: argv.trace,
     inlineOps: true,
     pprint: false
   })
-  const enviroment = setupEnviroment(testData)
-  const ethInterface = new Interface(enviroment)
+
+  const rootVertex = new Vertex()
+  const enviroment = setupEnviroment(testData, rootVertex)
 
   try {
-    const kernel = new Kernel()
-    const instance = kernel.codeHandler(evm, ethInterface)
-    checkResults(testData, t, instance, enviroment)
+    const kernel = new Kernel({code: evm})
+    const instance = await kernel.run(enviroment)
+    await checkResults(testData, t, instance, enviroment)
   } catch (e) {
+    console.log(e);
     t.comment(e)
     t.deepEquals({}, testData.post, 'should not have post data')
   }
-  cb()
 }
 
-function setupEnviroment (testData) {
+function setupEnviroment (testData, rootVertex) {
   const env = new Environment()
 
   env.gasLeft = parseInt(testData.exec.gas.slice(2), 16)
@@ -60,19 +61,22 @@ function setupEnviroment (testData) {
 
   for (let address in testData.pre) {
     const account = testData.pre[address]
-    account.code = new Buffer(account.code.slice(2), 'hex')
-    account.balance = new U256(account.balance)
-    // TODO: fix storage
+    const accountVertex = new Vertex()
+    accountVertex.set('code', new Buffer(account.code.slice(2), 'hex'))
+    accountVertex.set('balance', new Buffer(account.balance.slice(2), 'hex'))
+
     for (let key in account.storage) {
-      env.state.set(key.slice(2), new Buffer(account.storage[key].slice(2), 'hex').reverse())
+      accountVertex.set(['storage', key.slice(2)], new Buffer(account.storage[key].slice(2), 'hex').reverse())
     }
-    env.addAccount(address, account)
+
+    rootVertex.set(address, accountVertex)
+    env.state = accountVertex
   }
 
   return env
 }
 
-function checkResults (testData, t, instance, environment) {
+async function checkResults (testData, t, instance, environment) {
   // check gas used
   t.equals(ethUtil.intToHex(environment.gasLeft), testData.gas, 'should have the correct gas')
   // check return value
@@ -85,17 +89,25 @@ function checkResults (testData, t, instance, environment) {
     if (testsStorage) {
       for (let testKey in testsStorage) {
         const testValue = testsStorage[testKey]
-        const key = new Buffer(testKey.slice(2), 'hex').reverse().toString('hex')
-        let value = environment.state.get(key)
+        const key = [...ethUtil.toBuffer(testKey)].reverse()
+        let value = await environment.state.get(key)
         if (value) {
           value = '0x' + new Buffer(value).reverse().toString('hex')
         }
-
         t.equals(value, testValue, `should have correct storage value at key ${key}`)
       }
     }
   }
 }
 
-const tests = testing.getTests('vm', argv)
-testing.runTests(runner, tests, tape, skipList)
+tape('VMTESTS', t => {
+  // console.log(testing);
+  testing.getTestsFromArgs('VMTests', (fileName, testName, tests) => {
+    t.comment(fileName + ' ' + testName)
+    return runner(tests, t).catch(err => {
+      t.fail(err)
+    })
+  }, argv).then(() => {
+    t.end()
+  })
+})
