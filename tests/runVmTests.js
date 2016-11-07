@@ -9,6 +9,9 @@ const U256 = require('ewasm-kernel/deps/u256.js')
 const evm2wasm = require('../index.js')
 const Vertex = require('merkle-trie')
 
+const Interface = require('ewasm-kernel/interface')
+const DebugInterface = require('ewasm-kernel/debugInterface')
+
 // tests that we are skipping
 // const skipList = [
 //   'sha3_bigOffset2' // some wierd memory error when we try to allocate 16mb of mem
@@ -26,11 +29,11 @@ async function runner (testData, t) {
   const enviroment = setupEnviroment(testData, rootVertex)
 
   try {
-    const kernel = new Kernel({code: evm})
+    const kernel = new Kernel({code: evm, interfaces: [Interface, DebugInterface]})
     const instance = await kernel.run(enviroment)
     await checkResults(testData, t, instance, enviroment)
   } catch (e) {
-    console.log(e);
+    // console.log(e);
     t.comment(e)
     t.deepEquals({}, testData.post, 'should not have post data')
   }
@@ -94,7 +97,7 @@ async function checkResults (testData, t, instance, environment) {
         if (value) {
           value = '0x' + new Buffer(value).reverse().toString('hex')
         }
-        t.equals(value, testValue, `should have correct storage value at key ${key}`)
+        t.equals(value, testValue, `should have correcr storage value at key ${key.join('')}`)
       }
     }
   }

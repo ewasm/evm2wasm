@@ -262,7 +262,7 @@ exports.evm2wast = function (evmCode, opts = {
 
   // import stack trace function
   if (opts.stackTrace) {
-    wasmCode = '(import $stackTrace "debug" "evmStackTrace" (param i32 i32) (result i32))' + wasmCode
+    wasmCode = '(import $printMem "debug" "printMemHex" (param i32 i32)) (import $print "debug" "print" (param i32)) (import $stackTrace "debug" "evmStackTrace" (param i32 i32)) ' + wasmCode
   }
 
   let funcMap = []
@@ -369,9 +369,9 @@ function buildJumpMap (segments) {
           (then (unreachable))
           (else 
             ;; use sp_loc as temp
-            (set_local $sp_loc (get_local $cb_dest))
+            (set_local $isCallback (get_local $cb_dest))
             (set_local $cb_dest (i32.const 0))
-            (get_local $sp_loc)))))`
+            (get_local $isCallback)))))`
 
   let brTable = '(block $0 (br_table $0'
   segments.forEach((seg, index) => {

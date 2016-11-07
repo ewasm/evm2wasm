@@ -50,7 +50,7 @@ tape('testing transcompiler', async t => {
       if (!test.trapped) {
         // check the gas used
         const gasUsed = startGas - environment.gasLeft
-        t.equals(gasUsed, test.gasUsed, 'should have correct gas')
+        t.equals(gasUsed, test.gasUsed, 'should use the correct amount of gas')
 
         // check the results
         test.result.stack.forEach((item, index) => {
