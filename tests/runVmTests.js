@@ -9,7 +9,7 @@ const U256 = require('ewasm-kernel/deps/u256.js')
 const evm2wasm = require('../index.js')
 const Vertex = require('merkle-trie')
 
-const Interface = require('ewasm-kernel/interface')
+const Interface = require('ewasm-kernel/EVMinterface')
 const DebugInterface = require('ewasm-kernel/debugInterface')
 
 // tests that we are skipping
@@ -72,7 +72,7 @@ function setupEnviroment (testData, rootVertex) {
       accountVertex.set(['storage', key.slice(2)], new Buffer(account.storage[key].slice(2), 'hex').reverse())
     }
 
-    rootVertex.set(address, accountVertex)
+    rootVertex.set([...new Buffer(address.slice(2), 'hex')], accountVertex)
     env.state = accountVertex
   }
 
