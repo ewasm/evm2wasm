@@ -94,7 +94,21 @@ exports.evm2wast = function (evmCode, opts = {
   // to figure out what .wast files to include
   const opcodesUsed = new Set()
   const ignoredOps = new Set(['JUMP', 'JUMPI', 'JUMPDEST', 'POP', 'STOP', 'INVALID'])
-  const callBackOps = new Set(['SSTORE', 'SLOAD', 'CREATE', 'CALL', 'DELEGATECALL', 'CALLCODE', 'EXTCODECOPY', 'EXTCODESIZE', 'CODECOPY', 'CODESIZE', 'BALANCE', 'BLOCKHASH'])
+  const callBackOps = new Map([
+    ['SSTORE', 0],
+    ['SLOAD', 0],
+    ['CREATE', 0],
+    ['CALL', 0],
+    ['DELEGATECALL', 0],
+    ['CALLCODE', 0],
+    ['EXTCODECOPY', 0],
+    ['EXTCODESIZE', 1],
+    ['CODECOPY', 0],
+    ['CODESIZE', 1],
+    ['BALANCE', 0],
+    ['BLOCKHASH', 0]
+  ])
+
   // an array of found segments
   const jumpSegments = []
   // the transcompiled EVM code
@@ -229,7 +243,7 @@ exports.evm2wast = function (evmCode, opts = {
         break
       default:
         if (callBackOps.has(op.name)) {
-          segment += `(call $${op.name} (get_local $sp) (i32.const 0))
+          segment += `(call $${op.name} (get_local $sp) (i32.const ${callBackOps.get(op.name)}))
           (i32.store (get_local $cb_dest_loc) (i32.const ${jumpSegments.length + 1}))
           (i32.store (get_local $sp_loc) (get_local $sp))
           (br $done))
@@ -324,9 +338,30 @@ function assmebleSegments (segments) {
   return `
     (export "main" $main)
     (export "0" $callback)
+    (export "1" $callback_i32) 
+
+    (func $callback_i32
+      (param $result i32)
+
+      (local $sp i32)
+      (local $sp_loc i32)
+
+      (set_local $sp_loc (i32.const 32788))
+      (set_local $sp (i32.load (get_local $sp_loc)))
+
+      (i64.store (get_local $sp) (i64.extend_u/i32 (get_local $result)))
+      ;; zero out mem
+      (i64.store (i32.add (get_local $sp) (i32.const 24)) (i64.const 0))
+      (i64.store (i32.add (get_local $sp) (i32.const 16)) (i64.const 0))
+      (i64.store (i32.add (get_local $sp) (i32.const 8)) (i64.const 0))
+
+      (call $main (i32.const 1))
+    )
+
     (func $callback
       (call $main (i32.const 1))
     )
+
     (func $main
          (param $isCallback i32)
          (local $cb_dest i32)

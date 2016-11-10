@@ -33,7 +33,6 @@ async function runner (testData, t) {
     const instance = await kernel.run(enviroment)
     await checkResults(testData, t, instance, enviroment)
   } catch (e) {
-    // console.log(e);
     t.comment(e)
     t.deepEquals({}, testData.post, 'should not have post data')
   }
@@ -65,14 +64,22 @@ function setupEnviroment (testData, rootVertex) {
   for (let address in testData.pre) {
     const account = testData.pre[address]
     const accountVertex = new Vertex()
-    accountVertex.set('code', new Buffer(account.code.slice(2), 'hex'))
-    accountVertex.set('balance', new Buffer(account.balance.slice(2), 'hex'))
+    accountVertex.set('code', new Vertex({
+      value: new Buffer(account.code.slice(2), 'hex')
+    }))
+
+    accountVertex.set('balance', new Vertex({
+      value: new Buffer(account.balance.slice(2), 'hex')
+    }))
 
     for (let key in account.storage) {
-      accountVertex.set(['storage', key.slice(2)], new Buffer(account.storage[key].slice(2), 'hex').reverse())
+      accountVertex.set(['storage', key.slice(2)], new Vertex({
+        value: new Buffer(account.storage[key].slice(2), 'hex').reverse()
+      }))
     }
 
-    rootVertex.set([...new Buffer(address.slice(2), 'hex')], accountVertex)
+    const path = [...new Buffer(address.slice(2), 'hex')]
+    rootVertex.set(path, accountVertex)
     env.state = accountVertex
   }
 
@@ -92,19 +99,18 @@ async function checkResults (testData, t, instance, environment) {
     if (testsStorage) {
       for (let testKey in testsStorage) {
         const testValue = testsStorage[testKey]
-        const key = [...ethUtil.toBuffer(testKey)].reverse()
-        let value = await environment.state.get(key)
+        const key = ['storage', ...ethUtil.toBuffer(testKey).reverse()]
+        let {value} = await environment.state.get(key)
         if (value) {
           value = '0x' + new Buffer(value).reverse().toString('hex')
         }
-        t.equals(value, testValue, `should have correcr storage value at key ${key.join('')}`)
+        t.equals(value, testValue, `should have correct storage value at key ${key.join('')}`)
       }
     }
   }
 }
 
 tape('VMTESTS', t => {
-  // console.log(testing);
   testing.getTestsFromArgs('VMTests', (fileName, testName, tests) => {
     t.comment(fileName + ' ' + testName)
     return runner(tests, t).catch(err => {
