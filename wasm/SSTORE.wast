@@ -2,4 +2,4 @@
 (import $storageStore "ethereum" "storageStore" (param i32 i32 i32) )
 (func $SSTORE 
   (param $sp i32)
-  (param $callback i32)  (call_import $storageStore(get_local $sp)(i32.add (get_local $sp) (i32.const -32))(get_local $callback)))
+  (param $callback i32)  (call_import $storageStore(call $bswap_m256 (get_local $sp))(call $bswap_m256 (i32.add (get_local $sp) (i32.const -32)))(get_local $callback)))

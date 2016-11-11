@@ -15,7 +15,7 @@
       (i64.load (i32.add (get_local $sp) (i32.const -40)))))
 
     (call $memusegas (get_local $offset0) (get_local $length0))
-    (set_local $offset0 (i32.add (get_local $memstart) (get_local $offset0))) (call_import $create(get_local $sp)(get_local $offset0)(get_local $length0) (i32.add (get_local $sp) (i32.const -64))(get_local $callback))
+    (set_local $offset0 (i32.add (get_local $memstart) (get_local $offset0))) (call_import $create(call $bswap_m256 (get_local $sp))(get_local $offset0)(get_local $length0) (i32.add (get_local $sp) (i32.const -64))(get_local $callback))
     ;; zero out mem
     (i64.store (i32.add (get_local $sp) (i32.const -40)) (i64.const 0))
     (i32.store (i32.add (get_local $sp) (i32.const -44)) (i32.const 0)))

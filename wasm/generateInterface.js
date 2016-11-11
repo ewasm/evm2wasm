@@ -69,7 +69,7 @@ const interfaceManifest = {
   EXTCODESIZE: {
     name: 'getExternalCodeSize',
     async: true,
-    input: ['pointer'],
+    input: ['address'],
     output: ['i32']
   },
   EXTCODECOPY: {
@@ -202,11 +202,17 @@ for (let opcode in interfaceManifest) {
   let lastOffset
   let call = `(call_import $${op.name}`
   op.input.forEach((input) => {
-    if (input === 'pointer') {
+    if (input === 'address') {
       if (spOffset) {
-        call += `(i32.add (get_local $sp) (i32.const ${spOffset * 32}))`
+        call += `(i32.add (i32.const 12) (call $bswap_m256 (i32.add (get_local $sp) (i32.const ${spOffset * 32}))))`
       } else {
-        call += '(get_local $sp)'
+        call += '(i32.add (i32.const 12) (call $bswap_m256 (get_local $sp)))'
+      }
+    } else if (input === 'pointer') {
+      if (spOffset) {
+        call += `(call $bswap_m256 (i32.add (get_local $sp) (i32.const ${spOffset * 32})))`
+      } else {
+        call += '(call $bswap_m256 (get_local $sp))'
       }
     } else if (input === 'i32') {
       call += `(call $check_overflow

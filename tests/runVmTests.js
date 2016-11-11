@@ -99,10 +99,10 @@ async function checkResults (testData, t, instance, environment) {
     if (testsStorage) {
       for (let testKey in testsStorage) {
         const testValue = testsStorage[testKey]
-        const key = ['storage', ...ethUtil.toBuffer(testKey).reverse()]
+        const key = ['storage', ...ethUtil.toBuffer(testKey)]
         let {value} = await environment.state.get(key)
         if (value) {
-          value = '0x' + new Buffer(value).reverse().toString('hex')
+          value = '0x' + new Buffer(value).toString('hex')
         }
         t.equals(value, testValue, `should have correct storage value at key ${key.join('')}`)
       }

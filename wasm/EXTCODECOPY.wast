@@ -18,7 +18,7 @@
     (set_local $offset0 (i32.add (get_local $memstart) (get_local $offset0)))(call $memset 
     (get_local $offset0) 
     (i32.const 0)
-    (get_local $length0)) (call_import $externalCodeCopy(get_local $sp)(get_local $offset0)(call $check_overflow
+    (get_local $length0)) (call_import $externalCodeCopy(call $bswap_m256 (get_local $sp))(get_local $offset0)(call $check_overflow
            (i64.load (i32.add (get_local $sp) (i32.const -64)))
            (i64.load (i32.add (get_local $sp) (i32.const -56)))
            (i64.load (i32.add (get_local $sp) (i32.const -48)))

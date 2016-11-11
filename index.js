@@ -34,7 +34,8 @@ const depMap = new Map([
   ['DELEGATECALL', ['memusegas', 'check_overflow', 'memset']],
   ['CALLCODE', ['memusegas', 'check_overflow', 'memset']],
   ['CREATE', ['memusegas', 'check_overflow']],
-  ['RETURN', ['memusegas', 'check_overflow']]
+  ['RETURN', ['memusegas', 'check_overflow']],
+  ['EXTCODESIZE', ['bswap_m256']]
 ])
 
 /**
@@ -92,11 +93,11 @@ exports.evm2wast = function (evmCode, opts = {
 }) {
   // this keep track of the opcode we have found so far. This will be used to
   // to figure out what .wast files to include
-  const opcodesUsed = new Set()
+  const opcodesUsed = new Set(['bswap_m256'])
   const ignoredOps = new Set(['JUMP', 'JUMPI', 'JUMPDEST', 'POP', 'STOP', 'INVALID'])
   const callBackOps = new Map([
     ['SSTORE', 0],
-    ['SLOAD', 0],
+    ['SLOAD', 2],
     ['CREATE', 0],
     ['CALL', 0],
     ['DELEGATECALL', 0],
@@ -339,6 +340,21 @@ function assmebleSegments (segments) {
     (export "main" $main)
     (export "0" $callback)
     (export "1" $callback_i32) 
+    (export "2" $callback_swap) 
+
+    (func $callback_swap
+      (param $result i32)
+
+      (local $sp i32)
+      (local $sp_loc i32)
+
+      (set_local $sp_loc (i32.const 32788))
+      (set_local $sp (i32.load (get_local $sp_loc)))
+
+      (call $bswap_m256 (get_local $sp))
+
+      (call $main (i32.const 1))
+    )
 
     (func $callback_i32
       (param $result i32)
