@@ -8,10 +8,13 @@ const wastFiles = require('./wasm/wast.json')
 // map to track dependent WASM functions
 // TODO remove bswaps
 const depMap = new Map([
+  ['callback_256', ['bswap_m256']],
+  ['callback_128', ['bswap_m128']],
+  ['bswap_m256', ['bswap_i64']],
+  ['bswap_m128', ['bswap_i64']],
   ['keccak', ['memcpy', 'memset']],
   ['mod_320', ['iszero_320', 'gte_320']],
   ['mod_512', ['iszero_512', 'gte_512']],
-  ['bswap_m256', ['bswap_i64']],
   ['MOD', ['iszero_256', 'gte_256']],
   ['ADDMOD', ['MOD', 'ADD', 'mod_320']],
   ['MULMOD', ['mod_512']],
@@ -24,19 +27,25 @@ const depMap = new Map([
   ['MSTORE', ['memusegas', 'bswap_m256', 'check_overflow']],
   ['MLOAD', ['memusegas', 'bswap_m256', 'check_overflow']],
   ['MSTORE8', ['memusegas', 'check_overflow']],
-  ['CODECOPY', ['memusegas', 'check_overflow', 'memset']],
+  ['CODECOPY', ['callback', 'memusegas', 'check_overflow', 'memset']],
   ['CALLDATALOAD', ['bswap_m256', 'bswap_i64', 'check_overflow']],
   ['CALLDATACOPY', ['memusegas', 'check_overflow', 'memset']],
-  ['EXTCODECOPY', ['memusegas', 'check_overflow', 'memset']],
+  ['EXTCODECOPY', ['callback', 'memusegas', 'check_overflow', 'memset']],
   ['LOG', ['memusegas', 'check_overflow']],
-  ['BLOCKHASH', ['check_overflow']],
+  ['BLOCKHASH', ['check_overflow', 'callback']],
   ['SHA3', ['memusegas', 'bswap_m256', 'check_overflow', 'keccak']],
-  ['CALL', ['memusegas', 'check_overflow_i64', 'check_overflow', 'memset']],
-  ['DELEGATECALL', ['memusegas', 'check_overflow', 'memset']],
-  ['CALLCODE', ['memusegas', 'check_overflow', 'memset']],
-  ['CREATE', ['memusegas', 'check_overflow']],
+  ['CALL', ['memusegas', 'check_overflow_i64', 'check_overflow', 'memset', 'callback']],
+  ['DELEGATECALL', ['callback', 'memusegas', 'check_overflow', 'memset']],
+  ['CALLCODE', ['bswap_m256', 'callback', 'memusegas', 'check_overflow', 'memset']],
+  ['CREATE', ['callback', 'memusegas', 'check_overflow']],
   ['RETURN', ['memusegas', 'check_overflow']],
-  ['EXTCODESIZE', ['bswap_m256']]
+  ['BALANCE', ['bswap_m256', 'callback_128']],
+  ['SUICIDE', ['bswap_m256']],
+  ['EXTCODESIZE', ['callback_256']],
+
+  ['SSTORE', ['bswap_m256', 'callback']],
+  ['SLOAD', ['callback_256']],
+  ['CODESIZE', ['callback_32']]
 ])
 
 /**
@@ -94,7 +103,7 @@ exports.evm2wast = function (evmCode, opts = {
 }) {
   // this keep track of the opcode we have found so far. This will be used to
   // to figure out what .wast files to include
-  const opcodesUsed = new Set(['bswap_m256'])
+  const opcodesUsed = new Set()
   const ignoredOps = new Set(['JUMP', 'JUMPI', 'JUMPDEST', 'POP', 'STOP', 'INVALID'])
   const callBackOps = new Map([
     ['SSTORE', 0],
@@ -107,7 +116,7 @@ exports.evm2wast = function (evmCode, opts = {
     ['EXTCODESIZE', 1],
     ['CODECOPY', 0],
     ['CODESIZE', 1],
-    ['BALANCE', 0],
+    ['BALANCE', 3],
     ['BLOCKHASH', 0]
   ])
 
@@ -339,46 +348,6 @@ function assmebleSegments (segments) {
 
   return `
     (export "main" $main)
-    (export "0" $callback)
-    (export "1" $callback_i32) 
-    (export "2" $callback_swap) 
-
-    (func $callback_swap
-      (param $result i32)
-
-      (local $sp i32)
-      (local $sp_loc i32)
-
-      (set_local $sp_loc (i32.const 32788))
-      (set_local $sp (i32.load (get_local $sp_loc)))
-
-      (call $bswap_m256 (get_local $sp))
-
-      (call $main (i32.const 1))
-    )
-
-    (func $callback_i32
-      (param $result i32)
-
-      (local $sp i32)
-      (local $sp_loc i32)
-
-      (set_local $sp_loc (i32.const 32788))
-      (set_local $sp (i32.load (get_local $sp_loc)))
-
-      (i64.store (get_local $sp) (i64.extend_u/i32 (get_local $result)))
-      ;; zero out mem
-      (i64.store (i32.add (get_local $sp) (i32.const 24)) (i64.const 0))
-      (i64.store (i32.add (get_local $sp) (i32.const 16)) (i64.const 0))
-      (i64.store (i32.add (get_local $sp) (i32.const 8)) (i64.const 0))
-
-      (call $main (i32.const 1))
-    )
-
-    (func $callback
-      (call $main (i32.const 1))
-    )
-
     (func $main
          (param $isCallback i32)
          (local $cb_dest i32)

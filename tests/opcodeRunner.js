@@ -27,9 +27,6 @@ tape('testing EVM1 Ops', async t => {
       t.comment(`testing ${test.op} ${test.description}`)
 
       const funcs = compiler.resolveFunctions(new Set([test.op]))
-      funcs.push(`
-        (export "0" $callback)
-        (func $callback)`)
 
       const linked = compiler.buildModule(funcs, [], [test.op])
       const wasm = compiler.wast2wasm(linked)
