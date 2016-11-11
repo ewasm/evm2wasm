@@ -6,6 +6,7 @@ const opcodes = require('./opcodes.js')
 const wastFiles = require('./wasm/wast.json')
 
 // map to track dependent WASM functions
+// TODO remove bswaps
 const depMap = new Map([
   ['keccak', ['memcpy', 'memset']],
   ['mod_320', ['iszero_320', 'gte_320']],

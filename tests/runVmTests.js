@@ -64,6 +64,7 @@ function setupEnviroment (testData, rootVertex) {
   for (let address in testData.pre) {
     const account = testData.pre[address]
     const accountVertex = new Vertex()
+
     accountVertex.set('code', new Vertex({
       value: new Buffer(account.code.slice(2), 'hex')
     }))
@@ -74,7 +75,7 @@ function setupEnviroment (testData, rootVertex) {
 
     for (let key in account.storage) {
       accountVertex.set(['storage', key.slice(2)], new Vertex({
-        value: new Buffer(account.storage[key].slice(2), 'hex').reverse()
+        value: new Buffer(account.storage[key].slice(2), 'hex')
       }))
     }
 

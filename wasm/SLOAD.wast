@@ -2,8 +2,6 @@
 (import $storageLoad "ethereum" "storageLoad" (param i32 i32 i32) )
 (func $SLOAD 
   (param $sp i32)
-  (param $callback i32) 
-  (call_import $storageLoad
-    (call $bswap_m256 (get_local $sp)) 
-    (i32.add (get_local $sp)  (i32.const 0))
-    (get_local $callback)))
+  (param $callback i32)  (call_import $storageLoad(call $bswap_m256 (get_local $sp)) 
+    (i32.add (get_local $sp) 
+    (i32.const 0))(get_local $callback)))

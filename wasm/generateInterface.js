@@ -26,7 +26,7 @@ const interfaceManifest = {
   BALANCE: {
     name: 'getBalance',
     async: true,
-    input: ['pointer'],
+    input: ['address'],
     output: ['i128']
   },
   ORIGIN: {
