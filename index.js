@@ -31,6 +31,7 @@ const depMap = new Map([
   ['CALLDATALOAD', ['bswap_m256', 'bswap_i64', 'check_overflow']],
   ['CALLDATACOPY', ['memusegas', 'check_overflow', 'memset']],
   ['EXTCODECOPY', ['callback', 'memusegas', 'check_overflow', 'memset']],
+  ['EXTCODESIZE', ['callback_32']],
   ['LOG', ['memusegas', 'check_overflow']],
   ['BLOCKHASH', ['check_overflow', 'callback_256']],
   ['SHA3', ['memusegas', 'bswap_m256', 'check_overflow', 'keccak']],
@@ -41,7 +42,6 @@ const depMap = new Map([
   ['RETURN', ['memusegas', 'check_overflow']],
   ['BALANCE', ['bswap_m256', 'callback_128']],
   ['SUICIDE', ['bswap_m256']],
-  ['EXTCODESIZE', ['callback_256']],
 
   ['SSTORE', ['bswap_m256', 'callback']],
   ['SLOAD', ['callback_256']],
