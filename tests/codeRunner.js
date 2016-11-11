@@ -1,5 +1,6 @@
 const fs = require('fs')
 const tape = require('tape')
+const Vertex = require('merkle-trie')
 const evm2wasm = require('../index.js')
 const ethUtil = require('ethereumjs-util')
 const Kernel = require('ewasm-kernel')
@@ -31,10 +32,12 @@ tape('testing transcompiler', async t => {
       if (test.environment.callData) {
         environment.callData = new Buffer(test.environment.callData.slice(2), 'hex')
       }
+      const code = new Buffer(test.code.slice(2), 'hex')
+
+      environment.state.set('code', new Vertex({value: code}))
 
       const startGas = environment.gasLeft
 
-      const code = new Buffer(test.code.slice(2), 'hex')
       const compiled = evm2wasm.compile(code)
       const kernel = new Kernel({
         code: compiled
@@ -43,7 +46,6 @@ tape('testing transcompiler', async t => {
       try {
         await kernel.run(environment)
       } catch (e) {
-        console.log(e);
         t.true(test.trapped, 'should trap')
       }
 
