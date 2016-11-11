@@ -278,6 +278,10 @@ for (let opcode in interfaceManifest) {
     ;; zero out mem
     (i64.store (i32.add (get_local $sp) (i32.const ${spOffset * 32 + 8 * 3})) (i64.const 0))
     (i64.store (i32.add (get_local $sp) (i32.const ${spOffset * 32 + 8 * 2})) (i64.const 0))`
+
+    if (!op.async) {
+      call += '(call $bswap_m128 (i32.add (i32.const 32)(get_local $sp)))'
+    }
   } else if (output === 'address') {
     call =
       `${call} (i32.add (get_local $sp) (i32.const ${spOffset * 32}))`
