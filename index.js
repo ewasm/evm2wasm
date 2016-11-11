@@ -32,7 +32,7 @@ const depMap = new Map([
   ['CALLDATACOPY', ['memusegas', 'check_overflow', 'memset']],
   ['EXTCODECOPY', ['callback', 'memusegas', 'check_overflow', 'memset']],
   ['LOG', ['memusegas', 'check_overflow']],
-  ['BLOCKHASH', ['check_overflow', 'callback']],
+  ['BLOCKHASH', ['check_overflow', 'callback_256']],
   ['SHA3', ['memusegas', 'bswap_m256', 'check_overflow', 'keccak']],
   ['CALL', ['memusegas', 'check_overflow_i64', 'check_overflow', 'memset', 'callback']],
   ['DELEGATECALL', ['callback', 'memusegas', 'check_overflow', 'memset']],
@@ -45,7 +45,8 @@ const depMap = new Map([
 
   ['SSTORE', ['bswap_m256', 'callback']],
   ['SLOAD', ['callback_256']],
-  ['CODESIZE', ['callback_32']]
+  ['CODESIZE', ['callback_32']],
+  ['DIFFICULTY', ['bswap_m256']]
 ])
 
 /**
@@ -117,7 +118,7 @@ exports.evm2wast = function (evmCode, opts = {
     ['CODECOPY', 0],
     ['CODESIZE', 1],
     ['BALANCE', 3],
-    ['BLOCKHASH', 0]
+    ['BLOCKHASH', 2]
   ])
 
   // an array of found segments

@@ -4,4 +4,4 @@
   (param $sp i32)
     (call_import $getBlockDifficulty 
     (i32.add (get_local $sp) 
-    (i32.const 32))))
+    (i32.const 32))) (call $bswap_m256 (i32.add (i32.const 32) (get_local $sp))))

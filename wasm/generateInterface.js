@@ -299,7 +299,7 @@ for (let opcode in interfaceManifest) {
       call += '(get_local $callback)'
     }
 
-    call += ')'
+    call += ') (call $bswap_m256 (i32.add (i32.const 32) (get_local $sp)))'
   } else if (output === 'i32') {
     if (op.async) {
       call += '(get_local $callback)'

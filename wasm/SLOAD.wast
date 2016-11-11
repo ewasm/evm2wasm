@@ -4,4 +4,4 @@
   (param $sp i32)
   (param $callback i32)  (call_import $storageLoad(call $bswap_m256 (get_local $sp)) 
     (i32.add (get_local $sp) 
-    (i32.const 0))(get_local $callback)))
+    (i32.const 0))(get_local $callback)) (call $bswap_m256 (i32.add (i32.const 32) (get_local $sp))))

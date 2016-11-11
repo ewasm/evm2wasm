@@ -8,4 +8,4 @@
            (i64.load (i32.add (get_local $sp) (i32.const 16)))
            (i64.load (i32.add (get_local $sp) (i32.const 24)))) 
     (i32.add (get_local $sp) 
-    (i32.const 0))(get_local $callback)))
+    (i32.const 0))(get_local $callback)) (call $bswap_m256 (i32.add (i32.const 32) (get_local $sp))))
