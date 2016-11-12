@@ -291,6 +291,7 @@ for (let opcode in interfaceManifest) {
     }
 
     call += `)
+    (call $bswap_m160 (i32.add (get_local $sp) (i32.const ${spOffset * 32})))
     ;; zero out mem
     (i64.store (i32.add (get_local $sp) (i32.const ${spOffset * 32 + 8 * 3})) (i64.const 0))
     (i32.store (i32.add (get_local $sp) (i32.const ${spOffset * 32 + 8 * 2 + 4})) (i32.const 0))`

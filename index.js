@@ -12,6 +12,7 @@ const depMap = new Map([
   ['callback_128', ['bswap_m128']],
   ['bswap_m256', ['bswap_i64']],
   ['bswap_m128', ['bswap_i64']],
+  ['bswap_m160', ['bswap_i64', 'bswap_i32']],
   ['keccak', ['memcpy', 'memset']],
   ['mod_320', ['iszero_320', 'gte_320']],
   ['mod_512', ['iszero_512', 'gte_512']],
@@ -43,11 +44,11 @@ const depMap = new Map([
   ['RETURN', ['memusegas', 'check_overflow']],
   ['BALANCE', ['bswap_m256', 'callback_128']],
   ['SUICIDE', ['bswap_m256']],
-
   ['SSTORE', ['bswap_m256', 'callback']],
   ['SLOAD', ['callback_256']],
   ['CODESIZE', ['callback_32']],
-  ['DIFFICULTY', ['bswap_m256']]
+  ['DIFFICULTY', ['bswap_m256']],
+  ['COINBASE', ['bswap_m160']]
 ])
 
 /**
