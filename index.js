@@ -48,7 +48,10 @@ const depMap = new Map([
   ['SLOAD', ['callback_256']],
   ['CODESIZE', ['callback_32']],
   ['DIFFICULTY', ['bswap_m256']],
-  ['COINBASE', ['bswap_m160']]
+  ['COINBASE', ['bswap_m160']],
+  ['ORIGIN', ['bswap_m160']],
+  ['ADDRESS', ['bswap_m160']],
+  ['CALLER', ['bswap_m160']]
 ])
 
 /**
