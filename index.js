@@ -256,12 +256,7 @@ exports.evm2wast = function (evmCode, opts = {
         break
       default:
         if (callBackOps.has(op.name)) {
-          segment += `(call $${op.name} (get_local $sp) (i32.const ${callBackOps.get(op.name)}))
-          (i32.store (get_local $cb_dest_loc) (i32.const ${jumpSegments.length + 1}))
-          (i32.store (get_local $sp_loc) (get_local $sp))
-          (br $done))
-          `
-          jumpSegments.push({type: 'cb_dest'})
+          segment += `(call $${op.name} (get_local $sp) (i32.const ${callBackOps.get(op.name)}))`
         } else {
           segment += `(call $${op.name} (get_local $sp))`
         }
@@ -275,6 +270,16 @@ exports.evm2wast = function (evmCode, opts = {
     // update the stack pointer
     if (stackDeta !== 0) {
       segment += `(set_local $sp (i32.add (get_local $sp) (i32.const ${stackDeta * 32})))`
+    }
+
+    // adds the logic to save the stack pointer before exiting to wiat to for a callback
+    // note, this must be done before the sp is updated above^
+    if (callBackOps.has(op.name)) {
+      segment += `(i32.store (get_local $cb_dest_loc) (i32.const ${jumpSegments.length + 1}))
+          (i32.store (get_local $sp_loc) (get_local $sp))
+          (br $done))
+          `
+      jumpSegments.push({type: 'cb_dest'})
     }
 
     // creates a stack trace
