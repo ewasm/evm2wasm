@@ -18,6 +18,7 @@ const DebugInterface = require('ewasm-kernel/debugInterface')
 // ]
 
 async function runner (testData, t) {
+  console.log(testData.pre);
   const code = Buffer.from(testData.exec.code.slice(2), 'hex')
   const evm = evm2wasm.compile(code, {
     stackTrace: argv.trace,

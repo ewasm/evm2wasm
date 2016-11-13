@@ -75,7 +75,7 @@ const interfaceManifest = {
   EXTCODECOPY: {
     name: 'externalCodeCopy',
     async: true,
-    input: ['pointer', 'writeOffset', 'i32', 'length'],
+    input: ['address', 'writeOffset', 'i32', 'length'],
     output: []
   },
   GASPRICE: {
