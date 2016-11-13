@@ -33,7 +33,7 @@ const depMap = new Map([
   ['CALLDATACOPY', ['memusegas', 'check_overflow', 'memset']],
   ['CALLVALUE', ['bswap_m128']],
   ['EXTCODECOPY', ['callback', 'memusegas', 'check_overflow', 'memset']],
-  ['EXTCODESIZE', ['callback_32']],
+  ['EXTCODESIZE', ['callback_32', 'bswap_m256']],
   ['LOG', ['memusegas', 'check_overflow']],
   ['BLOCKHASH', ['check_overflow', 'callback_256']],
   ['SHA3', ['memusegas', 'bswap_m256', 'check_overflow', 'keccak']],
