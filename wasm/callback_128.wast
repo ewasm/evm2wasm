@@ -1,4 +1,4 @@
-(export "3" $callback_128) 
+(export "2" $callback_128) 
 (func $callback_128
   (param $result i32)
 

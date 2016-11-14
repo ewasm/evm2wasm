@@ -91,7 +91,7 @@ async function checkResults (testData, t, instance, environment) {
   // check gas used
   t.equals(ethUtil.intToHex(environment.gasLeft), testData.gas, 'should have the correct gas')
   // check return value
-  t.equals(new Buffer(environment.returnValue).toString('hex'), testData.out.slice(2))
+  t.equals(new Buffer(environment.returnValue).toString('hex'), testData.out.slice(2), 'return value')
   // check storage
   const account = testData.post[testData.exec.address]
   // TODO: check all accounts

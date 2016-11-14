@@ -9,6 +9,7 @@ const wastFiles = require('./wasm/wast.json')
 // TODO remove bswaps
 const depMap = new Map([
   ['callback_256', ['bswap_m256']],
+  ['callback_160', ['bswap_m160']],
   ['callback_128', ['bswap_m128']],
   ['bswap_m256', ['bswap_i64']],
   ['bswap_m128', ['bswap_i64']],
@@ -39,8 +40,8 @@ const depMap = new Map([
   ['SHA3', ['memusegas', 'bswap_m256', 'check_overflow', 'keccak']],
   ['CALL', ['bswap_m256', 'memusegas', 'check_overflow_i64', 'check_overflow', 'memset', 'callback_32']],
   ['DELEGATECALL', ['callback', 'memusegas', 'check_overflow', 'memset']],
-  ['CALLCODE', ['bswap_m256', 'callback', 'memusegas', 'check_overflow', 'memset']],
-  ['CREATE', ['bswap_m256', 'bswap_m160', 'callback', 'memusegas', 'check_overflow']],
+  ['CALLCODE', ['bswap_m256', 'callback', 'memusegas', 'check_overflow', 'memset', 'callback_32']],
+  ['CREATE', ['bswap_m256', 'bswap_m160', 'callback_160', 'memusegas', 'check_overflow']],
   ['RETURN', ['memusegas', 'check_overflow']],
   ['BALANCE', ['bswap_m256', 'callback_128']],
   ['SUICIDE', ['bswap_m256']],
@@ -113,17 +114,17 @@ exports.evm2wast = function (evmCode, opts = {
   const ignoredOps = new Set(['JUMP', 'JUMPI', 'JUMPDEST', 'POP', 'STOP', 'INVALID'])
   const callBackOps = new Map([
     ['SSTORE', 0],
-    ['SLOAD', 2],
-    ['CREATE', 0],
+    ['SLOAD', 4],
+    ['CREATE', 3],
     ['CALL', 1],
     ['DELEGATECALL', 0],
-    ['CALLCODE', 0],
+    ['CALLCODE', 1],
     ['EXTCODECOPY', 0],
     ['EXTCODESIZE', 1],
     ['CODECOPY', 0],
     ['CODESIZE', 1],
     ['BALANCE', 3],
-    ['BLOCKHASH', 2]
+    ['BLOCKHASH', 4]
   ])
 
   // an array of found segments
