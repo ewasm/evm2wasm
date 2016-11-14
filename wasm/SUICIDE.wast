@@ -2,4 +2,4 @@
 (import $selfDestruct "ethereum" "selfDestruct" (param i32) )
 (func $SUICIDE 
   (param $sp i32)
-    (call_import $selfDestruct(call $bswap_m256 (get_local $sp))))
+    (call_import $selfDestruct(i32.add (i32.const 12) (call $bswap_m256 (get_local $sp)))))

@@ -117,25 +117,25 @@ const interfaceManifest = {
   CREATE: {
     name: 'create',
     async: true,
-    input: ['pointer', 'readOffset', 'length'],
+    input: ['i128', 'readOffset', 'length'],
     output: ['address']
   },
   CALL: {
     name: 'call',
     async: true,
-    input: ['i64', 'pointer', 'pointer', 'readOffset', 'length', 'writeOffset', 'length'],
+    input: ['i64', 'address', 'i128', 'readOffset', 'length', 'writeOffset', 'length'],
     output: ['i32']
   },
   CALLCODE: {
     name: 'callCode',
     async: true,
-    input: ['i32', 'pointer', 'pointer', 'readOffset', 'length', 'writeOffset', 'length'],
+    input: ['i32', 'address', 'i128', 'readOffset', 'length', 'writeOffset', 'length'],
     output: ['i32']
   },
   DELEGATECALL: {
     name: 'callDelegate',
     async: true,
-    input: ['i32', 'pointer', 'pointer', 'readOffset', 'length', 'writeOffset', 'length'],
+    input: ['i32', 'address', 'i128', 'readOffset', 'length', 'writeOffset', 'length'],
     output: ['i32']
   },
   SSTORE: {
@@ -152,7 +152,7 @@ const interfaceManifest = {
   },
   SUICIDE: {
     name: 'selfDestruct',
-    input: ['pointer'],
+    input: ['address'],
     output: []
   },
   RETURN: {
@@ -202,7 +202,13 @@ for (let opcode in interfaceManifest) {
   let lastOffset
   let call = `(call_import $${op.name}`
   op.input.forEach((input) => {
-    if (input === 'address') {
+    if (input === 'i128') {
+      if (spOffset) {
+        call += `(i32.add (i32.const 16) (call $bswap_m256 (i32.add (get_local $sp) (i32.const ${spOffset * 32}))))`
+      } else {
+        call += '(i32.add (i32.const 16) (call $bswap_m256 (get_local $sp)))'
+      }
+    } else if (input === 'address') {
       if (spOffset) {
         call += `(i32.add (i32.const 12) (call $bswap_m256 (i32.add (get_local $sp) (i32.const ${spOffset * 32}))))`
       } else {
