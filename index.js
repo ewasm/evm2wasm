@@ -123,7 +123,7 @@ exports.evm2wast = function (evmCode, opts = {
     ['EXTCODESIZE', 1],
     ['CODECOPY', 0],
     ['CODESIZE', 1],
-    ['BALANCE', 3],
+    ['BALANCE', 2],
     ['BLOCKHASH', 4]
   ])
 
