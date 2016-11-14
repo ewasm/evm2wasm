@@ -74,7 +74,7 @@ function setupEnviroment (testData, rootVertex) {
     }))
 
     for (let key in account.storage) {
-      accountVertex.set(['storage', key.slice(2)], new Vertex({
+      accountVertex.set(['storage', ...new Buffer(key.slice(2), 'hex')], new Vertex({
         value: new Buffer(account.storage[key].slice(2), 'hex')
       }))
     }

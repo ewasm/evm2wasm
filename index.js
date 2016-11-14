@@ -143,6 +143,7 @@ exports.evm2wast = function (evmCode, opts = {
   for (let i = 0; i < evmCode.length; i++) {
     const opint = evmCode[i]
     const op = opcodes(opint)
+
     let bytes
     gasCount += op.fee
 
