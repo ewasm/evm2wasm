@@ -79,7 +79,7 @@ exports.compile = function (evmCode, opts = {
  */
 exports.wast2wasm = function (wast) {
   fs.writeFileSync(`${__dirname}/temp.wast`, wast)
-  cp.execSync(`${__dirname}/tools/sexpr-wasm-prototype/out/sexpr-wasm ${__dirname}/temp.wast -o ${__dirname}/temp.wasm`)
+  cp.execSync(`${__dirname}/tools/wabt/out/wast2wasm ${__dirname}/temp.wast -o ${__dirname}/temp.wasm`)
   return fs.readFileSync(`${__dirname}/temp.wasm`)
 }
 
@@ -112,7 +112,8 @@ exports.evm2wast = function (evmCode, opts = {
   // to figure out what .wast files to include
   const opcodesUsed = new Set()
   const ignoredOps = new Set(['JUMP', 'JUMPI', 'JUMPDEST', 'POP', 'STOP', 'INVALID'])
-  const callBackOps = new Map([
+  // maps the async ops to their call back index
+  const callBackIndex = new Map([
     ['SSTORE', 0],
     ['SLOAD', 4],
     ['CREATE', 3],
@@ -261,8 +262,8 @@ exports.evm2wast = function (evmCode, opts = {
         i = findNextJumpDest(evmCode, i)
         break
       default:
-        if (callBackOps.has(op.name)) {
-          segment += `(call $${op.name} (get_local $sp) (i32.const ${callBackOps.get(op.name)}))`
+        if (callBackIndex.has(op.name)) {
+          segment += `(call $${op.name} (get_local $sp) (i32.const ${callBackIndex.get(op.name)}))`
         } else {
           segment += `(call $${op.name} (get_local $sp))`
         }
@@ -280,7 +281,7 @@ exports.evm2wast = function (evmCode, opts = {
 
     // adds the logic to save the stack pointer before exiting to wiat to for a callback
     // note, this must be done before the sp is updated above^
-    if (callBackOps.has(op.name)) {
+    if (callBackIndex.has(op.name)) {
       segment += `(i32.store (get_local $cb_dest_loc) (i32.const ${jumpSegments.length + 1}))
           (i32.store (get_local $sp_loc) (get_local $sp))
           (br $done))

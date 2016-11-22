@@ -1,23 +1,16 @@
 #!/usr/bin/env node
+const ethUtil = require('ethereumjs-util')
 const cp = require('child_process')
 const fs = require('fs')
 const path = require('path')
-const Kernal = require('ewasm-kernel')
 
 const loc = path.join(process.cwd(), process.argv[2])
 cp.execSync(`${__dirname}/../tools/sexpr-wasm-prototype/out/sexpr-wasm  ${loc} -o ./temp.wasm`)
-const opsWasm = fs.readFileSync('./temp.wasm')
-const instance = Kernal.codeHandler(opsWasm)
-// run the contract
-instance.exports.main()
+const tempWasm = fs.readFileSync('./temp.wasm')
 
-// print off the first 2 stack items
-let sp = 64
-for (;sp > -32; sp -= 32) {
-  const item = getMemory(instance, sp, sp + 32)
-  console.log(new Buffer(item).toString('hex'))
-}
+const mod = WebAssembly.Module(tempWasm)
+const instance = WebAssembly.Instance(mod)
 
-function getMemory (instance, start, end) {
-  return new Uint8Array(instance.exports.memory).slice(start, end)
-}
+const val = instance.exports.main()
+console.log(ethUtil.toBuffer(val).toString('hex'))
+

@@ -1,13 +1,14 @@
 language: node_js
+sudo: required
 node_js:
-  - "6"
-env:
-  - CXX=g++-4.8
+  - "7"
+before_install:
+  - git submodule update --init
+  - ./tools/wabt/scripts/travis-before-install.sh
+  - cd ./tools/wabt/ && make
+script: npm test
 addons:
   apt:
     sources:
+    # add PPAs with more up-to-date toolchains
     - ubuntu-toolchain-r-test
-    packages:
-    - g++-4.8
-
-script: npm run lint
