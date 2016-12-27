@@ -4,3 +4,6 @@
 [submodule "keccak-wast"]
 	path = wasm/keccak
 	url = https://github.com/axic/keccak-wasm
+[submodule "tools/wabt"]
+	path = tools/wabt
+	url = https://github.com/WebAssembly/wabt

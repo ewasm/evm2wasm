@@ -6,11 +6,17 @@ const opcodes = require('./opcodes.js')
 const wastFiles = require('./wasm/wast.json')
 
 // map to track dependent WASM functions
+// TODO remove bswaps
 const depMap = new Map([
+  ['callback_256', ['bswap_m256']],
+  ['callback_160', ['bswap_m160']],
+  ['callback_128', ['bswap_m128']],
+  ['bswap_m256', ['bswap_i64']],
+  ['bswap_m128', ['bswap_i64']],
+  ['bswap_m160', ['bswap_i64', 'bswap_i32']],
   ['keccak', ['memcpy', 'memset']],
   ['mod_320', ['iszero_320', 'gte_320']],
   ['mod_512', ['iszero_512', 'gte_512']],
-  ['bswap_m256', ['bswap_i64']],
   ['MOD', ['iszero_256', 'gte_256']],
   ['ADDMOD', ['MOD', 'ADD', 'mod_320']],
   ['MULMOD', ['mod_512']],
@@ -23,18 +29,30 @@ const depMap = new Map([
   ['MSTORE', ['memusegas', 'bswap_m256', 'check_overflow']],
   ['MLOAD', ['memusegas', 'bswap_m256', 'check_overflow']],
   ['MSTORE8', ['memusegas', 'check_overflow']],
-  ['CODECOPY', ['memusegas', 'check_overflow', 'memset']],
+  ['CODECOPY', ['callback', 'memusegas', 'check_overflow', 'memset']],
   ['CALLDATALOAD', ['bswap_m256', 'bswap_i64', 'check_overflow']],
   ['CALLDATACOPY', ['memusegas', 'check_overflow', 'memset']],
-  ['EXTCODECOPY', ['memusegas', 'check_overflow', 'memset']],
+  ['CALLVALUE', ['bswap_m128']],
+  ['EXTCODECOPY', ['bswap_m256', 'callback', 'memusegas', 'check_overflow', 'memset']],
+  ['EXTCODESIZE', ['callback_32', 'bswap_m256']],
   ['LOG', ['memusegas', 'check_overflow']],
-  ['BLOCKHASH', ['check_overflow']],
+  ['BLOCKHASH', ['check_overflow', 'callback_256']],
   ['SHA3', ['memusegas', 'bswap_m256', 'check_overflow', 'keccak']],
-  ['CALL', ['memusegas', 'check_overflow_i64', 'check_overflow', 'memset']],
-  ['DELEGATECALL', ['memusegas', 'check_overflow', 'memset']],
-  ['CALLCODE', ['memusegas', 'check_overflow', 'memset']],
-  ['CREATE', ['memusegas', 'check_overflow']],
-  ['RETURN', ['memusegas', 'check_overflow']]
+  ['CALL', ['bswap_m256', 'memusegas', 'check_overflow_i64', 'check_overflow', 'memset', 'callback_32']],
+  ['DELEGATECALL', ['callback', 'memusegas', 'check_overflow', 'memset']],
+  ['CALLCODE', ['bswap_m256', 'callback', 'memusegas', 'check_overflow', 'memset', 'callback_32']],
+  ['CREATE', ['bswap_m256', 'bswap_m160', 'callback_160', 'memusegas', 'check_overflow']],
+  ['RETURN', ['memusegas', 'check_overflow']],
+  ['BALANCE', ['bswap_m256', 'callback_128']],
+  ['SUICIDE', ['bswap_m256']],
+  ['SSTORE', ['bswap_m256', 'callback']],
+  ['SLOAD', ['callback_256']],
+  ['CODESIZE', ['callback_32']],
+  ['DIFFICULTY', ['bswap_m256']],
+  ['COINBASE', ['bswap_m160']],
+  ['ORIGIN', ['bswap_m160']],
+  ['ADDRESS', ['bswap_m160']],
+  ['CALLER', ['bswap_m160']]
 ])
 
 /**
@@ -60,8 +78,8 @@ exports.compile = function (evmCode, opts = {
  * @return {buffer}
  */
 exports.wast2wasm = function (wast) {
-  fs.writeFileSync('temp.wast', wast)
-  cp.execSync(`${__dirname}/tools/sexpr-wasm-prototype/out/sexpr-wasm ${__dirname}/temp.wast -o ${__dirname}/temp.wasm`)
+  fs.writeFileSync(`${__dirname}/temp.wast`, wast)
+  cp.execSync(`${__dirname}/tools/wabt/out/wast2wasm ${__dirname}/temp.wast -o ${__dirname}/temp.wasm`)
   return fs.readFileSync(`${__dirname}/temp.wasm`)
 }
 
@@ -94,13 +112,27 @@ exports.evm2wast = function (evmCode, opts = {
   // to figure out what .wast files to include
   const opcodesUsed = new Set()
   const ignoredOps = new Set(['JUMP', 'JUMPI', 'JUMPDEST', 'POP', 'STOP', 'INVALID'])
+  // maps the async ops to their call back index
+  const callBackIndex = new Map([
+    ['SSTORE', 0],
+    ['SLOAD', 4],
+    ['CREATE', 3],
+    ['CALL', 1],
+    ['DELEGATECALL', 0],
+    ['CALLCODE', 1],
+    ['EXTCODECOPY', 0],
+    ['EXTCODESIZE', 1],
+    ['CODECOPY', 0],
+    ['CODESIZE', 1],
+    ['BALANCE', 2],
+    ['BLOCKHASH', 4]
+  ])
+
   // an array of found segments
   const jumpSegments = []
   // the transcompiled EVM code
   let wasmCode = ''
   let segment = ''
-  // used to translate the local in EVM of JUMPDEST to a wasm block label
-  let jumpDestNum = -1
   // keeps track of the gas that each section uses
   let gasCount = 0
   // used for pruning dead code
@@ -113,6 +145,7 @@ exports.evm2wast = function (evmCode, opts = {
   for (let i = 0; i < evmCode.length; i++) {
     const opint = evmCode[i]
     const op = opcodes(opint)
+
     let bytes
     gasCount += op.fee
 
@@ -129,8 +162,7 @@ exports.evm2wast = function (evmCode, opts = {
     switch (op.name) {
       case 'JUMP':
         jumpFound = true
-        wasmCode = `${wasmCode}
-                    ;; jump
+        segment += `;; jump
                       (set_local $jump_dest (call $check_overflow 
                                              (i64.load (get_local $sp))
                                              (i64.load (i32.add (get_local $sp) (i32.const 8)))
@@ -143,8 +175,7 @@ exports.evm2wast = function (evmCode, opts = {
         break
       case 'JUMPI':
         jumpFound = true
-        wasmCode = `${wasmCode}
-                    (set_local $jump_dest (call $check_overflow 
+        segment += `(set_local $jump_dest (call $check_overflow 
                                              (i64.load (get_local $sp))
                                              (i64.load (i32.add (get_local $sp) (i32.const 8)))
                                              (i64.load (i32.add (get_local $sp) (i32.const 16)))
@@ -166,27 +197,24 @@ exports.evm2wast = function (evmCode, opts = {
         addMetering()
         break
       case 'JUMPDEST':
-        addStackCheck()
-        addMetering()
-        jumpSegments.push([segment, jumpDestNum])
-        segment = ''
-        jumpDestNum = i
+        endSegment()
+        jumpSegments.push({number: i, type: 'jump_dest'})
         gasCount = 1
         break
       case 'GAS':
-        wasmCode = `${wasmCode} (call $${op.name} (get_local $sp))`
+        segment += `(call $${op.name} (get_local $sp))`
         addMetering()
         break
       case 'LOG':
-        wasmCode = `${wasmCode} (call $${op.name} (i32.const ${op.number}) (get_local $sp))`
+        segment += `(call $${op.name} (i32.const ${op.number}) (get_local $sp))`
         break
       case 'DUP':
       case 'SWAP':
         // adds the number on the stack to SWAP
-        wasmCode = `${wasmCode} (call $${op.name} (i32.const ${op.number - 1}) (get_local $sp)) `
+        segment += `(call $${op.name} (i32.const ${op.number - 1}) (get_local $sp)) `
         break
       case 'PC':
-        wasmCode = `${wasmCode} (call $${op.name} (i32.const ${i}) (get_local $sp))`
+        segment += `(call $${op.name} (i32.const ${i}) (get_local $sp))`
         break
       case 'PUSH':
         i++
@@ -204,14 +232,14 @@ exports.evm2wast = function (evmCode, opts = {
           push = push + `(i64.const ${int64})`
         }
 
-        wasmCode = `${wasmCode} (call $${op.name} ${push} (get_local $sp))`
+        segment += `(call $${op.name} ${push} (get_local $sp))`
         i--
         break
       case 'POP':
         // do nothing
         break
       case 'STOP':
-        wasmCode = `${wasmCode} (br $done)`
+        segment += '(br $done)'
         if (jumpFound) {
           i = findNextJumpDest(evmCode, i)
         } else {
@@ -221,7 +249,7 @@ exports.evm2wast = function (evmCode, opts = {
         break
       case 'SUICIDE':
       case 'RETURN':
-        wasmCode = `${wasmCode} (call $${op.name} (get_local $sp)) (br $done)`
+        segment += `(call $${op.name} (get_local $sp)) (br $done)`
         if (jumpFound) {
           i = findNextJumpDest(evmCode, i)
         } else {
@@ -230,11 +258,15 @@ exports.evm2wast = function (evmCode, opts = {
         }
         break
       case 'INVALID':
-        wasmCode = '(unreachable)'
+        segment = '(unreachable)'
         i = findNextJumpDest(evmCode, i)
         break
       default:
-        wasmCode = `${wasmCode} (call $${op.name} (get_local $sp))`
+        if (callBackIndex.has(op.name)) {
+          segment += `(call $${op.name} (get_local $sp) (i32.const ${callBackIndex.get(op.name)}))`
+        } else {
+          segment += `(call $${op.name} (get_local $sp))`
+        }
     }
 
     if (!ignoredOps.has(op.name)) {
@@ -244,43 +276,47 @@ exports.evm2wast = function (evmCode, opts = {
     const stackDeta = op.on - op.off
     // update the stack pointer
     if (stackDeta !== 0) {
-      wasmCode = `${wasmCode} (set_local $sp (i32.add (get_local $sp) (i32.const ${stackDeta * 32})))`
+      segment += `(set_local $sp (i32.add (get_local $sp) (i32.const ${stackDeta * 32})))`
+    }
+
+    // adds the logic to save the stack pointer before exiting to wiat to for a callback
+    // note, this must be done before the sp is updated above^
+    if (callBackIndex.has(op.name)) {
+      segment += `(i32.store (get_local $cb_dest_loc) (i32.const ${jumpSegments.length + 1}))
+          (i32.store (get_local $sp_loc) (get_local $sp))
+          (br $done))
+          `
+      jumpSegments.push({type: 'cb_dest'})
     }
 
     // creates a stack trace
     if (opts.stackTrace) {
-      wasmCode = `${wasmCode} (call_import $stackTrace (get_local $sp) (i32.const ${opint}))`
+      segment += `(call_import $stackTrace (get_local $sp) (i32.const ${opint}))`
     }
   }
-  addStackCheck()
-  addMetering()
-  jumpSegments.push([segment, jumpDestNum])
 
-  let mainFunc = assmebleSegments(jumpSegments)
+  endSegment()
+
+  wasmCode = assmebleSegments(jumpSegments) + wasmCode + ')'
 
   // import stack trace function
   if (opts.stackTrace) {
-    mainFunc = '(import $stackTrace "debug" "evmStackTrace" (param i32 i32) (result i32))' + mainFunc
+    wasmCode = '(import $printMem "debug" "printMemHex" (param i32 i32)) (import $print "debug" "print" (param i32)) (import $stackTrace "debug" "evmStackTrace" (param i32 i32)) ' + wasmCode
   }
 
   let funcMap = []
+  // inline EVM opcode implemention
   if (opts.inlineOps) {
     funcMap = exports.resolveFunctions(opcodesUsed)
   }
 
-  funcMap.push(mainFunc)
+  funcMap.push(wasmCode)
   wasmCode = exports.buildModule(funcMap)
+  // pretty print the s-exporesion
   if (opts.pprint) {
     wasmCode = pprint(wasmCode)
   }
   return wasmCode
-
-  // add a metering statment at the beginning of a segment
-  function addMetering () {
-    segment = `${segment} (call_import $useGas (i64.const ${gasCount})) ${wasmCode}`
-    wasmCode = ''
-    gasCount = 0
-  }
 
   // adds stack height checks to the beginning of a segment
   function addStackCheck () {
@@ -293,10 +329,24 @@ exports.evm2wast = function (evmCode, opts = {
       check += `(if (i32.lt_s (get_local $sp) (i32.const ${-segmentStackLow * 32 - 32})) 
                   (then (unreachable)))`
     }
-    wasmCode = check + wasmCode
+    segment = check + segment
     segmentStackHigh = 0
     segmentStackLow = 0
     segmentStackDeta = 0
+  }
+
+  // add a metering statment at the beginning of a segment
+  function addMetering () {
+    wasmCode += `(call_import $useGas (i64.const ${gasCount})) ` + segment
+    segment = ''
+    gasCount = 0
+  }
+
+  // finishes off a segment
+  function endSegment () {
+    segment += ')'
+    addStackCheck()
+    addMetering()
   }
 }
 
@@ -305,37 +355,67 @@ exports.evm2wast = function (evmCode, opts = {
 // @return {String}
 function assmebleSegments (segments) {
   let wasm = buildJumpMap(segments)
-  let jumpSegOffset = 0
 
   segments.forEach((seg, index) => {
-    // if its a jump
-    wasm = `(block $${index + 1 - jumpSegOffset} 
-               ${wasm}
-               ${seg[0]})`
+    wasm = `(block $${index + 1} ${wasm}`
   })
+
   return `
     (export "main" $main)
-      (func $main 
-           (local $sp i32) 
-           (local $jump_dest i32)
-           (set_local $sp (i32.const -32)) 
-           (set_local $jump_dest (i32.const -1)) 
-           (loop $done $loop
-            ${wasm}))`
+    (func $main
+         (param $isCallback i32)
+         (local $cb_dest i32)
+         (local $cb_dest_loc i32)
+         (local $jump_dest i32)
+         (local $sp i32)
+         (local $sp_loc i32)
+
+         (set_local $cb_dest_loc (i32.const 32780))
+         (set_local $sp_loc (i32.const 32788))
+
+         (if (i32.eqz (get_local $isCallback))
+           (then 
+             (set_local $sp (i32.const -32))
+             (set_local $jump_dest (i32.const -1)))
+           (else 
+             ;; set up the stack pointer
+             (set_local $sp (i32.load (get_local $sp_loc)))
+             ;; set up call back destion
+             (set_local $cb_dest (i32.load (get_local $cb_dest_loc)))
+             ;; sets jump dest to a invalid location
+             (set_local $jump_dest (i32.const -2))
+           )
+         )
+
+         (loop $done $loop
+          ${wasm}`
 }
 
 // Builds the Jump map, which maps EVM jump location to a block label
 // @param {Array} segments
 // @return {String}
 function buildJumpMap (segments) {
-  let wasm = '(unreachable)'
-  let brTable = '(block $0 (br_table'
+  let wasm = `
+    (if (i32.eq (get_local $jump_dest) (i32.const -1))
+      (then (i32.const 0))
+      (else
+        ;; the callback dest can never be in the first block
+        (if (i32.eq (get_local $cb_dest) (i32.const 0)) 
+          (then (unreachable))
+          (else 
+            ;; use sp_loc as temp
+            (set_local $isCallback (get_local $cb_dest))
+            (set_local $cb_dest (i32.const 0))
+            (get_local $isCallback)))))`
 
+  let brTable = '(block $0 (br_table $0'
   segments.forEach((seg, index) => {
-    brTable += ' $' + index
-    wasm = `(if (i32.eq (get_local $jump_dest) (i32.const ${seg[1]}))
-                  (then (i32.const ${index}))
-                  (else ${wasm}))`
+    brTable += ' $' + (index + 1)
+    if (seg.type === 'jump_dest') {
+      wasm = `(if (i32.eq (get_local $jump_dest) (i32.const ${seg.number}))
+                    (then (i32.const ${index + 1}))
+                    (else ${wasm}))`
+    }
   })
 
   brTable += wasm + '))'
@@ -378,7 +458,7 @@ function resolveFunctionDeps (funcSet) {
   for (let func of funcSet) {
     const deps = depMap.get(func)
     if (deps) {
-      for (var dep of deps) {
+      for (const dep of deps) {
         funcs.add(dep)
       }
     }

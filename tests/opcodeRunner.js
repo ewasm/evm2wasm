@@ -1,9 +1,8 @@
 const fs = require('fs')
 const tape = require('tape')
 const Kernel = require('ewasm-kernel')
-const KernelInterface = require('ewasm-kernel/interface.js')
-const KernelEnvironment = require('ewasm-kernel/environment.js')
-const Address = require('ewasm-kernel/address.js')
+const KernelEnvironment = require('ewasm-kernel/testEnvironment.js')
+const Address = require('ewasm-kernel/deps/address.js')
 const ethUtil = require('ethereumjs-util')
 const compiler = require('../index.js')
 const argv = require('minimist')(process.argv.slice(2))
@@ -19,21 +18,30 @@ if (argv.file) {
   testFiles = [argv.file]
 }
 
-tape('testing EVM1 Ops', (t) => {
-  testFiles.forEach((path) => {
+tape('testing EVM1 Ops', async t => {
+  for (const path of testFiles) {
     let opTest = require(`${dir}/${path}`)
-    opTest.forEach((test) => {
+    for (const test of opTest) {
       const testEnvironment = new KernelEnvironment()
-      const testInterface = new KernelInterface(testEnvironment)
-      let testInstance
       // FIXME: have separate `t.test()` for better grouping
       t.comment(`testing ${test.op} ${test.description}`)
+
+      const funcs = compiler.resolveFunctions(new Set([test.op]))
+
+      const linked = compiler.buildModule(funcs, [], [test.op])
+      const wasm = compiler.wast2wasm(linked)
+      const kernel = new Kernel({
+        code: wasm
+      })
+
       try {
-        testInstance = buildTest(test.op, testInterface)
+        await kernel.run(testEnvironment)
       } catch (e) {
         t.fail('WASM exception: ' + e)
         return
       }
+
+      let testInstance = kernel.interfaceAPI._instance
 
       // populate the environment
       testEnvironment.caller = new Address(test.environment.caller)
@@ -65,6 +73,7 @@ tape('testing EVM1 Ops', (t) => {
 
       try {
         testInstance.exports[test.op](...(test.params || []), sp) + 32
+        await kernel.interfaceAPI.onDone()
       } catch (e) {
         t.fail('WASM exception: ' + e)
       }
@@ -107,17 +116,10 @@ tape('testing EVM1 Ops', (t) => {
       if (test.out.gasUsed) {
         t.equals(1000000 - testEnvironment.gasLeft, test.out.gasUsed, 'should have used the correct amount of gas')
       }
-    })
-  })
+    }
+  }
   t.end()
 })
-
-function buildTest (op, ethInterface) {
-  const funcs = compiler.resolveFunctions(new Set([op]))
-  const linked = compiler.buildModule(funcs, [], [op])
-  const wasm = compiler.wast2wasm(linked)
-  return new Kernel().codeHandler(wasm, ethInterface)
-}
 
 function hexToUint8Array (item, length) {
   return new Uint8Array(ethUtil.setLength(new Buffer(item.slice(2), 'hex'), length || 32))

@@ -3,24 +3,22 @@
     "description": "tests sstore",
     "source": [
       "PUSH1",
+      "0x03",
+      "PUSH1",
       "0x04",
-      "JUMP",
-      "STOP",
-      "JUMPDEST",
+      "SSTORE",
       "PUSH1",
-      "0x03",
-      "PUSH1",
-      "0x03",
-      "ADD"
+      "0x04",
+      "SLOAD"
     ],
-    "code": "0x600456005b6003600301",
+    "code": "0x6003600455600454",
     "result": {
       "stack": [
-        "0x06"
+        "0x03"
       ],
       "memory": []
     },
-    "gasUsed": 21,
+    "gasUsed": 20059,
     "environment": {
       "coinbase": "0x0000000000000000000000000000000000000000",
       "origin": "0x0000000000000000000000000000000000000000"

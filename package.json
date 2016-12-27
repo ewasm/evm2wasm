@@ -4,8 +4,8 @@
   "description": "This is a JS protope of a EVM to eWASM transcompiler",
   "main": "index.js",
   "scripts": {
-    "test": "node --expose-wasm ./tests/allRunner.js",
-    "vmTests": "node --expose-wasm ./tests/runVmTests.js | tap-bail",
+    "test": "node --expose-wasm --harmony ./tests/allRunner.js",
+    "vmTests": "node --expose-wasm --harmony ./tests/runVmTests.js | tap-bail",
     "lint": "standard",
     "build": "node ./wasm/generateInterface.js && node ./wasm/generateJson.js",
     "build:docs": "documentation build --github  -f md ./index.js > ./docs/index.md"
