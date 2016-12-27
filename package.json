@@ -15,12 +15,11 @@
   "devDependencies": {
     "async": "^2.0.0-rc.6",
     "bn.js": "^4.11.6",
-    "ethereumjs-testing": "0.0.1",
-    "ethereumjs-vm": "^1.4.0",
-    "ewasm-kernel": "git+ssh://git@github.com/ewasm/ewasm-kernel.git#d4ba20b58c01dea031c4dbd86e4a99d066ca1c28",
-    "merkle-trie": "^0.1.1",
+    "ethereumjs-testing": "0.0.2",
+    "ethereumjs-vm": "^2.0.0",
+    "ewasm-kernel": "git+https://github.com/ewasm/ewasm-kernel.git",
     "minimist": "^1.2.0",
-    "standard": "^7.1.2",
+    "standard": "^8.5.0",
     "tap-bail": "0.0.0",
     "tape": "^4.6.0"
   },
