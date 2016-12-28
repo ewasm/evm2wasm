@@ -27,7 +27,7 @@ tape('testing transcompiler', async t => {
 
       const environment = new Enviroment()
       environment.gasLeft = 90000
-      environment.block.header.coinbase = test.environment.coinbase
+      environment.coinbase = new Address(test.environment.coinbase)
       environment.origin = new Address(test.environment.origin)
       if (test.environment.callData) {
         environment.callData = new Buffer(test.environment.callData.slice(2), 'hex')
