@@ -1,6 +1,3 @@
-;;
-;; memset from ewasm-libc/ewasm-cleanup
-;;
 (func $memset
   (param $ptr i32)
   (param $value i32)
@@ -11,15 +8,17 @@
 
   (set_local $i (i32.const 0))
 
-  (loop $done $loop
-    (if (i32.ge_u (get_local $i) (get_local $length))
-      (br $done)
+  (block $done
+    (loop $loop
+      (if (i32.ge_u (get_local $i) (get_local $length))
+        (br $done)
+      )
+
+      (i32.store8 (i32.add (get_local $ptr) (get_local $i)) (get_local $value))
+
+      (set_local $i (i32.add (get_local $i) (i32.const 1)))
+      (br $loop)
     )
-
-    (i32.store8 (i32.add (get_local $ptr) (get_local $i)) (get_local $value))
-
-    (set_local $i (i32.add (get_local $i) (i32.const 1)))
-    (br $loop)
   )
 
   (return (get_local $ptr))

@@ -1,6 +1,5 @@
 ;; stack:
 ;;  0: dataOffset
-(import $callDataCopy256 "ethereum" "callDataCopy256" (param i32 i32))
 (func $CALLDATALOAD
   (param $sp i32)
   (local $writeOffset i32)
@@ -25,7 +24,7 @@
                                    (get_local $writeOffset2)
                                    (get_local $writeOffset3)))
 
-  (call_import $callDataCopy256 (get_local $sp) (get_local $writeOffset))
+  (call $callDataCopy256 (get_local $sp) (get_local $writeOffset))
   ;; swap top stack item
   (call $bswap_m256 (get_local $sp))
 )

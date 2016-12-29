@@ -9,7 +9,7 @@
   ;; the eighth Mersenne prime,  2^31 - 1
   (set_local $MAX_INT (i64.const 0x7fffffff))
 
-  (if 
+  (if i32 
     (i32.and 
       (i32.and 
         (i64.eqz  (get_local $d))

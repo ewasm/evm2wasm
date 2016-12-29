@@ -304,14 +304,17 @@ exports.evm2wast = function (evmCode, opts = {
     wasmCode = '(import $printMem "debug" "printMemHex" (param i32 i32)) (import $print "debug" "print" (param i32)) (import $stackTrace "debug" "evmStackTrace" (param i32 i32)) ' + wasmCode
   }
 
-  let funcMap = []
+  let funcs = []
+  let imports = []
   // inline EVM opcode implemention
   if (opts.inlineOps) {
-    funcMap = exports.resolveFunctions(opcodesUsed)
+    [funcs, imports] = exports.resolveFunctions(opcodesUsed)
   }
+  imports.push('(import "ethereum" "useGas" (func $useGas (param i64)))')
 
-  funcMap.push(wasmCode)
-  wasmCode = exports.buildModule(funcMap)
+  funcs.push(wasmCode)
+  console.log(funcs)
+  wasmCode = exports.buildModule(funcs, imports)
   // pretty print the s-exporesion
   if (opts.pprint) {
     wasmCode = pprint(wasmCode)
@@ -337,7 +340,7 @@ exports.evm2wast = function (evmCode, opts = {
 
   // add a metering statment at the beginning of a segment
   function addMetering () {
-    wasmCode += `(call_import $useGas (i64.const ${gasCount})) ` + segment
+    wasmCode += `(call $useGas (i64.const ${gasCount})) ` + segment
     segment = ''
     gasCount = 0
   }
@@ -361,8 +364,8 @@ function assmebleSegments (segments) {
   })
 
   return `
-    (export "main" $main)
     (func $main
+         (export "main")
          (param $isCallback i32)
          (local $cb_dest i32)
          (local $cb_dest_loc i32)
@@ -387,8 +390,9 @@ function assmebleSegments (segments) {
            )
          )
 
-         (loop $done $loop
-          ${wasm}`
+         (block $done
+           (loop $loop
+            ${wasm})`
 }
 
 // Builds the Jump map, which maps EVM jump location to a block label
@@ -396,11 +400,11 @@ function assmebleSegments (segments) {
 // @return {String}
 function buildJumpMap (segments) {
   let wasm = `
-    (if (i32.eq (get_local $jump_dest) (i32.const -1))
+    (if i32 (i32.eq (get_local $jump_dest) (i32.const -1))
       (then (i32.const 0))
       (else
         ;; the callback dest can never be in the first block
-        (if (i32.eq (get_local $cb_dest) (i32.const 0)) 
+        (if i32 (i32.eq (get_local $cb_dest) (i32.const 0)) 
           (then (unreachable))
           (else 
             ;; use sp_loc as temp
@@ -473,10 +477,12 @@ function resolveFunctionDeps (funcSet) {
  */
 exports.resolveFunctions = function (funcSet) {
   let funcs = []
+  let imports = []
   for (let func of resolveFunctionDeps(funcSet)) {
-    funcs.push(wastFiles[func + '.wast'])
+    funcs.push(wastFiles[func].wast)
+    imports.push(wastFiles[func].imports)
   }
-  return funcs
+  return [funcs, imports]
 }
 
 /**
@@ -491,12 +497,12 @@ exports.buildModule = function (funcs, imports = [], exports = []) {
     funcStr += func
   }
   for (let exprt of exports) {
-    funcStr += `(export "${exprt}" $${exprt})`
+    funcStr += `(export "${exprt}" (func $${exprt}))`
   }
   return `(module
-          (import $useGas "ethereum" "useGas" (param i64))
-          (memory 1)
-          (export "memory" memory)
+           ${imports.join('\n')}
+          (memory 2)
+          (export "memory" (memory 0))
             ${funcStr}
           )`
 }
