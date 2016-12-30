@@ -363,17 +363,7 @@ function assmebleSegments (segments) {
   return `
     (func $main
          (export "main")
-         (param $isCallback i32)
          (local $jump_dest i32)
-
-         (if (i32.eqz (get_local $isCallback))
-           (then 
-             (set_local $jump_dest (i32.const -1)))
-           (else 
-             ;; sets jump dest to a invalid location
-             (set_local $jump_dest (i32.const -2))
-           )
-         )
 
          (block $done
            (loop $loop
@@ -385,14 +375,16 @@ function assmebleSegments (segments) {
 // @return {String}
 function buildJumpMap (segments) {
   let wasm = `
-    (if i32 (i32.eq (get_local $jump_dest) (i32.const -1))
-      (then (i32.const 0))
+    (if i32 (i32.eqz (get_global $init))
+      (then
+       (set_global $init (i32.const 1))
+       (i32.const 0))
       (else
         ;; the callback dest can never be in the first block
         (if i32 (i32.eq (get_global $cb_dest) (i32.const 0)) 
           (then (unreachable))
           (else 
-            ;; return callback destination and zero out the reg
+            ;; return callback destination and zero out $cb_dest 
             get_global $cb_dest
             (set_global $cb_dest (i32.const 0))
            ))))`
@@ -488,6 +480,7 @@ exports.buildModule = function (funcs, imports = [], exports = []) {
            ${imports.join('\n')}
           (global $cb_dest (mut i32) (i32.const 0))
           (global $sp (mut i32) (i32.const -32))
+          (global $init (mut i32) (i32.const 0))
           (memory 2)
           (export "memory" (memory 0))
             ${funcStr}
