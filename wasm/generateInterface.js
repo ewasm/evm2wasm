@@ -368,4 +368,4 @@ files.forEach((file) => {
   json[file].wast = wast
 })
 
-fs.writeFileSync(path.join(__dirname, 'wast.json'), JSON.stringify(json))
+fs.writeFileSync(path.join(__dirname, 'wast.json'), JSON.stringify(json, null, 2))
