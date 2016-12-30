@@ -236,7 +236,6 @@
   (set_local $h (i64.or (i64.shl (get_local $temp1) (i64.const 32)) (i64.and (get_local $temp0) (i64.const 4294967295))))
 
   ;; pop the MOD argmunet off the stack
-
   (set_local $moda (i64.load (i32.add (get_local $sp) (i32.const 24))))
   (set_local $modb (i64.load (i32.add (get_local $sp) (i32.const 16))))
   (set_local $modc (i64.load (i32.add (get_local $sp) (i32.const  8))))

@@ -26,9 +26,9 @@ tape('testing EVM1 Ops', async t => {
       // FIXME: have separate `t.test()` for better grouping
       t.comment(`testing ${test.op} ${test.description}`)
 
-      const funcs = compiler.resolveFunctions(new Set([test.op]))
-
-      const linked = compiler.buildModule(funcs, [], [test.op])
+      const [funcs, imports] = compiler.resolveFunctions(new Set([test.op]))
+      imports.push('(import "ethereum" "useGas" (func $useGas (param i64)))')
+      const linked = compiler.buildModule(funcs, imports, [test.op])
       const wasm = compiler.wast2wasm(linked)
       const kernel = new Kernel({
         code: wasm
@@ -41,13 +41,14 @@ tape('testing EVM1 Ops', async t => {
         return
       }
 
-      let testInstance = kernel.interfaceAPI._instance
+      let testInstance = kernel._vm._instance
 
       // populate the environment
       testEnvironment.caller = new Address(test.environment.caller)
       testEnvironment.address = new Address(test.environment.address)
       testEnvironment.callData = new Buffer(test.environment.callData.slice(2), 'hex')
       testEnvironment.coinbase = new Address(test.environment.coinbase)
+      console.log('here')
 
       // populate the stack with predefined values
       test.in.stack.forEach((item, index) => {
@@ -73,7 +74,7 @@ tape('testing EVM1 Ops', async t => {
 
       try {
         testInstance.exports[test.op](...(test.params || []), sp) + 32
-        await kernel.interfaceAPI.onDone()
+        await kernel._vm.onDone()
       } catch (e) {
         t.fail('WASM exception: ' + e)
       }
@@ -126,9 +127,9 @@ function hexToUint8Array (item, length) {
 }
 
 function setMemory (instance, value, start) {
-  new Uint8Array(instance.exports.memory).set(value, start)
+  new Uint8Array(instance.exports.memory.buffer).set(value, start)
 }
 
 function getMemory (instance, start, end) {
-  return new Uint8Array(instance.exports.memory).slice(start, end).reverse()
+  return new Uint8Array(instance.exports.memory.buffer).slice(start, end).reverse()
 }

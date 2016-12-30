@@ -33,13 +33,15 @@
       (set_local $t (i32.add (i32.wrap/i64 (get_local $a3)) (get_local $sp))) 
       (set_local $sign (i64.shr_s (i64.load8_s (get_local $t)) (i64.const 8)))
       (set_local $t (i32.add (get_local $t) (i32.const 1)))
-      (loop $done $loop
-        (if (i32.lt_u (get_local $end) (get_local $t))
-          (br $done)
+      (block $done
+        (loop $loop
+          (if (i32.lt_u (get_local $end) (get_local $t))
+            (br $done)
+          )
+          (i64.store (get_local $t) (get_local $sign))
+          (set_local $t (i32.add (get_local $t) (i32.const 8)))
+          (br $loop)
         )
-        (i64.store (get_local $t) (get_local $sign))
-        (set_local $t (i32.add (get_local $t) (i32.const 8)))
-        (br $loop)
       )
     )
   )

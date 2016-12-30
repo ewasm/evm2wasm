@@ -7,7 +7,7 @@
     "test": "node --expose-wasm --harmony ./tests/allRunner.js",
     "vmTests": "node --expose-wasm --harmony ./tests/runVmTests.js | tap-bail",
     "lint": "standard",
-    "build": "node ./wasm/generateInterface.js && node ./wasm/generateJson.js",
+    "build": "node ./wasm/generateInterface.js",
     "build:docs": "documentation build --github  -f md ./index.js > ./docs/index.md"
   },
   "author": "mjbecze <mjbecze@gmail.com>",

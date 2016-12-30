@@ -8,6 +8,5 @@
   (i64.store (i32.add (get_local $sp) (i32.const 12)) (get_local $temp))
 
   (i32.store (i32.add (get_local $sp) (i32.const 8)) (call $bswap_i32 (i32.load (i32.add (get_local $sp) (i32.const 8)))))
-
   (get_local $sp)
 )
