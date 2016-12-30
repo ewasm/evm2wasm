@@ -164,11 +164,11 @@ exports.evm2wast = function (evmCode, opts = {
         jumpFound = true
         segment += `;; jump
                       (set_local $jump_dest (call $check_overflow 
-                                             (i64.load (get_local $sp))
-                                             (i64.load (i32.add (get_local $sp) (i32.const 8)))
-                                             (i64.load (i32.add (get_local $sp) (i32.const 16)))
-                                             (i64.load (i32.add (get_local $sp) (i32.const 24)))))
-                      (set_local $sp (i32.sub (get_local $sp) (i32.const 32)))
+                                             (i64.load (get_global $sp))
+                                             (i64.load (i32.add (get_global $sp) (i32.const 8)))
+                                             (i64.load (i32.add (get_global $sp) (i32.const 16)))
+                                             (i64.load (i32.add (get_global $sp) (i32.const 24)))))
+                      (set_global $sp (i32.sub (get_global $sp) (i32.const 32)))
                       (br $loop)`
         opcodesUsed.add('check_overflow')
         i = findNextJumpDest(evmCode, i)
@@ -176,19 +176,19 @@ exports.evm2wast = function (evmCode, opts = {
       case 'JUMPI':
         jumpFound = true
         segment += `(set_local $jump_dest (call $check_overflow 
-                                             (i64.load (get_local $sp))
-                                             (i64.load (i32.add (get_local $sp) (i32.const 8)))
-                                             (i64.load (i32.add (get_local $sp) (i32.const 16)))
-                                             (i64.load (i32.add (get_local $sp) (i32.const 24)))))
+                                             (i64.load (get_global $sp))
+                                             (i64.load (i32.add (get_global $sp) (i32.const 8)))
+                                             (i64.load (i32.add (get_global $sp) (i32.const 16)))
+                                             (i64.load (i32.add (get_global $sp) (i32.const 24)))))
 
-                    (set_local $sp (i32.sub (get_local $sp) (i32.const 64)))
+                    (set_global $sp (i32.sub (get_global $sp) (i32.const 64)))
                     (br_if $loop (i32.eqz (i64.eqz (i64.or
-                      (i64.load (i32.add (get_local $sp) (i32.const 32)))
+                      (i64.load (i32.add (get_global $sp) (i32.const 32)))
                       (i64.or
-                        (i64.load (i32.add (get_local $sp) (i32.const 40)))
+                        (i64.load (i32.add (get_global $sp) (i32.const 40)))
                         (i64.or
-                          (i64.load (i32.add (get_local $sp) (i32.const 48)))
-                          (i64.load (i32.add (get_local $sp) (i32.const 56)))
+                          (i64.load (i32.add (get_global $sp) (i32.const 48)))
+                          (i64.load (i32.add (get_global $sp) (i32.const 56)))
                         )
                       )
                     ))))`
@@ -202,19 +202,19 @@ exports.evm2wast = function (evmCode, opts = {
         gasCount = 1
         break
       case 'GAS':
-        segment += `(call $${op.name} (get_local $sp))`
+        segment += `(call $${op.name} (get_global $sp))`
         addMetering()
         break
       case 'LOG':
-        segment += `(call $${op.name} (i32.const ${op.number}) (get_local $sp))`
+        segment += `(call $${op.name} (i32.const ${op.number}) (get_global $sp))`
         break
       case 'DUP':
       case 'SWAP':
         // adds the number on the stack to SWAP
-        segment += `(call $${op.name} (i32.const ${op.number - 1}) (get_local $sp)) `
+        segment += `(call $${op.name} (i32.const ${op.number - 1}) (get_global $sp)) `
         break
       case 'PC':
-        segment += `(call $${op.name} (i32.const ${i}) (get_local $sp))`
+        segment += `(call $${op.name} (i32.const ${i}) (get_global $sp))`
         break
       case 'PUSH':
         i++
@@ -232,7 +232,7 @@ exports.evm2wast = function (evmCode, opts = {
           push = push + `(i64.const ${int64})`
         }
 
-        segment += `(call $${op.name} ${push} (get_local $sp))`
+        segment += `(call $${op.name} ${push} (get_global $sp))`
         i--
         break
       case 'POP':
@@ -249,7 +249,7 @@ exports.evm2wast = function (evmCode, opts = {
         break
       case 'SUICIDE':
       case 'RETURN':
-        segment += `(call $${op.name} (get_local $sp)) (br $done)`
+        segment += `(call $${op.name} (get_global $sp)) (br $done)`
         if (jumpFound) {
           i = findNextJumpDest(evmCode, i)
         } else {
@@ -263,9 +263,9 @@ exports.evm2wast = function (evmCode, opts = {
         break
       default:
         if (callBackIndex.has(op.name)) {
-          segment += `(call $${op.name} (get_local $sp) (i32.const ${callBackIndex.get(op.name)}))`
+          segment += `(call $${op.name} (get_global $sp) (i32.const ${callBackIndex.get(op.name)}))`
         } else {
-          segment += `(call $${op.name} (get_local $sp))`
+          segment += `(call $${op.name} (get_global $sp))`
         }
     }
 
@@ -276,22 +276,20 @@ exports.evm2wast = function (evmCode, opts = {
     const stackDeta = op.on - op.off
     // update the stack pointer
     if (stackDeta !== 0) {
-      segment += `(set_local $sp (i32.add (get_local $sp) (i32.const ${stackDeta * 32})))`
+      segment += `(set_global $sp (i32.add (get_global $sp) (i32.const ${stackDeta * 32})))`
     }
 
     // adds the logic to save the stack pointer before exiting to wiat to for a callback
     // note, this must be done before the sp is updated above^
     if (callBackIndex.has(op.name)) {
       segment += `(set_global $cb_dest (i32.const ${jumpSegments.length + 1}))
-          (i32.store (get_local $sp_loc) (get_local $sp))
-          (br $done))
-          `
+          (br $done))`
       jumpSegments.push({type: 'cb_dest'})
     }
 
     // creates a stack trace
     if (opts.stackTrace) {
-      segment += `(call $stackTrace (get_local $sp) (i32.const ${opint}))`
+      segment += `(call $stackTrace (get_global $sp) (i32.const ${opint}))`
     }
   }
 
@@ -324,11 +322,11 @@ exports.evm2wast = function (evmCode, opts = {
   function addStackCheck () {
     let check = ''
     if (segmentStackHigh !== 0) {
-      check = `(if (i32.gt_s (get_local $sp) (i32.const ${(1023 - segmentStackHigh) * 32})) 
+      check = `(if (i32.gt_s (get_global $sp) (i32.const ${(1023 - segmentStackHigh) * 32})) 
                  (then (unreachable)))`
     }
     if (segmentStackLow !== 0) {
-      check += `(if (i32.lt_s (get_local $sp) (i32.const ${-segmentStackLow * 32 - 32})) 
+      check += `(if (i32.lt_s (get_global $sp) (i32.const ${-segmentStackLow * 32 - 32})) 
                   (then (unreachable)))`
     }
     segment = check + segment
@@ -367,18 +365,11 @@ function assmebleSegments (segments) {
          (export "main")
          (param $isCallback i32)
          (local $jump_dest i32)
-         (local $sp i32)
-         (local $sp_loc i32)
-
-         (set_local $sp_loc (i32.const 32788))
 
          (if (i32.eqz (get_local $isCallback))
            (then 
-             (set_local $sp (i32.const -32))
              (set_local $jump_dest (i32.const -1)))
            (else 
-             ;; set up the stack pointer
-             (set_local $sp (i32.load (get_local $sp_loc)))
              ;; sets jump dest to a invalid location
              (set_local $jump_dest (i32.const -2))
            )
@@ -496,6 +487,7 @@ exports.buildModule = function (funcs, imports = [], exports = []) {
   return `(module
            ${imports.join('\n')}
           (global $cb_dest (mut i32) (i32.const 0))
+          (global $sp (mut i32) (i32.const -32))
           (memory 2)
           (export "memory" (memory 0))
             ${funcStr}
