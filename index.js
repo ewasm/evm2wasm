@@ -282,7 +282,7 @@ exports.evm2wast = function (evmCode, opts = {
     // adds the logic to save the stack pointer before exiting to wiat to for a callback
     // note, this must be done before the sp is updated above^
     if (callBackIndex.has(op.name)) {
-      segment += `(i32.store (get_local $cb_dest_loc) (i32.const ${jumpSegments.length + 1}))
+      segment += `(set_global $cb_dest (i32.const ${jumpSegments.length + 1}))
           (i32.store (get_local $sp_loc) (get_local $sp))
           (br $done))
           `
@@ -366,13 +366,10 @@ function assmebleSegments (segments) {
     (func $main
          (export "main")
          (param $isCallback i32)
-         (local $cb_dest i32)
-         (local $cb_dest_loc i32)
          (local $jump_dest i32)
          (local $sp i32)
          (local $sp_loc i32)
 
-         (set_local $cb_dest_loc (i32.const 32780))
          (set_local $sp_loc (i32.const 32788))
 
          (if (i32.eqz (get_local $isCallback))
@@ -382,8 +379,6 @@ function assmebleSegments (segments) {
            (else 
              ;; set up the stack pointer
              (set_local $sp (i32.load (get_local $sp_loc)))
-             ;; set up call back destion
-             (set_local $cb_dest (i32.load (get_local $cb_dest_loc)))
              ;; sets jump dest to a invalid location
              (set_local $jump_dest (i32.const -2))
            )
@@ -403,13 +398,13 @@ function buildJumpMap (segments) {
       (then (i32.const 0))
       (else
         ;; the callback dest can never be in the first block
-        (if i32 (i32.eq (get_local $cb_dest) (i32.const 0)) 
+        (if i32 (i32.eq (get_global $cb_dest) (i32.const 0)) 
           (then (unreachable))
           (else 
-            ;; use sp_loc as temp
-            (set_local $isCallback (get_local $cb_dest))
-            (set_local $cb_dest (i32.const 0))
-            (get_local $isCallback)))))`
+            ;; return callback destination and zero out the reg
+            get_global $cb_dest
+            (set_global $cb_dest (i32.const 0))
+           ))))`
 
   let brTable = '(block $0 (br_table $0'
   segments.forEach((seg, index) => {
@@ -500,6 +495,7 @@ exports.buildModule = function (funcs, imports = [], exports = []) {
   }
   return `(module
            ${imports.join('\n')}
+          (global $cb_dest (mut i32) (i32.const 0))
           (memory 2)
           (export "memory" (memory 0))
             ${funcStr}
