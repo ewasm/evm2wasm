@@ -481,6 +481,13 @@ exports.buildModule = function (funcs, imports = [], exports = []) {
           (global $cb_dest (mut i32) (i32.const 0))
           (global $sp (mut i32) (i32.const -32))
           (global $init (mut i32) (i32.const 0))
+
+          (global $memstart i32  (i32.const 33832))
+          ;; the number of 256 words stored in memory
+          (global $wordCount (mut i32) (i32.const 0))
+          ;; what was charged for the last memory allocation
+          (global $prevMemCost (mut i64) (i64.const 0))
+
           (memory 2)
           (export "memory" (memory 0))
             ${funcStr}
