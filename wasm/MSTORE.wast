@@ -33,6 +33,7 @@
 
   ;; swap top stack item
   (call $bswap_m256 (get_local $sp))
+  drop
 
   (set_local $offset (i32.add (get_local $offset) (get_local $memstart)))
   ;; store word to memory

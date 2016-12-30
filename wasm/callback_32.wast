@@ -1,5 +1,5 @@
-(export "1" $callback_32) 
 (func $callback_32
+  (export "1") 
   (param $result i32)
 
   (local $sp i32)

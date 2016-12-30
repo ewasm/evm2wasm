@@ -36,4 +36,5 @@
 
   ;; swap
   (call $bswap_m256 (get_local $sp))
+  drop
 )

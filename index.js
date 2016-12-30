@@ -291,13 +291,13 @@ exports.evm2wast = function (evmCode, opts = {
 
     // creates a stack trace
     if (opts.stackTrace) {
-      segment += `(call_import $stackTrace (get_local $sp) (i32.const ${opint}))`
+      segment += `(call $stackTrace (get_local $sp) (i32.const ${opint}))`
     }
   }
 
   endSegment()
 
-  wasmCode = assmebleSegments(jumpSegments) + wasmCode + ')'
+  wasmCode = assmebleSegments(jumpSegments) + wasmCode + '))'
 
   // import stack trace function
   if (opts.stackTrace) {
@@ -313,7 +313,6 @@ exports.evm2wast = function (evmCode, opts = {
   imports.push('(import "ethereum" "useGas" (func $useGas (param i64)))')
 
   funcs.push(wasmCode)
-  console.log(funcs)
   wasmCode = exports.buildModule(funcs, imports)
   // pretty print the s-exporesion
   if (opts.pprint) {
@@ -392,7 +391,7 @@ function assmebleSegments (segments) {
 
          (block $done
            (loop $loop
-            ${wasm})`
+            ${wasm}`
 }
 
 // Builds the Jump map, which maps EVM jump location to a block label
@@ -416,7 +415,7 @@ function buildJumpMap (segments) {
   segments.forEach((seg, index) => {
     brTable += ' $' + (index + 1)
     if (seg.type === 'jump_dest') {
-      wasm = `(if (i32.eq (get_local $jump_dest) (i32.const ${seg.number}))
+      wasm = `(if i32 (i32.eq (get_local $jump_dest) (i32.const ${seg.number}))
                     (then (i32.const ${index + 1}))
                     (else ${wasm}))`
     }

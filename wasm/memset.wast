@@ -3,7 +3,6 @@
   (param $value i32)
   (param $length i32)
   (result i32)
-
   (local $i i32)
 
   (set_local $i (i32.const 0))
@@ -20,6 +19,5 @@
       (br $loop)
     )
   )
-
-  (return (get_local $ptr))
+  (get_local $ptr)
 )

@@ -52,4 +52,5 @@
   (call $keccak (get_local $contextOffset) (get_local $dataOffset) (get_local $length) (get_local $outputOffset))
 
   (call $bswap_m256 (get_local $outputOffset))
+  drop
 )
