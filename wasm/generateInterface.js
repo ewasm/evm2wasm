@@ -199,7 +199,6 @@ function generateManifest (interfaceManifest) {
     // generate the call to the interface
     let spOffset = 0
     let numOfLocals = 0
-    let usesMem = false
     let lastOffset
     let call = `(call $${op.name}`
     op.input.forEach((input) => {
@@ -244,7 +243,6 @@ function generateManifest (interfaceManifest) {
       (i64.load (i32.add (get_local $sp) (i32.const ${spOffset * 32 + 8 * 2})))
       (i64.load (i32.add (get_local $sp) (i32.const ${spOffset * 32 + 8 * 3})))))`
         call += `(get_local $offset${numOfLocals})`
-        usesMem = true
       } else if (input === 'length') {
         locals += `(local $length${numOfLocals} i32)`
         body += `(set_local $length${numOfLocals} 
@@ -255,7 +253,7 @@ function generateManifest (interfaceManifest) {
       (i64.load (i32.add (get_local $sp) (i32.const ${spOffset * 32 + 8 * 3})))))
 
     (call $memusegas (get_local $offset${numOfLocals}) (get_local $length${numOfLocals}))
-    (set_local $offset${numOfLocals} (i32.add (get_local $memstart) (get_local $offset${numOfLocals})))`
+    (set_local $offset${numOfLocals} (i32.add (get_global $memstart) (get_local $offset${numOfLocals})))`
 
         if (lastOffset === 'writeOffset') {
           body += `(call $memset 
@@ -348,10 +346,6 @@ function generateManifest (interfaceManifest) {
         call += '(get_local $callback)'
       }
       call += ')'
-    }
-
-    if (usesMem) {
-      locals += '(local $memstart i32) (set_local $memstart (i32.const 33832))'
     }
 
     wasm += `${locals} ${body} ${call})`

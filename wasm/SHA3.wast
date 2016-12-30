@@ -1,6 +1,5 @@
 (func $SHA3
   (param $sp i32)
-  (local $memstart i32)
 
   (local $dataOffset i32)
   (local $dataOffset0 i64)
@@ -16,8 +15,6 @@
 
   (local $contextOffset i32)
   (local $outputOffset i32)
-
-  (set_local $memstart (i32.const 33832))
 
   (set_local $length0 (i64.load (i32.sub (get_local $sp) (i32.const 32))))
   (set_local $length1 (i64.load (i32.sub (get_local $sp) (i32.const 24))))
@@ -44,7 +41,7 @@
   (call $useGas (i64.extend_u/i32 (i32.mul (i32.div_u (i32.add (get_local $length) (i32.const 31)) (i32.const 32)) (i32.const 6))))
   (call $memusegas (get_local $dataOffset) (get_local $length))
 
-  (set_local $dataOffset (i32.add (get_local $memstart) (get_local $dataOffset)))
+  (set_local $dataOffset (i32.add (get_global $memstart) (get_local $dataOffset)))
 
   (set_local $contextOffset (i32.const 32808))
   (set_local $outputOffset (i32.sub (get_local $sp) (i32.const 32)))
