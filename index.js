@@ -1,7 +1,6 @@
 const BN = require('bn.js')
+const wast2wasm = require('wast2wasm')
 const ethUtil = require('ethereumjs-util')
-const fs = require('fs')
-const cp = require('child_process')
 const opcodes = require('./opcodes.js')
 const wastFiles = require('./wasm/wast.json')
 
@@ -63,23 +62,12 @@ const depMap = new Map([
  * @param {boolean} opts.inlineOps if `true` inlines the EVM1 operations
  * @return {string}
  */
-exports.compile = function (evmCode, opts = {
+exports.evm2wasm = function (evmCode, opts = {
   'stackTrace': false,
   'pprint': false,
   'inlineOps': true
 }) {
-  return exports.wast2wasm(exports.evm2wast(evmCode, opts))
-}
-
-/**
- * compiles wasm text format to binary
- * @param {string} wast
- * @return {buffer}
- */
-exports.wast2wasm = function (wast) {
-  fs.writeFileSync(`${__dirname}/temp.wast`, wast)
-  cp.execSync(`${__dirname}/tools/wabt/out/wast2wasm ${__dirname}/temp.wast -o ${__dirname}/temp.wasm`)
-  return fs.readFileSync(`${__dirname}/temp.wasm`)
+  return wast2wasm(exports.evm2wast(evmCode, opts))
 }
 
 /**

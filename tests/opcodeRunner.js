@@ -1,6 +1,7 @@
 const fs = require('fs')
 const tape = require('tape')
 const Kernel = require('ewasm-kernel')
+const wast2wasm = require('wast2wasm')
 const KernelEnvironment = require('ewasm-kernel/testEnvironment.js')
 const Address = require('ewasm-kernel/deps/address.js')
 const ethUtil = require('ethereumjs-util')
@@ -29,7 +30,9 @@ tape('testing EVM1 Ops', async t => {
       const [funcs, imports] = compiler.resolveFunctions(new Set([test.op]))
       imports.push('(import "ethereum" "useGas" (func $useGas (param i64)))')
       const linked = compiler.buildModule(funcs, imports, [test.op])
-      const wasm = compiler.wast2wasm(linked)
+      const {
+        buffer: wasm
+      } = await wast2wasm(linked)
       const kernel = new Kernel({
         code: wasm
       })

@@ -1,9 +1,0 @@
-[submodule "sexpr-wasm-prototype"]
-	path = tools/sexpr-wasm-prototype
-	url = https://github.com/WebAssembly/sexpr-wasm-prototype.git
-[submodule "keccak-wast"]
-	path = wasm/keccak
-	url = https://github.com/axic/keccak-wasm
-[submodule "tools/wabt"]
-	path = tools/wabt
-	url = https://github.com/WebAssembly/wabt
