@@ -6,7 +6,6 @@ const opcodes = require('./opcodes.js')
 const wastFiles = require('./wasm/wast.json')
 
 // map to track dependent WASM functions
-// TODO remove bswaps
 const depMap = new Map([
   ['callback_256', ['bswap_m256']],
   ['callback_160', ['bswap_m160']],
@@ -362,12 +361,12 @@ function assmebleSegments (segments) {
 
   return `
     (func $main
-         (export "main")
-         (local $jump_dest i32)
+      (export "main")
+      (local $jump_dest i32)
 
-         (block $done
-           (loop $loop
-            ${wasm}`
+      (block $done
+        (loop $loop
+          ${wasm}`
 }
 
 // Builds the Jump map, which maps EVM jump location to a block label
@@ -386,16 +385,15 @@ function buildJumpMap (segments) {
           (else 
             ;; return callback destination and zero out $cb_dest 
             get_global $cb_dest
-            (set_global $cb_dest (i32.const 0))
-           ))))`
+            (set_global $cb_dest (i32.const 0))))))`
 
   let brTable = '(block $0 (br_table $0'
   segments.forEach((seg, index) => {
     brTable += ' $' + (index + 1)
     if (seg.type === 'jump_dest') {
       wasm = `(if i32 (i32.eq (get_local $jump_dest) (i32.const ${seg.number}))
-                    (then (i32.const ${index + 1}))
-                    (else ${wasm}))`
+                (then (i32.const ${index + 1}))
+                (else ${wasm}))`
     }
   })
 
@@ -477,20 +475,22 @@ exports.buildModule = function (funcs, imports = [], exports = []) {
     funcStr += `(export "${exprt}" (func $${exprt}))`
   }
   return `(module
-           ${imports.join('\n')}
-          (global $cb_dest (mut i32) (i32.const 0))
-          (global $sp (mut i32) (i32.const -32))
-          (global $init (mut i32) (i32.const 0))
+             ${imports.join('\n')}
+            (global $cb_dest (mut i32) (i32.const 0))
+            (global $sp (mut i32) (i32.const -32))
+            (global $init (mut i32) (i32.const 0))
 
-          (global $memstart i32  (i32.const 33832))
-          ;; the number of 256 words stored in memory
-          (global $wordCount (mut i32) (i32.const 0))
-          ;; what was charged for the last memory allocation
-          (global $prevMemCost (mut i64) (i64.const 0))
+            ;; memory related global
+            (global $memstart i32  (i32.const 33832))
+            ;; the number of 256 words stored in memory
+            (global $wordCount (mut i32) (i32.const 0))
+            ;; what was charged for the last memory allocation
+            (global $prevMemCost (mut i64) (i64.const 0))
 
-          (memory 2)
-          (export "memory" (memory 0))
-            ${funcStr}
+            ;; TODO: memory should only be 1, but can't resize right now
+            (memory 2)
+            (export "memory" (memory 0))
+              ${funcStr}
           )`
 }
 
