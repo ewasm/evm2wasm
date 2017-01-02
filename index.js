@@ -53,6 +53,22 @@ const depMap = new Map([
   ['CALLER', ['bswap_m160']]
 ])
 
+// maps the async ops to their call back function
+const callbackFuncs = new Map([
+  ['SSTORE', '$callback'],
+  ['SLOAD', '$callback_256'],
+  ['CREATE', '$callback_160'],
+  ['CALL', '$callback_32'],
+  ['DELEGATECALL', '$callback'],
+  ['CALLCODE', '$callback_32'],
+  ['EXTCODECOPY', '$callback'],
+  ['EXTCODESIZE', '$callback_32'],
+  ['CODECOPY', '$callback'],
+  ['CODESIZE', '$callback_32'],
+  ['BALANCE', '$callback_128'],
+  ['BLOCKHASH', '$callback_256']
+])
+
 /**
  * compiles evmCode to wasm in the binary format
  * @param {Array} evmCode
@@ -99,21 +115,8 @@ exports.evm2wast = function (evmCode, opts = {
   // to figure out what .wast files to include
   const opcodesUsed = new Set()
   const ignoredOps = new Set(['JUMP', 'JUMPI', 'JUMPDEST', 'POP', 'STOP', 'INVALID'])
-  // maps the async ops to their call back index
-  const callBackIndex = new Map([
-    ['SSTORE', 0],
-    ['SLOAD', 4],
-    ['CREATE', 3],
-    ['CALL', 1],
-    ['DELEGATECALL', 0],
-    ['CALLCODE', 1],
-    ['EXTCODECOPY', 0],
-    ['EXTCODESIZE', 1],
-    ['CODECOPY', 0],
-    ['CODESIZE', 1],
-    ['BALANCE', 2],
-    ['BLOCKHASH', 4]
-  ])
+
+  const callbackTable = []
 
   // an array of found segments
   const jumpSegments = []
@@ -249,8 +252,13 @@ exports.evm2wast = function (evmCode, opts = {
         i = findNextJumpDest(evmCode, i)
         break
       default:
-        if (callBackIndex.has(op.name)) {
-          segment += `(call $${op.name} (get_global $sp) (i32.const ${callBackIndex.get(op.name)}))`
+        if (callbackFuncs.has(op.name)) {
+          const cbFunc = callbackFuncs.get(op.name)
+          let index = callbackTable.indexOf(cbFunc)
+          if (index === -1) {
+            index = callbackTable.push(cbFunc) - 1
+          }
+          segment += `(call $${op.name} (get_global $sp) (i32.const ${index}))`
         } else {
           segment += `(call $${op.name} (get_global $sp))`
         }
@@ -268,7 +276,7 @@ exports.evm2wast = function (evmCode, opts = {
 
     // adds the logic to save the stack pointer before exiting to wiat to for a callback
     // note, this must be done before the sp is updated above^
-    if (callBackIndex.has(op.name)) {
+    if (callbackFuncs.has(op.name)) {
       segment += `(set_global $cb_dest (i32.const ${jumpSegments.length + 1}))
           (br $done))`
       jumpSegments.push({type: 'cb_dest'})
@@ -298,7 +306,7 @@ exports.evm2wast = function (evmCode, opts = {
   imports.push('(import "ethereum" "useGas" (func $useGas (param i64)))')
 
   funcs.push(wasmCode)
-  wasmCode = exports.buildModule(funcs, imports)
+  wasmCode = exports.buildModule(funcs, imports, [], callbackTable)
   // pretty print the s-exporesion
   if (opts.pprint) {
     wasmCode = pprint(wasmCode)
@@ -348,13 +356,13 @@ function assmebleSegments (segments) {
   })
 
   return `
-    (func $main
-      (export "main")
-      (local $jump_dest i32)
+  (func $main
+    (export "main")
+    (local $jump_dest i32)
 
-      (block $done
-        (loop $loop
-          ${wasm}`
+    (block $done
+      (loop $loop
+        ${wasm}`
 }
 
 // Builds the Jump map, which maps EVM jump location to a block label
@@ -454,7 +462,7 @@ exports.resolveFunctions = function (funcSet) {
  * @param {Array} imports the imports for the module's import table
  * @return {string}
  */
-exports.buildModule = function (funcs, imports = [], exports = []) {
+exports.buildModule = function (funcs, imports = [], exports = [], cbs = []) {
   let funcStr = ''
   for (let func of funcs) {
     funcStr += func
@@ -462,24 +470,31 @@ exports.buildModule = function (funcs, imports = [], exports = []) {
   for (let exprt of exports) {
     funcStr += `(export "${exprt}" (func $${exprt}))`
   }
-  return `(module
-             ${imports.join('\n')}
-            (global $cb_dest (mut i32) (i32.const 0))
-            (global $sp (mut i32) (i32.const -32))
-            (global $init (mut i32) (i32.const 0))
+  return `
+(module
+  ${imports.join('\n')}
+  (global $cb_dest (mut i32) (i32.const 0))
+  (global $sp (mut i32) (i32.const -32))
+  (global $init (mut i32) (i32.const 0))
 
-            ;; memory related global
-            (global $memstart i32  (i32.const 33832))
-            ;; the number of 256 words stored in memory
-            (global $wordCount (mut i32) (i32.const 0))
-            ;; what was charged for the last memory allocation
-            (global $prevMemCost (mut i64) (i64.const 0))
+  ;; memory related global
+  (global $memstart i32  (i32.const 33832))
+  ;; the number of 256 words stored in memory
+  (global $wordCount (mut i32) (i32.const 0))
+  ;; what was charged for the last memory allocation
+  (global $prevMemCost (mut i64) (i64.const 0))
 
-            ;; TODO: memory should only be 1, but can't resize right now
-            (memory 2)
-            (export "memory" (memory 0))
-              ${funcStr}
-          )`
+  ;; TODO: memory should only be 1, but can't resize right now
+  (memory 2)
+  (export "memory" (memory 0))
+
+  (table
+    (export "callback")
+    anyfunc
+    (elem ${cbs.join(' ')})
+  )
+   ${funcStr}
+)`
 }
 
 // a s-expression pretty print function
