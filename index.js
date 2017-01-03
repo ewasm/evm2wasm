@@ -84,9 +84,21 @@ exports.evm2wasm = function (evmCode, opts = {
   'inlineOps': true
 }) {
   const wast = exports.evm2wast(evmCode, opts)
-  // const fs = require('fs')
-  // fs.writeFileSync('./temp.wast', wast)
-  return wast2wasm(wast)
+  if (opts.wabt) {
+    return new Promise((resolve, reject) => {
+      const fs = require('fs')
+      const cp = require('child_process')
+      fs.writeFile(`${__dirname}/temp.wast`, wast, () => {
+        cp.exec(`${__dirname}/tools/wabt/out/wast2wasm ${__dirname}/temp.wast -o ${__dirname}/temp.wasm`, () => {
+          fs.readFile(`${__dirname}/temp.wasm`, (err, wasm) => {
+            resolve(wasm)
+          })
+        })
+      })
+    })
+  } else {
+    return wast2wasm(wast)
+  }
 }
 
 /**
@@ -295,16 +307,18 @@ exports.evm2wast = function (evmCode, opts = {
 
   wasmCode = assmebleSegments(jumpSegments) + wasmCode + '))'
 
-  // import stack trace function
-  if (opts.stackTrace) {
-    wasmCode = '(import $printMem "debug" "printMemHex" (param i32 i32)) (import $print "debug" "print" (param i32)) (import $stackTrace "debug" "evmStackTrace" (param i32 i32)) ' + wasmCode
-  }
-
-  let funcs = []
   let imports = []
+  let funcs = []
   // inline EVM opcode implemention
   if (opts.inlineOps) {
     [funcs, imports] = exports.resolveFunctions(opcodesUsed)
+  }
+
+  // import stack trace function
+  if (opts.stackTrace) {
+    imports.push('(import "debug" "printMemHex" (func $printMem (param i32 i32)))')
+    imports.push('(import "debug" "print" (func $print (param i32)))')
+    imports.push('(import "debug" "evmStackTrace" (func $stackTrace (param i32 i32)))')
   }
   imports.push('(import "ethereum" "useGas" (func $useGas (param i64)))')
 
@@ -488,7 +502,7 @@ exports.buildModule = function (funcs, imports = [], exports = [], cbs = []) {
   (global $prevMemCost (mut i64) (i64.const 0))
 
   ;; TODO: memory should only be 1, but can't resize right now
-  (memory 2)
+  (memory 3)
   (export "memory" (memory 0))
 
   (table

@@ -5,7 +5,7 @@
   (param $d i64)
   (result i64)
 
-  (if 
+  (if i64
     (i32.and 
       (i32.and 
         (i64.eqz  (get_local $d))

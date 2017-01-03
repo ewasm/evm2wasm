@@ -24,7 +24,8 @@ async function runner (testData, t) {
   } = await evm2wasm(code, {
     stackTrace: argv.trace,
     inlineOps: true,
-    pprint: false
+    pprint: false,
+    wabt: true
   })
 
   const rootVertex = new Vertex()

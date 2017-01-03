@@ -1,5 +1,4 @@
 (func $callback_32
-  (export "1") 
   (param $result i32)
 
   (i64.store (get_global $sp) (i64.extend_u/i32 (get_local $result)))
