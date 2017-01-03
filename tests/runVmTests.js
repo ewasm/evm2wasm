@@ -6,10 +6,10 @@ const Kernel = require('ewasm-kernel')
 const Environment = require('ewasm-kernel/environment.js')
 const Address = require('ewasm-kernel/deps/address.js')
 const U256 = require('ewasm-kernel/deps/u256.js')
-const evm2wasm = require('../index.js')
+const evm2wasm = require('../index.js').evm2wasm
 const Vertex = require('merkle-trie')
 
-const Interface = require('ewasm-kernel/EVMinterface')
+const Interface = require('ewasm-kernel/EVMimports')
 const DebugInterface = require('ewasm-kernel/debugInterface')
 
 // tests that we are skipping
@@ -19,7 +19,9 @@ const DebugInterface = require('ewasm-kernel/debugInterface')
 
 async function runner (testData, t) {
   const code = Buffer.from(testData.exec.code.slice(2), 'hex')
-  const evm = evm2wasm.compile(code, {
+  const {
+    buffer: evm
+  } = await evm2wasm(code, {
     stackTrace: argv.trace,
     inlineOps: true,
     pprint: false
@@ -29,10 +31,14 @@ async function runner (testData, t) {
   const enviroment = setupEnviroment(testData, rootVertex)
 
   try {
-    const kernel = new Kernel({code: evm, interfaces: [Interface, DebugInterface]})
+    const kernel = new Kernel({
+      code: evm,
+      interfaces: [Interface, DebugInterface]
+    })
     const instance = await kernel.run(enviroment)
     await checkResults(testData, t, instance, enviroment)
   } catch (e) {
+    // console.log(e)
     t.comment(e)
     t.deepEquals({}, testData.post, 'should not have post data')
   }

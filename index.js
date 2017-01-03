@@ -83,7 +83,10 @@ exports.evm2wasm = function (evmCode, opts = {
   'pprint': false,
   'inlineOps': true
 }) {
-  return wast2wasm(exports.evm2wast(evmCode, opts))
+  const wast = exports.evm2wast(evmCode, opts)
+  // const fs = require('fs')
+  // fs.writeFileSync('./temp.wast', wast)
+  return wast2wasm(wast)
 }
 
 /**

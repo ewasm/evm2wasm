@@ -236,7 +236,7 @@
     "wast": "(func $callback_256\n  (export \"4\") \n  (param $result i32)\n\n  (call $bswap_m256 (get_global $sp))\n  drop\n  call $main\n)\n"
   },
   "callback_32": {
-    "wast": "(func $callback_32\n  (export \"1\") \n  (param $result i32)\n\n  (i64.store (get_global $sp) (i64.extend_u/i32 (get_local $result)))\n  ;; zero out mem\n  (i64.store (i32.add (get_local $sp) (i32.const 24)) (i64.const 0))\n  (i64.store (i32.add (get_local $sp) (i32.const 16)) (i64.const 0))\n  (i64.store (i32.add (get_local $sp) (i32.const 8)) (i64.const 0))\n\n  call $main\n)\n\n"
+    "wast": "(func $callback_32\n  (export \"1\") \n  (param $result i32)\n\n  (i64.store (get_global $sp) (i64.extend_u/i32 (get_local $result)))\n  ;; zero out mem\n  (i64.store (i32.add (get_global $sp) (i32.const 24)) (i64.const 0))\n  (i64.store (i32.add (get_global $sp) (i32.const 16)) (i64.const 0))\n  (i64.store (i32.add (get_global $sp) (i32.const 8)) (i64.const 0))\n\n  call $main\n)\n\n"
   },
   "check_overflow": {
     "wast": "(func $check_overflow\n  (param $a i64)\n  (param $b i64)\n  (param $c i64)\n  (param $d i64)\n  (result i32)\n\n  (local $MAX_INT i64)\n  ;; the eighth Mersenne prime,  2^31 - 1\n  (set_local $MAX_INT (i64.const 0x7fffffff))\n\n  (if i32 \n    (i32.and \n      (i32.and \n        (i64.eqz  (get_local $d))\n        (i64.eqz  (get_local $c)))\n      (i32.and\n        (i64.eqz  (get_local $b))\n        (i64.lt_u (get_local $a) (get_local $MAX_INT))))\n      (then\n        (return (i32.wrap/i64 (get_local $a))))\n      (else \n        (return (i32.wrap/i64 (get_local $MAX_INT))))))\n"
