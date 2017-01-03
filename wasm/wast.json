@@ -227,7 +227,7 @@
     "wast": "(func $callback\n  (export \"0\")\n  call $main\n)\n"
   },
   "callback_128": {
-    "wast": "(func $callback_128\n  (export \"2\") \n  (param $result i32)\n\n  (call $bswap_m128 (get_global $sp))\n  drop\n  i32.const 1\n  call $main\n)\n"
+    "wast": "(func $callback_128\n  (export \"2\") \n  (param $result i32)\n\n  (call $bswap_m128 (get_global $sp))\n  drop\n  call $main\n)\n"
   },
   "callback_160": {
     "wast": "(func $callback_160\n  (export \"3\") \n  (param $result i32)\n\n  (call $bswap_m256 (get_global $sp))\n  drop\n  call $main\n)\n"

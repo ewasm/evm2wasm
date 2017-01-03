@@ -50,7 +50,7 @@ tape('testing EVM1 Ops', async t => {
       testEnvironment.caller = new Address(test.environment.caller)
       testEnvironment.address = new Address(test.environment.address)
       testEnvironment.callData = new Buffer(test.environment.callData.slice(2), 'hex')
-      testEnvironment.coinbase = new Address(test.environment.coinbase)
+      testEnvironment.block.header.coinbase = new Address(test.environment.coinbase)
       console.log('here')
 
       // populate the stack with predefined values
