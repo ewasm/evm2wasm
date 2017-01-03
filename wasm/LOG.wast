@@ -38,7 +38,7 @@
 
   (call $memusegas (get_local $offset) (get_local $length))
 
-  (call_import $log 
+  (call $log 
              (get_local $offset)
              (get_local $length)
              (get_local $number)
