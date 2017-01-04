@@ -196,7 +196,7 @@ exports.evm2wast = function (evmCode, opts = {
                           (i64.load (i32.add (get_global $sp) (i32.const 56)))
                         )
                       )
-                    ))))`
+                    ))))\n`
         opcodesUsed.add('check_overflow')
         addStackCheck()
         addMetering()
@@ -207,19 +207,19 @@ exports.evm2wast = function (evmCode, opts = {
         gasCount = 1
         break
       case 'GAS':
-        segment += `(call $${op.name} (get_global $sp))`
+        segment += `(call $${op.name} (get_global $sp))\n`
         addMetering()
         break
       case 'LOG':
-        segment += `(call $${op.name} (i32.const ${op.number}) (get_global $sp))`
+        segment += `(call $${op.name} (i32.const ${op.number}) (get_global $sp))\n`
         break
       case 'DUP':
       case 'SWAP':
         // adds the number on the stack to SWAP
-        segment += `(call $${op.name} (i32.const ${op.number - 1}) (get_global $sp)) `
+        segment += `(call $${op.name} (i32.const ${op.number - 1}) (get_global $sp))\n`
         break
       case 'PC':
-        segment += `(call $${op.name} (i32.const ${i}) (get_global $sp))`
+        segment += `(call $${op.name} (i32.const ${i}) (get_global $sp))\n`
         break
       case 'PUSH':
         i++
@@ -254,7 +254,7 @@ exports.evm2wast = function (evmCode, opts = {
         break
       case 'SUICIDE':
       case 'RETURN':
-        segment += `(call $${op.name} (get_global $sp)) (br $done)`
+        segment += `(call $${op.name} (get_global $sp)) (br $done)\n`
         if (jumpFound) {
           i = findNextJumpDest(evmCode, i)
         } else {
@@ -273,9 +273,9 @@ exports.evm2wast = function (evmCode, opts = {
           if (index === -1) {
             index = callbackTable.push(cbFunc) - 1
           }
-          segment += `(call $${op.name} (get_global $sp) (i32.const ${index}))`
+          segment += `(call $${op.name} (get_global $sp) (i32.const ${index}))\n`
         } else {
-          segment += `(call $${op.name} (get_global $sp))`
+          segment += `(call $${op.name} (get_global $sp))\n`
         }
     }
 
@@ -286,7 +286,12 @@ exports.evm2wast = function (evmCode, opts = {
     const stackDeta = op.on - op.off
     // update the stack pointer
     if (stackDeta !== 0) {
-      segment += `(set_global $sp (i32.add (get_global $sp) (i32.const ${stackDeta * 32})))`
+      segment += `(set_global $sp (i32.add (get_global $sp) (i32.const ${stackDeta * 32})))\n`
+    }
+
+    // creates a stack trace
+    if (opts.stackTrace) {
+      segment += `(call $stackTrace (get_global $sp) (i32.const ${opint}))\n`
     }
 
     // adds the logic to save the stack pointer before exiting to wiat to for a callback
@@ -294,12 +299,9 @@ exports.evm2wast = function (evmCode, opts = {
     if (callbackFuncs.has(op.name)) {
       segment += `(set_global $cb_dest (i32.const ${jumpSegments.length + 1}))
           (br $done))`
-      jumpSegments.push({type: 'cb_dest'})
-    }
-
-    // creates a stack trace
-    if (opts.stackTrace) {
-      segment += `(call $stackTrace (get_global $sp) (i32.const ${opint}))`
+      jumpSegments.push({
+        type: 'cb_dest'
+      })
     }
   }
 
@@ -376,6 +378,7 @@ function assmebleSegments (segments) {
   (func $main
     (export "main")
     (local $jump_dest i32)
+    (set_local $jump_dest (i32.const -1))
 
     (block $done
       (loop $loop
@@ -386,32 +389,39 @@ function assmebleSegments (segments) {
 // @param {Array} segments
 // @return {String}
 function buildJumpMap (segments) {
-  let wasm = `
-    (if i32 (i32.eqz (get_global $init))
-      (then
-       (set_global $init (i32.const 1))
-       (i32.const 0))
-      (else
-        ;; the callback dest can never be in the first block
-        (if i32 (i32.eq (get_global $cb_dest) (i32.const 0)) 
-          (then (unreachable))
-          (else 
-            ;; return callback destination and zero out $cb_dest 
-            get_global $cb_dest
-            (set_global $cb_dest (i32.const 0))))))`
+  let wasm = '(unreachable)'
 
-  let brTable = '(block $0 (br_table $0'
+  let brTable = ''
   segments.forEach((seg, index) => {
     brTable += ' $' + (index + 1)
     if (seg.type === 'jump_dest') {
-      wasm = `(if i32 (i32.eq (get_local $jump_dest) (i32.const ${seg.number}))
-                (then (i32.const ${index + 1}))
+      wasm = `(if (i32.eq (get_local $jump_dest) (i32.const ${seg.number}))
+                (then (br $${index + 1}))
                 (else ${wasm}))`
     }
   })
 
-  brTable += wasm + '))'
-  return brTable
+  wasm = `
+  (block $0 
+    (if
+      (i32.eqz (get_global $init))
+      (then
+        (set_global $init (i32.const 1))
+        (br $0))
+      (else
+        ;; the callback dest can never be in the first block
+        (if (i32.eq (get_global $cb_dest) (i32.const 0)) 
+          (then
+            ${wasm}
+          )
+          (else 
+            ;; return callback destination and zero out $cb_dest 
+            get_global $cb_dest
+            (set_global $cb_dest (i32.const 0))
+            (br_table $0 ${brTable})
+          )))))`
+
+  return wasm
 }
 
 // returns the index of the next jump destination opcode in given EVM code in an
@@ -502,7 +512,7 @@ exports.buildModule = function (funcs, imports = [], exports = [], cbs = []) {
   (global $prevMemCost (mut i64) (i64.const 0))
 
   ;; TODO: memory should only be 1, but can't resize right now
-  (memory 3)
+  (memory 500)
   (export "memory" (memory 0))
 
   (table
