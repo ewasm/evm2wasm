@@ -16,7 +16,6 @@ const DebugInterface = require('ewasm-kernel/debugInterface')
 // const skipList = [
 //   'sha3_bigOffset2' // some wierd memory error when we try to allocate 16mb of mem
 // ]
-
 async function runner (testData, t) {
   const code = Buffer.from(testData.exec.code.slice(2), 'hex')
   const {
