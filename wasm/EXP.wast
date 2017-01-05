@@ -1,5 +1,5 @@
 (func $EXP
-  (param $sp i32)
+  (local $sp i32)
 
   ;; base
   (local $base0 i64)
@@ -19,6 +19,7 @@
   (local $r3 i64)
 
   (local $gasCounter f32)
+  (set_local $sp (get_global $sp))
 
   ;; load args from the stack
   (set_local $base0 (i64.load (i32.add (get_local $sp) (i32.const 24))))

@@ -9,6 +9,12 @@ const compiler = require('../index.js')
 const argv = require('minimist')(process.argv.slice(2))
 const dir = `${__dirname}/opcode`
 
+const setSP = `
+(func (export "setSP") (param i32)
+  (set_global $sp (get_local 0))
+)
+`
+
 // Transcompiled contracts have their EVM1 memory start at this WASM memory location
 const EVM_MEMORY_OFFSET = 33832
 
@@ -28,6 +34,7 @@ tape('testing EVM1 Ops', async t => {
       t.comment(`testing ${test.op} ${test.description}`)
 
       const [funcs, imports] = compiler.resolveFunctions(new Set([test.op]))
+      funcs.push(setSP)
       imports.push('(import "ethereum" "useGas" (func $useGas (param i64)))')
       const linked = compiler.buildModule(funcs, imports, [test.op])
       const {
@@ -51,7 +58,6 @@ tape('testing EVM1 Ops', async t => {
       testEnvironment.address = new Address(test.environment.address)
       testEnvironment.callData = new Buffer(test.environment.callData.slice(2), 'hex')
       testEnvironment.block.header.coinbase = new Address(test.environment.coinbase)
-      console.log('here')
 
       // populate the stack with predefined values
       test.in.stack.forEach((item, index) => {
@@ -76,7 +82,8 @@ tape('testing EVM1 Ops', async t => {
       let sp = (test.in.stack.length - 1) * 32
 
       try {
-        testInstance.exports[test.op](...(test.params || []), sp) + 32
+        testInstance.exports.setSP(sp)
+        testInstance.exports[test.op](...(test.params || []))
         await kernel._vm.onDone()
       } catch (e) {
         t.fail('WASM exception: ' + e)

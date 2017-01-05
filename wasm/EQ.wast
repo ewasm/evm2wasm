@@ -1,7 +1,7 @@
 (func $EQ
-  (param  $sp i32)
+  (local  $sp i32)
 
-  (set_local $sp (i32.sub (get_local $sp) (i32.const 32)))
+  (set_local $sp (i32.sub (get_global $sp) (i32.const 32)))
   (i64.store (get_local $sp)
     (i64.extend_u/i32
       (i32.and (i64.eq   (i64.load (i32.add (get_local $sp) (i32.const 56))) (i64.load (i32.add (get_local $sp) (i32.const 24))))

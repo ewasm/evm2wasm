@@ -203,23 +203,26 @@ exports.evm2wast = function (evmCode, opts = {
         break
       case 'JUMPDEST':
         endSegment()
-        jumpSegments.push({number: i, type: 'jump_dest'})
+        jumpSegments.push({
+          number: i,
+          type: 'jump_dest'
+        })
         gasCount = 1
         break
       case 'GAS':
-        segment += `(call $${op.name} (get_global $sp))\n`
+        segment += `(call $GAS)\n`
         addMetering()
         break
       case 'LOG':
-        segment += `(call $${op.name} (i32.const ${op.number}) (get_global $sp))\n`
+        segment += `(call $LOG (i32.const ${op.number}))\n`
         break
       case 'DUP':
       case 'SWAP':
         // adds the number on the stack to SWAP
-        segment += `(call $${op.name} (i32.const ${op.number - 1}) (get_global $sp))\n`
+        segment += `(call $${op.name} (i32.const ${op.number - 1}))\n`
         break
       case 'PC':
-        segment += `(call $${op.name} (i32.const ${i}) (get_global $sp))\n`
+        segment += `(call $PC (i32.const ${i}))\n`
         break
       case 'PUSH':
         i++
@@ -237,7 +240,7 @@ exports.evm2wast = function (evmCode, opts = {
           push = push + `(i64.const ${int64})`
         }
 
-        segment += `(call $${op.name} ${push} (get_global $sp))`
+        segment += `(call $PUSH ${push})`
         i--
         break
       case 'POP':
@@ -254,7 +257,7 @@ exports.evm2wast = function (evmCode, opts = {
         break
       case 'SUICIDE':
       case 'RETURN':
-        segment += `(call $${op.name} (get_global $sp)) (br $done)\n`
+        segment += `(call $${op.name}) (br $done)\n`
         if (jumpFound) {
           i = findNextJumpDest(evmCode, i)
         } else {
@@ -273,9 +276,9 @@ exports.evm2wast = function (evmCode, opts = {
           if (index === -1) {
             index = callbackTable.push(cbFunc) - 1
           }
-          segment += `(call $${op.name} (get_global $sp) (i32.const ${index}))\n`
+          segment += `(call $${op.name} (i32.const ${index}))\n`
         } else {
-          segment += `(call $${op.name} (get_global $sp))\n`
+          segment += `(call $${op.name})\n`
         }
     }
 

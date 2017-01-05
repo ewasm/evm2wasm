@@ -1,10 +1,12 @@
 (func $ADD
-  (param $sp i32)
+  (local $sp i32)
 
   (local $a i64)
   (local $c i64)
   (local $d i64)
   (local $carry i64)
+
+  (set_local $sp (get_global $sp))
   
   ;; d c b a
   ;; pop the stack 

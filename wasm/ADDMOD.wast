@@ -3,7 +3,7 @@
 ;; -1: B
 ;; -2: MOD
 (func $ADDMOD
-  (param $sp i32)
+  (local $sp i32)
 
   (local $a i64)
   (local $b i64)
@@ -21,6 +21,8 @@
   (local $modd i64)
 
   (local $carry i64)
+
+  (set_local $sp (get_global $sp))
 
   ;; load args from the stack
   (set_local $a (i64.load (i32.add (get_local $sp) (i32.const 24))))

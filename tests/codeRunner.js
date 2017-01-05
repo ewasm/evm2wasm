@@ -39,7 +39,11 @@ tape('testing transcompiler', async t => {
       const startGas = environment.gasLeft
       const {
         buffer: compiled
-      } = await evm2wasm.evm2wasm(code)
+      } = await evm2wasm.evm2wasm(code, {
+        inlineOps: true,
+        pprint: false,
+        wabt: true
+      })
       const kernel = new Kernel({
         code: compiled
       })

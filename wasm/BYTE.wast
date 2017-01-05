@@ -2,12 +2,13 @@
 ;;  0: offset
 ;; -1: value
 (func $BYTE
-  (param $sp i32)
+  (local $sp i32)
 
   (local $a0 i64)
   (local $a1 i64)
   (local $a2 i64)
   (local $a3 i64)
+  (set_local $sp (get_global $sp))
 
   (set_local $a0 (i64.load (i32.add (get_local $sp) (i32.const 24))))
   (set_local $a1 (i64.load (i32.add (get_local $sp) (i32.const 16))))

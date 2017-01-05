@@ -1,5 +1,5 @@
 (func $MULMOD
-  (param $sp i32)
+  (local $sp i32)
 
   (local $a i64)
   (local $c i64)
@@ -33,16 +33,16 @@
   (local $modd i64)
 
   ;; pop two items of the stack
-  (set_local $a (i64.load (i32.add (get_local $sp) (i32.const 24))))
-  (set_local $c (i64.load (i32.add (get_local $sp) (i32.const 16))))
-  (set_local $e (i64.load (i32.add (get_local $sp) (i32.const  8))))
-  (set_local $g (i64.load          (get_local $sp)))
-  (set_local $i (i64.load (i32.sub (get_local $sp) (i32.const  8))))
-  (set_local $k (i64.load (i32.sub (get_local $sp) (i32.const 16))))
-  (set_local $m (i64.load (i32.sub (get_local $sp) (i32.const 24))))
-  (set_local $o (i64.load (i32.sub (get_local $sp) (i32.const 32))))
+  (set_local $a (i64.load (i32.add (get_global $sp) (i32.const 24))))
+  (set_local $c (i64.load (i32.add (get_global $sp) (i32.const 16))))
+  (set_local $e (i64.load (i32.add (get_global $sp) (i32.const  8))))
+  (set_local $g (i64.load          (get_global $sp)))
+  (set_local $i (i64.load (i32.sub (get_global $sp) (i32.const  8))))
+  (set_local $k (i64.load (i32.sub (get_global $sp) (i32.const 16))))
+  (set_local $m (i64.load (i32.sub (get_global $sp) (i32.const 24))))
+  (set_local $o (i64.load (i32.sub (get_global $sp) (i32.const 32))))
 
-  (set_local $sp (i32.sub (get_local $sp) (i32.const 64)))
+  (set_local $sp (i32.sub (get_global $sp) (i32.const 64)))
 
   ;; MUL
   ;;  a b c d e f g h

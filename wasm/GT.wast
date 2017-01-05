@@ -1,5 +1,5 @@
 (func $GT
-  (param $sp i32)
+  (local $sp i32)
 
   (local $a0 i64)
   (local $a1 i64)
@@ -9,6 +9,8 @@
   (local $b1 i64)
   (local $b2 i64)
   (local $b3 i64)
+
+  (set_local $sp (get_global $sp))
 
   ;; load args from the stack
   (set_local $a0 (i64.load (i32.add (get_local $sp) (i32.const 24))))

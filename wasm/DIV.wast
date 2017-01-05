@@ -1,5 +1,5 @@
 (func $DIV
-  (param $sp i32)
+  (local $sp i32)
   ;; dividend
   (local $a i64)
   (local $b i64)
@@ -27,6 +27,7 @@
   (local $temp  i64)
   (local $temp2  i64)
 
+  (set_local $sp (get_global $sp))
   (set_local $maskd (i64.const 1))
 
   ;; load args from the stack

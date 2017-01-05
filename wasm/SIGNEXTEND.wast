@@ -1,5 +1,5 @@
 (func $SIGNEXTEND
-  (param $sp i32)
+  (local $sp i32)
 
   (local $a0 i64)
   (local $a1 i64)
@@ -14,13 +14,13 @@
   (local $t i32)
   (local $end i32)
 
-  (set_local $a0 (i64.load (i32.add (get_local $sp) (i32.const 24))))
-  (set_local $a1 (i64.load (i32.add (get_local $sp) (i32.const 16))))
-  (set_local $a2 (i64.load (i32.add (get_local $sp) (i32.const  8))))
-  (set_local $a3 (i64.load          (get_local $sp)))
+  (set_local $a0 (i64.load (i32.add (get_global $sp) (i32.const 24))))
+  (set_local $a1 (i64.load (i32.add (get_global $sp) (i32.const 16))))
+  (set_local $a2 (i64.load (i32.add (get_global $sp) (i32.const  8))))
+  (set_local $a3 (i64.load          (get_global $sp)))
 
-  (set_local $end (get_local $sp))
-  (set_local $sp (i32.sub (get_local $sp) (i32.const 32)))
+  (set_local $end (get_global $sp))
+  (set_local $sp (i32.sub (get_global $sp) (i32.const 32)))
 
   (if (i32.and 
         (i32.and 
