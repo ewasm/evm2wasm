@@ -11,10 +11,7 @@
   )
 
   ;; const newMemoryWordCount = Math.ceil[[offset + length] / 32]
-  (set_local $newWordCount (i32.trunc_u/f32 (f32.ceil
-                             (f32.div
-                               (f32.convert_u/i32
-                                 (i32.add (get_local $offset) (get_local $length))) (f32.const 32)))))
+  (set_local $newWordCount (i32.div_u (i32.add (i32.const 31) (i32.add (get_local $offset) (get_local $length))) (i32.const 32)))
   ;;if [runState.highestMem >= highestMem]  return
   (if (i32.le_u (get_local $newWordCount) (get_global $wordCount))
     (then (return))

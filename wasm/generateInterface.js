@@ -255,13 +255,6 @@ function generateManifest (interfaceManifest) {
     (call $memusegas (get_local $offset${numOfLocals}) (get_local $length${numOfLocals}))
     (set_local $offset${numOfLocals} (i32.add (get_global $memstart) (get_local $offset${numOfLocals})))`
 
-        if (lastOffset === 'writeOffset') {
-          body += `(call $memset 
-    (get_local $offset${numOfLocals}) 
-    (i32.const 0)
-    (get_local $length${numOfLocals})) drop `
-        }
-
         call += `(get_local $length${numOfLocals})`
         numOfLocals++
       }
