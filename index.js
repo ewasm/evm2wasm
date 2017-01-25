@@ -74,13 +74,11 @@ const callbackFuncs = new Map([
  * @param {Array} evmCode
  * @param {Object} opts
  * @param {boolean} opts.stackTrace if `true` generates a stack trace
- * @param {boolean} opts.pprint if `true` pretty prints the sexpressions
  * @param {boolean} opts.inlineOps if `true` inlines the EVM1 operations
  * @return {string}
  */
 exports.evm2wasm = function (evmCode, opts = {
   'stackTrace': false,
-  'pprint': false,
   'inlineOps': true
 }) {
   const wast = exports.evm2wast(evmCode, opts)
@@ -117,26 +115,53 @@ exports.evm2wasm = function (evmCode, opts = {
  * @param {Integer} evmCode the evm byte code
  * @param {Object} opts
  * @param {boolean} opts.stackTrace if `true` generates a stack trace
- * @param {boolean} opts.pprint if `true` pretty prints the sexpressions
  * @param {boolean} opts.inlineOps if `true` inlines the EVM1 operations
  * @return {string}
  */
 exports.evm2wast = function (evmCode, opts = {
   'stackTrace': false,
-  'pprint': false,
   'inlineOps': true
 }) {
+  // adds stack height checks to the beginning of a segment
+  function addStackCheck () {
+    let check = ''
+    if (segmentStackHigh !== 0) {
+      check = `(if (i32.gt_s (get_global $sp) (i32.const ${(1023 - segmentStackHigh) * 32})) 
+                 (then (unreachable)))`
+    }
+    if (segmentStackLow !== 0) {
+      check += `(if (i32.lt_s (get_global $sp) (i32.const ${-segmentStackLow * 32 - 32})) 
+                  (then (unreachable)))`
+    }
+    segment = check + segment
+    segmentStackHigh = 0
+    segmentStackLow = 0
+    segmentStackDeta = 0
+  }
+
+  // add a metering statment at the beginning of a segment
+  function addMetering () {
+    wast += `(call $useGas (i64.const ${gasCount})) ` + segment
+    segment = ''
+    gasCount = 0
+  }
+
+  // finishes off a segment
+  function endSegment () {
+    segment += ')'
+    addStackCheck()
+    addMetering()
+  }
   // this keep track of the opcode we have found so far. This will be used to
   // to figure out what .wast files to include
   const opcodesUsed = new Set()
   const ignoredOps = new Set(['JUMP', 'JUMPI', 'JUMPDEST', 'POP', 'STOP', 'INVALID'])
-
   const callbackTable = []
 
   // an array of found segments
   const jumpSegments = []
   // the transcompiled EVM code
-  let wasmCode = ''
+  let wast = ''
   let segment = ''
   // keeps track of the gas that each section uses
   let gasCount = 0
@@ -310,7 +335,7 @@ exports.evm2wast = function (evmCode, opts = {
 
   endSegment()
 
-  wasmCode = assmebleSegments(jumpSegments) + wasmCode + '))'
+  wast = assmebleSegments(jumpSegments) + wast + '))'
 
   let imports = []
   let funcs = []
@@ -327,44 +352,10 @@ exports.evm2wast = function (evmCode, opts = {
   }
   imports.push('(import "ethereum" "useGas" (func $useGas (param i64)))')
 
-  funcs.push(wasmCode)
-  wasmCode = exports.buildModule(funcs, imports, [], callbackTable)
-  // pretty print the s-exporesion
-  if (opts.pprint) {
-    wasmCode = pprint(wasmCode)
-  }
-  return wasmCode
+  funcs.push(wast)
+  wast = exports.buildModule(funcs, imports, [], callbackTable)
+  return wast
 
-  // adds stack height checks to the beginning of a segment
-  function addStackCheck () {
-    let check = ''
-    if (segmentStackHigh !== 0) {
-      check = `(if (i32.gt_s (get_global $sp) (i32.const ${(1023 - segmentStackHigh) * 32})) 
-                 (then (unreachable)))`
-    }
-    if (segmentStackLow !== 0) {
-      check += `(if (i32.lt_s (get_global $sp) (i32.const ${-segmentStackLow * 32 - 32})) 
-                  (then (unreachable)))`
-    }
-    segment = check + segment
-    segmentStackHigh = 0
-    segmentStackLow = 0
-    segmentStackDeta = 0
-  }
-
-  // add a metering statment at the beginning of a segment
-  function addMetering () {
-    wasmCode += `(call $useGas (i64.const ${gasCount})) ` + segment
-    segment = ''
-    gasCount = 0
-  }
-
-  // finishes off a segment
-  function endSegment () {
-    segment += ')'
-    addStackCheck()
-    addMetering()
-  }
 }
 
 // given an array for segments builds a wasm module from those segments
@@ -525,25 +516,4 @@ exports.buildModule = function (funcs, imports = [], exports = [], cbs = []) {
   )
    ${funcStr}
 )`
-}
-
-// a s-expression pretty print function
-// TODO: handle comments
-function pprint (sexp) {
-  // removes all newlins
-  sexp = sexp.replace(/[^\x20-\x7E]/gmi, '').split('(')
-  let numSpaces = 0
-  for (let i in sexp) {
-    let statement = sexp[i]
-    statement = statement.split(')').map(a => a.trim())
-    let length = statement.length
-    statement = statement.join(')')
-    if (statement !== '') {
-      statement = '(' + statement
-      statement = '\n' + ' '.repeat(numSpaces * 2) + statement
-      numSpaces += -length + 2
-    }
-    sexp[i] = statement
-  }
-  return sexp.join('')
 }

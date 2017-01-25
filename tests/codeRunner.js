@@ -34,7 +34,9 @@ tape('testing transcompiler', async t => {
       }
       const code = new Buffer(test.code.slice(2), 'hex')
 
-      environment.state.set('code', new Vertex({value: code}))
+      environment.state.set('code', new Vertex({
+        value: code
+      }))
 
       const startGas = environment.gasLeft
       const {
