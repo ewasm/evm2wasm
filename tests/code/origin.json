@@ -3,7 +3,7 @@
     "description": "tests that Origin clears the stack",
     "environment": {
       "coinbase": "0x0000000000000000000000000000000000000000",
-      "origin": "0x4bb96091ee9d802ed039c4d1a5f6216f90f81b01"
+      "address": "0x0000000000000000000000000000000000000000"
     },
     "source": [
       "PUSH32",
@@ -18,6 +18,10 @@
       ],
       "memory": []
     },
-    "gasUsed": 7
+    "gasUsed": 7,
+    "message": {
+      "data": "0x",
+      "from": "0x4bb96091ee9d802ed039c4d1a5f6216f90f81b01"
+    }
   }
 ]

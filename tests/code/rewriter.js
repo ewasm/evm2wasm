@@ -11,14 +11,8 @@ files.forEach((file) => {
       test.environment = {}
     }
 
-    const evn = test.environment
-
-    if (!evn.coinbase) {
-      evn.coinbase = '0x0000000000000000000000000000000000000000'
-    }
-    if (!evn.origin) {
-      evn.origin = '0x0000000000000000000000000000000000000000'
-    }
+    test.message.from = test.environment.origin
+    delete test.environment.origin
   }
   console.log(file)
   fs.writeFileSync(path.join(__dirname, '/') + file, JSON.stringify(json, null, 2))

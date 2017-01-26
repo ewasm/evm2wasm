@@ -4,12 +4,21 @@ const Vertex = require('merkle-trie')
 const evm2wasm = require('../index.js')
 const ethUtil = require('ethereumjs-util')
 const Kernel = require('ewasm-kernel')
-const Enviroment = require('ewasm-kernel/environment')
+const Message = require('ewasm-kernel/message')
+const Block = require('ewasm-kernel/deps/block')
+const blockchain = require('ewasm-kernel/fakeBlockChain')
 const Address = require('ewasm-kernel/deps/address')
+
+const WasmAgent = require('ewasm-kernel/wasmDebugAgent')
+const codeHandler = require('ewasm-kernel/codeHandler')
 const argv = require('minimist')(process.argv.slice(2))
 
 const dir = `${__dirname}/code/`
 let testFiles
+
+codeHandler.handlers.init = (code) => {
+  return WasmAgent(code)
+}
 
 if (argv.file) {
   // run a single file
@@ -25,20 +34,31 @@ tape('testing transcompiler', async t => {
     for (let test of codeTests) {
       t.comment(test.description)
 
-      const environment = new Enviroment()
-      environment.gasLeft = 90000
-      environment.block.header.coinbase = new Address(test.environment.coinbase)
-      environment.origin = new Address(test.environment.origin)
-      if (test.environment.callData) {
-        environment.callData = new Buffer(test.environment.callData.slice(2), 'hex')
-      }
+      const state = new Vertex()
+      const message = new Message()
+
+      const accountAddress = ['accounts', test.environment.address, 'code']
+      const startGas = message.gas = 90000
+      message.data = new Buffer(test.message.data.slice(2), 'hex')
+      message.from = [test.message.from]
+
+      const block = new Block()
+      block.header.coinbase = new Address(test.environment.coinbase)
+
       const code = new Buffer(test.code.slice(2), 'hex')
 
-      environment.state.set('code', new Vertex({
+      state.set('block', new Vertex({
+        value: block
+      }))
+
+      state.set('blockchain', new Vertex({
+        value: blockchain
+      }))
+
+      state.set(accountAddress, new Vertex({
         value: code
       }))
 
-      const startGas = environment.gasLeft
       const {
         buffer: compiled
       } = await evm2wasm.evm2wasm(code, {
@@ -46,26 +66,31 @@ tape('testing transcompiler', async t => {
         pprint: false,
         wabt: true
       })
+
+      const startingState = await state.get(accountAddress)
       const kernel = new Kernel({
-        code: compiled
+        code: compiled,
+        state: startingState,
+        codeHandler: codeHandler
       })
 
       try {
-        await kernel.run(environment)
+        await kernel.recieve(message)
       } catch (e) {
+        console.log(e)
         t.true(test.trapped, 'should trap')
       }
 
       if (!test.trapped) {
         // check the gas used
-        const gasUsed = startGas - environment.gasLeft
+        const gasUsed = startGas - message.gas
         t.equals(gasUsed, test.gasUsed, 'should use the correct amount of gas')
 
         // check the results
         test.result.stack.forEach((item, index) => {
           const sp = index * 32
           const expectedItem = new Uint8Array(ethUtil.setLength(new Buffer(item.slice(2), 'hex'), 32)).reverse()
-          const result = new Uint8Array(kernel._vm.memory).slice(sp, sp + 32)
+          const result = new Uint8Array(kernel._vm.api.memory()).slice(sp, sp + 32)
           t.equals(result.toString(), expectedItem.toString(), 'should have correct item on stack')
         })
       }
