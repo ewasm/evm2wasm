@@ -2,22 +2,32 @@ const fs = require('fs')
 const tape = require('tape')
 const Kernel = require('ewasm-kernel')
 const wast2wasm = require('wast2wasm')
-const KernelEnvironment = require('ewasm-kernel/testEnvironment.js')
 const Address = require('ewasm-kernel/deps/address.js')
+const Block = require('ewasm-kernel/deps/block.js')
+const blockchain = require('ewasm-kernel/fakeBlockChain')
+
+const Message = require('ewasm-kernel/message.js')
+const Vertex = require('merkle-trie')
+
 const ethUtil = require('ethereumjs-util')
 const compiler = require('../index.js')
 const argv = require('minimist')(process.argv.slice(2))
 const dir = `${__dirname}/opcode`
 
+const WasmAgent = require('ewasm-kernel/wasmDebugAgent')
+const codeHandler = require('ewasm-kernel/codeHandler')
+
+codeHandler.handlers.wasm.init = (code) => {
+  return new WasmAgent(code)
+}
+
 const setSP = `
 (func (export "setSP") (param i32)
-  (set_global $sp (get_local 0))
-)
+  (set_global $sp (get_local 0)))
 `
 
 // Transcompiled contracts have their EVM1 memory start at this WASM memory location
 const EVM_MEMORY_OFFSET = 33832
-
 let testFiles = fs.readdirSync(dir).filter((name) => name.endsWith('.json'))
 
 // run a single file
@@ -29,7 +39,6 @@ tape('testing EVM1 Ops', async t => {
   for (const path of testFiles) {
     let opTest = require(`${dir}/${path}`)
     for (const test of opTest) {
-      const testEnvironment = new KernelEnvironment()
       // FIXME: have separate `t.test()` for better grouping
       t.comment(`testing ${test.op} ${test.description}`)
 
@@ -40,25 +49,43 @@ tape('testing EVM1 Ops', async t => {
       const {
         buffer: wasm
       } = await wast2wasm(linked)
+
+      const message = new Message()
+      const block = new Block()
+      const state = new Vertex()
+
+      // populate the environment
+      message.from = ['code', test.environment.caller]
+      message.data = new Buffer(test.environment.callData.slice(2), 'hex')
+      message.gas = 1000000
+      block.header.coinbase = new Address(test.environment.coinbase)
+
+      state.set(['block'], new Vertex({
+        value: block
+      }))
+
+      state.set(['blockchain'], new Vertex({
+        value: blockchain
+      }))
+
+      const accountAddress = ['accounts', test.environment.address]
+      state.set(accountAddress, new Vertex())
+      const startingState = await state.get(accountAddress)
+
       const kernel = new Kernel({
-        code: wasm
+        code: wasm,
+        codeHandler: codeHandler,
+        state: startingState
       })
 
       try {
-        await kernel.run(testEnvironment)
+        await kernel.recieve(message)
       } catch (e) {
         t.fail('WASM exception: ' + e)
         return
       }
 
-      let testInstance = kernel._vm._instance
-
-      // populate the environment
-      testEnvironment.caller = new Address(test.environment.caller)
-      testEnvironment.address = new Address(test.environment.address)
-      testEnvironment.callData = new Buffer(test.environment.callData.slice(2), 'hex')
-      testEnvironment.block.header.coinbase = new Address(test.environment.coinbase)
-
+      let testInstance = kernel._vm.instance
       // populate the stack with predefined values
       test.in.stack.forEach((item, index) => {
         item = hexToUint8Array(item).reverse()
@@ -119,13 +146,13 @@ tape('testing EVM1 Ops', async t => {
 
       // check for EVM return value
       if (test.out.return) {
+        const response = kernel._vm.responses.ethereum.returnValue
         const expectedItem = hexToUint8Array(test.out.return)
-        const result = testEnvironment.returnValue
-        t.equals(result.toString(), expectedItem.toString(), 'should have correct return value')
+        t.equals(response.toString(), expectedItem.toString(), 'should have correct return value')
       }
 
       if (test.out.gasUsed) {
-        t.equals(1000000 - testEnvironment.gasLeft, test.out.gasUsed, 'should have used the correct amount of gas')
+        t.equals(1000000 - message.gas, test.out.gasUsed, 'should have used the correct amount of gas')
       }
     }
   }

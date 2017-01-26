@@ -16,8 +16,8 @@ const argv = require('minimist')(process.argv.slice(2))
 const dir = `${__dirname}/code/`
 let testFiles
 
-codeHandler.handlers.init = (code) => {
-  return WasmAgent(code)
+codeHandler.handlers.wasm.init = (code) => {
+  return new WasmAgent(code)
 }
 
 if (argv.file) {
@@ -40,7 +40,7 @@ tape('testing transcompiler', async t => {
       const accountAddress = ['accounts', test.environment.address, 'code']
       const startGas = message.gas = 90000
       message.data = new Buffer(test.message.data.slice(2), 'hex')
-      message.from = [test.message.from]
+      message.from = ['accounts', test.message.from]
 
       const block = new Block()
       block.header.coinbase = new Address(test.environment.coinbase)
@@ -77,7 +77,6 @@ tape('testing transcompiler', async t => {
       try {
         await kernel.recieve(message)
       } catch (e) {
-        console.log(e)
         t.true(test.trapped, 'should trap')
       }
 
