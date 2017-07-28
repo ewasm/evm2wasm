@@ -15,12 +15,12 @@
   "devDependencies": {
     "async": "^2.0.0-rc.6",
     "bn.js": "^4.11.6",
-    "ethereumjs-testing": "0.0.2",
+    "ethereumjs-testing": "1.0.4",
     "ethereumjs-vm": "^2.0.0",
     "ewasm-kernel": "git+https://github.com/ewasm/ewasm-kernel.git",
     "minimist": "^1.2.0",
-    "standard": "^8.5.0",
-    "tap-bail": "0.0.0",
+    "standard": "^10.0.2",
+    "tap-bail": "1.0.0",
     "tape": "^4.6.0"
   },
   "repository": {
@@ -39,8 +39,8 @@
     "transcompiler"
   ],
   "dependencies": {
-    "ethereumjs-util": "^4.5.0",
-    "wast2wasm": "0.0.0"
+    "ethereumjs-util": "^5.1.2",
+    "wast2wasm": "0.0.1"
   },
   "standard": {
     "ignore": [
