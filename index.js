@@ -79,20 +79,31 @@ const callbackFuncs = new Map([
  */
 exports.evm2wasm = function (evmCode, opts = {
   'stackTrace': false,
-  'inlineOps': true
+  'inlineOps': true,
+  'testName': 'temp'
 }) {
   const wast = exports.evm2wast(evmCode, opts)
+  const testName = opts.testName
   if (opts.wabt) {
     return new Promise((resolve, reject) => {
       const fs = require('fs')
       const cp = require('child_process')
-      fs.writeFile(`${__dirname}/temp.wast`, wast, () => {
-        cp.exec(`${__dirname}/tools/wabt/out/wast2wasm ${__dirname}/temp.wast -o ${__dirname}/temp.wasm`, () => {
-          fs.readFile(`${__dirname}/temp.wasm`, (err, wasm) => {
-            resolve(wasm)
+      try {
+        fs.writeFile(`${__dirname}/tmp/${testName}.wast`, wast, () => {
+          cp.exec(`${__dirname}/tools/wabt/bin/wat2wasm ${__dirname}/tmp/${testName}.wast -o ${__dirname}/tmp/${testName}.wasm`, (cp_err) => {
+            if (cp_err) {
+              console.log('Error running wat2wasm:', cp_err)
+              reject(cp_err)
+            }
+            fs.readFile(`${__dirname}/tmp/${testName}.wasm`, (err, wasm) => {
+              resolve(wasm)
+            })
           })
         })
-      })
+      } catch(err) {
+        console.log('in promise got err:', err)
+        reject(err)
+      }
     })
   } else {
     return wast2wasm(wast)

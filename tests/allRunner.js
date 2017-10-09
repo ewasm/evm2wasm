@@ -1,3 +1,3 @@
-require('./codeRunner.js')
-require('./opcodeRunner.js')
-// require('./runVmTests.js')
+//require('./codeRunner.js')
+//require('./opcodeRunner.js')
+ require('./runVmTests.js')
