@@ -80,11 +80,13 @@ const callbackFuncs = new Map([
  */
 exports.evm2wasm = function (evmCode, opts = {
   'stackTrace': false,
-  'inlineOps': true
+  'inlineOps': true,
+  'testName': 'temp'
 }) {
   const wast = exports.evm2wast(evmCode, opts)
+  const testName = opts.testName
   if (opts.wabt) {
-    return wabt.compile(wast)
+    return wabt.compile(wast, testName)
   } else {
     return wast2wasm(wast)
   }
