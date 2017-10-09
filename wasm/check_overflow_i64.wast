@@ -5,7 +5,7 @@
   (param $d i64)
   (result i64)
 
-  (if i64
+  (if
     (i32.and 
       (i32.and 
         (i64.eqz  (get_local $d))
@@ -13,5 +13,5 @@
       (i64.eqz  (get_local $b)))
     (then
       (return (get_local $a)))
-    (else 
+    (else
       (return (i64.const 0xffffffffffffffff)))))

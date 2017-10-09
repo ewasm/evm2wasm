@@ -18,7 +18,7 @@
   (set_local $sp (i32.sub (get_local $sp) (i32.const 32)))
 
   (i64.store (get_local $sp) 
-    (if i64
+    (if
       (i32.and 
           (i32.and 
             (i32.and 
