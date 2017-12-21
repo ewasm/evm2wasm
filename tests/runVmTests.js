@@ -83,6 +83,7 @@ function setupEnviroment (testData, rootVertex) {
   env.block.header.number = new Buffer(testData.env.currentNumber.slice(2), 'hex')
   env.block.header.timestamp = new Buffer(testData.env.currentTimestamp.slice(2), 'hex')
 
+  /*
   for (let address in testData.pre) {
     const account = testData.pre[address]
     const accountVertex = new Vertex()
@@ -105,6 +106,9 @@ function setupEnviroment (testData, rootVertex) {
     rootVertex.set(path, accountVertex)
     env.state = accountVertex
   }
+  */
+
+  env.state = testData.pre
 
   return env
 }
@@ -119,21 +123,33 @@ async function checkResults (testData, t, instance, environment) {
   // check return value
   t.equals(new Buffer(environment.returnValue).toString('hex'), testData.out.slice(2), 'return value')
   // check storage
+  // console.log('expected state:', testData.post)
+  // console.log('actual state:', environment.state)
   const account = testData.post[testData.exec.address]
   // TODO: check all accounts
   if (account) {
     const testsStorage = account.storage
     if (testsStorage) {
       for (let testKey in testsStorage) {
+        testKeyCanon = (new U256(testKey)).toString(16)
+        // console.log('expected value:', testsStorage[testKey])
         const testValueBuf = ethUtil.setLengthLeft(ethUtil.toBuffer(testsStorage[testKey]), 32)
+        // console.log('testValueBuf:', testValueBuf)
         const testValue = '0x' + testValueBuf.toString('hex')
-        const bufferKey = ethUtil.setLengthLeft(ethUtil.toBuffer(testKey), 32)
-        const key = ['storage', ...bufferKey]
-        let {value} = await environment.state.get(key)
+        // console.log('expected key, value:', testKey, testValue)
+        // const bufferKey = ethUtil.setLengthLeft(ethUtil.toBuffer(testKey), 32)
+        // const key = ['storage', ...bufferKey]
+        // let {value} = await environment.state.get(key)
+        let value = environment.state[testData.exec.address]['storage'][testKeyCanon]
+        // console.log('value from state:', value)
         if (value) {
-          value = '0x' + new Buffer(value).toString('hex')
+          // value = '0x' + new Buffer(value).toString('hex')
+          value = '0x' + ethUtil.setLengthLeft(ethUtil.toBuffer(value), 32).toString('hex')
+        } else {
+          value = '0x' + ethUtil.setLengthLeft(ethUtil.toBuffer(0), 32).toString('hex')
         }
-        t.equals(value, testValue, `should have correct storage value at key ${key.join('')}`)
+        // console.log('runVmTests.js actual environment storage key, value:', testKey, value)
+        t.equals(value, testValue, `should have correct storage value at key ${testKey}`)
       }
     }
   }
