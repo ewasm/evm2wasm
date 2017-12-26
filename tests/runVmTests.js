@@ -47,16 +47,21 @@ async function runner (testName, testData, t) {
   
   const rootVertex = new Vertex()
   const enviroment = setupEnviroment(testData, rootVertex)
+  let instance = null
   try {
     const kernel = new Kernel({
       code: evm,
       interfaces: [Interface, DebugInterface]
     })
-    const instance = await kernel.run(enviroment)
-    await checkResults(testData, t, instance, enviroment)
+    // const instance = await kernel.run(enviroment)
+    instance = await kernel.run(enviroment)
+    // await checkResults(testData, t, instance, enviroment)
   } catch (e) {
-    t.fail('VM test runner caught exception: ' + e)
+    // t.fail('VM test runner caught exception: ' + e)
+    console.log('VM test runner caught exception: ' + e)
   }
+  console.log('awaiting checkResults...')
+  await checkResults(testData, t, instance, enviroment)
   return
 }
 
@@ -118,41 +123,59 @@ async function fail (t, e) {
 }
 
 async function checkResults (testData, t, instance, environment) {
+  console.log('checkResults...')
+  // console.log('testData:', testData)
+  // console.log('environment:', environment)
+  // console.log('testData.gas:', testData.gas)
+  // console.log('environment.gasLeft:', environment.gasLeft)
   // check gas used
-  t.equals(ethUtil.intToHex(environment.gasLeft), testData.gas, 'should have the correct gas')
+  if (testData.gas) {
+    t.equals(ethUtil.intToHex(environment.gasLeft), testData.gas, 'should have the correct gas')
+  } else {
+    console.log('no testData.gas. should have gotten vm exception...')
+  }
   // check return value
-  t.equals(new Buffer(environment.returnValue).toString('hex'), testData.out.slice(2), 'return value')
+  if (testData.out) {
+    t.equals(new Buffer(environment.returnValue).toString('hex'), testData.out.slice(2), 'return value')
+  } else {
+    console.log('no tetData.out. should have gotten vm exception...')
+  }
   // check storage
   // console.log('expected state:', testData.post)
   // console.log('actual state:', environment.state)
-  const account = testData.post[testData.exec.address]
-  // TODO: check all accounts
-  if (account) {
-    const testsStorage = account.storage
-    if (testsStorage) {
-      for (let testKey in testsStorage) {
-        testKeyCanon = (new U256(testKey)).toString(16)
-        // console.log('expected value:', testsStorage[testKey])
-        const testValueBuf = ethUtil.setLengthLeft(ethUtil.toBuffer(testsStorage[testKey]), 32)
-        // console.log('testValueBuf:', testValueBuf)
-        const testValue = '0x' + testValueBuf.toString('hex')
-        // console.log('expected key, value:', testKey, testValue)
-        // const bufferKey = ethUtil.setLengthLeft(ethUtil.toBuffer(testKey), 32)
-        // const key = ['storage', ...bufferKey]
-        // let {value} = await environment.state.get(key)
-        let value = environment.state[testData.exec.address]['storage'][testKeyCanon]
-        // console.log('value from state:', value)
-        if (value) {
-          // value = '0x' + new Buffer(value).toString('hex')
-          value = '0x' + ethUtil.setLengthLeft(ethUtil.toBuffer(value), 32).toString('hex')
-        } else {
-          value = '0x' + ethUtil.setLengthLeft(ethUtil.toBuffer(0), 32).toString('hex')
+  if (testData.post) {
+    const account = testData.post[testData.exec.address]
+    // TODO: check all accounts
+    if (account) {
+      const testsStorage = account.storage
+      if (testsStorage) {
+        for (let testKey in testsStorage) {
+          testKeyCanon = (new U256(testKey)).toString(16)
+          // console.log('expected value:', testsStorage[testKey])
+          const testValueBuf = ethUtil.setLengthLeft(ethUtil.toBuffer(testsStorage[testKey]), 32)
+          // console.log('testValueBuf:', testValueBuf)
+          const testValue = '0x' + testValueBuf.toString('hex')
+          // console.log('expected key, value:', testKey, testValue)
+          // const bufferKey = ethUtil.setLengthLeft(ethUtil.toBuffer(testKey), 32)
+          // const key = ['storage', ...bufferKey]
+          // let {value} = await environment.state.get(key)
+          let value = environment.state[testData.exec.address]['storage'][testKeyCanon]
+          // console.log('value from state:', value)
+          if (value) {
+            // value = '0x' + new Buffer(value).toString('hex')
+            value = '0x' + ethUtil.setLengthLeft(ethUtil.toBuffer(value), 32).toString('hex')
+          } else {
+            value = '0x' + ethUtil.setLengthLeft(ethUtil.toBuffer(0), 32).toString('hex')
+          }
+          // console.log('runVmTests.js actual environment storage key, value:', testKey, value)
+          t.equals(value, testValue, `should have correct storage value at key ${testKey}`)
         }
-        // console.log('runVmTests.js actual environment storage key, value:', testKey, value)
-        t.equals(value, testValue, `should have correct storage value at key ${testKey}`)
       }
     }
+  } else {
+    console.log('no testData.post. should have VM exception...')
   }
+
 }
 
 let testGetterArgs = {}

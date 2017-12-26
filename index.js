@@ -69,6 +69,13 @@ const callbackFuncs = new Map([
   ['BLOCKHASH', '$callback_256']
 ])
 
+const callbackIndexes = {
+  '$callback': '0',
+  '$callback_256': '1',
+  '$callback_128': '2'
+}
+
+
 /**
  * compiles evmCode to wasm in the binary format
  * @param {Array} evmCode
@@ -312,7 +319,17 @@ exports.evm2wast = function (evmCode, opts = {
           if (index === -1) {
             index = callbackTable.push(cbFunc) - 1
           }
-          segment += `(call $${op.name} (i32.const ${index}))\n`
+          // segment += `(call $${op.name} (i32.const ${index}))\n`
+          // this index is incorrect. the table indexes are defined in wasm/callback.wast
+          // and wasm/callback_256.wast, etc., by the (export "1") line
+          let correctIndex = callbackIndexes[cbFunc]
+          console.log('op.name, cbFunc, correctIndex:', op.name, cbFunc, correctIndex)
+          if (typeof correctIndex === "undefined") {
+            correctIndex = 99
+          }
+          segment += `(call $${op.name} (i32.const ${correctIndex}))\n`
+          
+          
         } else {
           segment += `(call $${op.name})\n`
         }
@@ -499,6 +516,7 @@ exports.buildModule = function (funcs, imports = [], exports = [], cbs = []) {
   for (let func of funcs) {
     funcStr += func
   }
+  console.log('evm2wasm buildModule exports:', exports)
   for (let exprt of exports) {
     funcStr += `(export "${exprt}" (func $${exprt}))`
   }
@@ -520,11 +538,11 @@ exports.buildModule = function (funcs, imports = [], exports = [], cbs = []) {
   (memory 500)
   (export "memory" (memory 0))
 
-  (table
-    (export "callback")
-    anyfunc
-    (elem ${cbs.join(' ')})
-  )
-   ${funcStr}
+  ;; table definition
+  (table ${cbs.length} anyfunc)
+  (elem (i32.const 0) ${cbs.join(' ')})
+
+  ;; funcStr below
+  ${funcStr}
 )`
 }

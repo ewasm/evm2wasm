@@ -227,13 +227,13 @@
     "wast": "(func $callback\n  (export \"0\")\n  call $main\n)\n"
   },
   "callback_128": {
-    "wast": "(func $callback_128\n  (param $result i32)\n\n  (call $bswap_m128 (get_global $sp))\n  drop\n  call $main\n)\n"
+    "wast": "(func $callback_128\n  (export \"2\")\n  (param $result i32)\n\n  (call $bswap_m128 (get_global $sp))\n  drop\n  call $main\n)\n"
   },
   "callback_160": {
     "wast": "(func $callback_160\n  (param $result i32)\n\n  (call $bswap_m160 (get_global $sp))\n  drop\n  call $main\n)\n"
   },
   "callback_256": {
-    "wast": "(func $callback_256\n  (param $result i32)\n\n  (call $bswap_m256 (get_global $sp))\n  drop\n  call $main\n)\n"
+    "wast": "(func $callback_256\n  (export \"1\")\n  (param $result i32)\n\n  (call $bswap_m256 (get_global $sp))\n  drop\n  call $main\n)\n"
   },
   "callback_32": {
     "wast": "(func $callback_32\n  (param $result i32)\n\n  (i64.store (get_global $sp) (i64.extend_u/i32 (get_local $result)))\n  ;; zero out mem\n  (i64.store (i32.add (get_global $sp) (i32.const 24)) (i64.const 0))\n  (i64.store (i32.add (get_global $sp) (i32.const 16)) (i64.const 0))\n  (i64.store (i32.add (get_global $sp) (i32.const 8)) (i64.const 0))\n\n  call $main\n)\n\n"
