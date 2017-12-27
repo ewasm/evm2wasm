@@ -59,6 +59,7 @@ async function runner (testName, testData, t) {
   } catch (e) {
     // t.fail('VM test runner caught exception: ' + e)
     console.log('VM test runner caught exception: ' + e)
+    console.log('exception is expected if test case is missing gas/out/post fields.')
   }
   // console.log('awaiting checkResults...')
   await checkResults(testData, t, instance, enviroment)
