@@ -60,7 +60,7 @@ async function runner (testName, testData, t) {
     // t.fail('VM test runner caught exception: ' + e)
     console.log('VM test runner caught exception: ' + e)
   }
-  console.log('awaiting checkResults...')
+  // console.log('awaiting checkResults...')
   await checkResults(testData, t, instance, enviroment)
   return
 }
@@ -87,6 +87,8 @@ function setupEnviroment (testData, rootVertex) {
   env.block.header.gasLimit = new Buffer(testData.env.currentGasLimit.slice(2), 'hex')
   env.block.header.number = new Buffer(testData.env.currentNumber.slice(2), 'hex')
   env.block.header.timestamp = new Buffer(testData.env.currentTimestamp.slice(2), 'hex')
+
+  env.coinbase = new Address(testData.env.currentCoinbase)
 
   /*
   for (let address in testData.pre) {
@@ -123,7 +125,6 @@ async function fail (t, e) {
 }
 
 async function checkResults (testData, t, instance, environment) {
-  console.log('checkResults...')
   // console.log('testData:', testData)
   // console.log('environment:', environment)
   // console.log('testData.gas:', testData.gas)
@@ -132,13 +133,13 @@ async function checkResults (testData, t, instance, environment) {
   if (testData.gas) {
     t.equals(ethUtil.intToHex(environment.gasLeft), testData.gas, 'should have the correct gas')
   } else {
-    console.log('no testData.gas. should have gotten vm exception...')
+    // console.log('no testData.gas. should have gotten vm exception...')
   }
   // check return value
   if (testData.out) {
     t.equals(new Buffer(environment.returnValue).toString('hex'), testData.out.slice(2), 'return value')
   } else {
-    console.log('no tetData.out. should have gotten vm exception...')
+    // console.log('no testData.out. should have gotten vm exception...')
   }
   // check storage
   // console.log('expected state:', testData.post)
@@ -173,7 +174,7 @@ async function checkResults (testData, t, instance, environment) {
       }
     }
   } else {
-    console.log('no testData.post. should have VM exception...')
+    // console.log('no testData.post. should have VM exception...')
   }
 
 }

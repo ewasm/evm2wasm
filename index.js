@@ -72,7 +72,8 @@ const callbackFuncs = new Map([
 const callbackIndexes = {
   '$callback': '0',
   '$callback_256': '1',
-  '$callback_128': '2'
+  '$callback_128': '2',
+  '$callback_32': '3'
 }
 
 
@@ -323,7 +324,7 @@ exports.evm2wast = function (evmCode, opts = {
           // this index is incorrect. the table indexes are defined in wasm/callback.wast
           // and wasm/callback_256.wast, etc., by the (export "1") line
           let correctIndex = callbackIndexes[cbFunc]
-          console.log('op.name, cbFunc, correctIndex:', op.name, cbFunc, correctIndex)
+          // console.log('op.name, cbFunc, correctIndex:', op.name, cbFunc, correctIndex)
           if (typeof correctIndex === "undefined") {
             correctIndex = 99
           }
@@ -516,7 +517,7 @@ exports.buildModule = function (funcs, imports = [], exports = [], cbs = []) {
   for (let func of funcs) {
     funcStr += func
   }
-  console.log('evm2wasm buildModule exports:', exports)
+  // exports is always empty, not sure what the intended use was?
   for (let exprt of exports) {
     funcStr += `(export "${exprt}" (func $${exprt}))`
   }
