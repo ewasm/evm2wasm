@@ -69,6 +69,7 @@ const callbackFuncs = new Map([
   ['BLOCKHASH', '$callback_256']
 ])
 
+// the files in e.g. wasm/callback_32.wast use these indexes as export names
 const callbackIndexes = {
   '$callback': '0',
   '$callback_256': '1',
