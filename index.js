@@ -69,6 +69,16 @@ const callbackFuncs = new Map([
   ['BLOCKHASH', '$callback_256']
 ])
 
+// the files in e.g. wasm/callback_32.wast use these indexes as export names
+const callbackIndexes = {
+  '$callback': '0',
+  '$callback_256': '1',
+  '$callback_128': '2',
+  '$callback_32': '3',
+  '$callback_160': '4'
+}
+
+
 /**
  * compiles evmCode to wasm in the binary format
  * @param {Array} evmCode
@@ -79,20 +89,31 @@ const callbackFuncs = new Map([
  */
 exports.evm2wasm = function (evmCode, opts = {
   'stackTrace': false,
-  'inlineOps': true
+  'inlineOps': true,
+  'testName': 'temp'
 }) {
   const wast = exports.evm2wast(evmCode, opts)
+  const testName = opts.testName
   if (opts.wabt) {
     return new Promise((resolve, reject) => {
       const fs = require('fs')
       const cp = require('child_process')
-      fs.writeFile(`${__dirname}/temp.wast`, wast, () => {
-        cp.exec(`${__dirname}/tools/wabt/out/wast2wasm ${__dirname}/temp.wast -o ${__dirname}/temp.wasm`, () => {
-          fs.readFile(`${__dirname}/temp.wasm`, (err, wasm) => {
-            resolve(wasm)
+      try {
+        fs.writeFile(`${__dirname}/tmp/${testName}.wast`, wast, () => {
+          cp.exec(`${__dirname}/tools/wabt/bin/wat2wasm ${__dirname}/tmp/${testName}.wast -o ${__dirname}/tmp/${testName}.wasm`, (cp_err) => {
+            if (cp_err) {
+              console.log('Error running wat2wasm:', cp_err)
+              reject(cp_err)
+            }
+            fs.readFile(`${__dirname}/tmp/${testName}.wasm`, (err, wasm) => {
+              resolve(wasm)
+            })
           })
         })
-      })
+      } catch(err) {
+        console.log('in promise got err:', err)
+        reject(err)
+      }
     })
   } else {
     return wast2wasm(wast)
@@ -301,7 +322,17 @@ exports.evm2wast = function (evmCode, opts = {
           if (index === -1) {
             index = callbackTable.push(cbFunc) - 1
           }
-          segment += `(call $${op.name} (i32.const ${index}))\n`
+          // segment += `(call $${op.name} (i32.const ${index}))\n`
+          // this index is incorrect. the table indexes are defined in wasm/callback.wast
+          // and wasm/callback_256.wast, etc., by the (export "1") line
+          let correctIndex = callbackIndexes[cbFunc]
+          // console.log('op.name, cbFunc, correctIndex:', op.name, cbFunc, correctIndex)
+          if (typeof correctIndex === "undefined") {
+            correctIndex = 99
+          }
+          segment += `(call $${op.name} (i32.const ${correctIndex}))\n`
+          
+          
         } else {
           segment += `(call $${op.name})\n`
         }
@@ -488,6 +519,7 @@ exports.buildModule = function (funcs, imports = [], exports = [], cbs = []) {
   for (let func of funcs) {
     funcStr += func
   }
+  // exports is always empty, not sure what the intended use was?
   for (let exprt of exports) {
     funcStr += `(export "${exprt}" (func $${exprt}))`
   }
@@ -509,11 +541,11 @@ exports.buildModule = function (funcs, imports = [], exports = [], cbs = []) {
   (memory 500)
   (export "memory" (memory 0))
 
-  (table
-    (export "callback")
-    anyfunc
-    (elem ${cbs.join(' ')})
-  )
-   ${funcStr}
+  ;; table definition
+  (table ${cbs.length} anyfunc)
+  (elem (i32.const 0) ${cbs.join(' ')})
+
+  ;; funcStr below
+  ${funcStr}
 )`
 }

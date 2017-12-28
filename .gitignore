@@ -1,2 +1,5 @@
 .swp
 .gch
+tmp/*
+!tmp/.gitkeep
+node_modules/
