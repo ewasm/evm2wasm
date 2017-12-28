@@ -74,7 +74,8 @@ const callbackIndexes = {
   '$callback': '0',
   '$callback_256': '1',
   '$callback_128': '2',
-  '$callback_32': '3'
+  '$callback_32': '3',
+  '$callback_160': '4'
 }
 
 
