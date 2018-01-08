@@ -36,8 +36,17 @@ string wast2wasm(string input, bool debug = false) {
   return output.str();
 }
 
+string evm2wast(string input) {
+  // FIXME: do evm magic here
+}
+
+string evm2wasm(string input) {
+  return wast2wasm(evm2wast(input));
+}
+
 }
 
 int main(int argc, char **argv) {
   cout << wast2wasm("(module (func $test (i64.const 1)))") << endl;
+  cout << evm2wast("600160020200") << endl;
 }
