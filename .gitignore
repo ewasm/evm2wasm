@@ -1,2 +1,6 @@
 .swp
 .gch
+
+/build
+/.idea
+/deps
