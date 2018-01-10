@@ -3,6 +3,7 @@ const wast2wasm = require('wast2wasm')
 const ethUtil = require('ethereumjs-util')
 const opcodes = require('./opcodes.js')
 const wastFiles = require('./wasm/wast.json')
+const wabt = require('./wabt.js')
 
 // map to track dependent WASM functions
 const depMap = new Map([
@@ -83,18 +84,7 @@ exports.evm2wasm = function (evmCode, opts = {
 }) {
   const wast = exports.evm2wast(evmCode, opts)
   if (opts.wabt) {
-    return new Promise((resolve, reject) => {
-      const fs = require('fs')
-      const cp = require('child_process')
-      fs.writeFile(`${__dirname}/temp.wast`, wast, () => {
-        cp.exec(`${__dirname}/tools/wabt/out/wast2wasm ${__dirname}/temp.wast -o ${__dirname}/temp.wasm`, () => {
-          fs.readFile(`${__dirname}/temp.wasm`, (err, wasm) => {
-            if (err) return reject(err)
-            resolve(wasm)
-          })
-        })
-      })
-    })
+    return wabt.compile(wast)
   } else {
     return wast2wasm(wast)
   }
