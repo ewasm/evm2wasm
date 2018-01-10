@@ -8,7 +8,7 @@
   (local $MAX_INT i32)
   (set_local $MAX_INT (i32.const -1))
 
-  (if i32 
+  (if
     (i32.and 
       (i32.and 
         (i64.eqz  (get_local $d))
@@ -18,5 +18,5 @@
         (i64.lt_u (get_local $a) (i64.extend_u/i32 (get_local $MAX_INT)))))
       (then
         (return (i32.wrap/i64 (get_local $a))))
-      (else 
+      (else
         (return (get_local $MAX_INT)))))
