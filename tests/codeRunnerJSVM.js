@@ -23,7 +23,7 @@ tape('testing js VM', (t) => {
         // })
       vm.runCode({
         data: test.environment.callData,
-        code: new Buffer(test.code.slice(2), 'hex'),
+        code: Buffer.from(test.code.slice(2), 'hex'),
         gasLimit: new BN(90000)
       }, (err, results) => {
         t.equals(results.gasUsed.toNumber(), test.gasUsed, 'should use correct amount of gas')

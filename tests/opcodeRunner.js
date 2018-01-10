@@ -56,7 +56,7 @@ tape('testing EVM1 Ops', async t => {
 
       // populate the environment
       message.from = ['code', test.environment.caller]
-      message.data = new Buffer(test.environment.callData.slice(2), 'hex')
+      message.data = Buffer.from(test.environment.callData.slice(2), 'hex')
       message.gas = 1000000
       block.header.coinbase = new Address(test.environment.coinbase)
 
@@ -160,7 +160,7 @@ tape('testing EVM1 Ops', async t => {
 })
 
 function hexToUint8Array (item, length) {
-  return new Uint8Array(ethUtil.setLength(new Buffer(item.slice(2), 'hex'), length || 32))
+  return new Uint8Array(ethUtil.setLength(Buffer.from(item.slice(2), 'hex'), length || 32))
 }
 
 function setMemory (instance, value, start) {
