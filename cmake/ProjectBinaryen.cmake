@@ -1,5 +1,11 @@
 include(ExternalProject)
 
+if(MSVC)
+    # Overwrite build and install commands to force Release build on MSVC.
+    set(build_command BUILD_COMMAND cmake --build <BINARY_DIR> --config Release)
+    set(install_command INSTALL_COMMAND cmake --build <BINARY_DIR> --config Release --target install)
+endif()
+
 ExternalProject_Add(binaryen
     PREFIX deps
     DOWNLOAD_NAME binaryen-1.37.28.tar.gz
@@ -10,9 +16,8 @@ ExternalProject_Add(binaryen
     -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
     -DCMAKE_BUILD_TYPE=Release
     -DBUILD_STATIC_LIB=ON
-    # Overwtire build and install commands to force Release build on MSVC.
-    BUILD_COMMAND cmake --build <BINARY_DIR> --config Release
-    INSTALL_COMMAND cmake --build <BINARY_DIR> --config Release --target install
+    ${build_command}
+    ${install_command}
 )
 
 ExternalProject_Get_Property(binaryen INSTALL_DIR BINARY_DIR SOURCE_DIR)

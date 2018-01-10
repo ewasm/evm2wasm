@@ -42,7 +42,7 @@ script:
     if [ $LANG = cpp ]; then
       mkdir build && cd build
       cmake ..
-      cmake --build .
+      cmake --build . -- -j4
     fi
 
 addons:
