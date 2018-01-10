@@ -40,6 +40,8 @@ before_install:
     if [ $LANG = js ]; then
       ./tools/wabt/scripts/travis-before-install.sh
       cd ./tools/wabt/ && make
+
+      npm install
     fi
 
 script:
