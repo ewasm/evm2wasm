@@ -10,17 +10,17 @@ EVM (Ethereum VM 1.0) to [eWASM](https://github.com/ethereum/evm2.0-design) tran
 `npm install evm2wasm`
 
 # DEVELOP
-* After any changes to `.wast` file, `npm  run build` need to be run to compile the files into a .json file 
-* To rebuild the documetion run `npm run build:docs`
+* After any changes to `.wast` file, `npm  run build` needs to be run to compile the files into a .json file 
+* To rebuild the documentation run `npm run build:docs`
 * To lint run `npm run lint`
 * And make sure you test with `npm test` and `npm run vmTests` which runs the offical Ethereum test suite
 
 # API
 [./docs/](./docs/index.md)
 
-# TECHINCAL NOTES  
+# TECHNICAL NOTES  
 EVM is stack based and offers access to memory, storage and state via special instructions.  
-Here we replicate the stack layout in WebAssembly and implement each operation working on this stack.
+Here we replicate the stack layout in WebAssembly (WASM) and implement each operation working on this stack.
 
 ### OPCODES  
 Every opcode (bar some special instructions) receives the current stack pointer (`$sp`) as `i32` and must return the adjusted stack pointer.
@@ -36,7 +36,7 @@ The eWASM contract memory layout is currently as follows:
 | eWASM memory starts here
 +---------------------------------------------------
 | Reserved space for the stack (32768 bytes)
-| - each stack entry is 256 bit
+| - each stack entry is 256 bits
 | - the stack is limited to 1024 entries
 +---------------------------------------------------
 | Word count (4 bytes)
@@ -54,8 +54,7 @@ The eWASM contract memory layout is currently as follows:
 ```
 
 ### METERING  
-The generated *eWASM contract* contains gas metering. It is assumed *evm2wasm* will become a deployed trusted contract, which returns eWASM code that
-does not need to be run through the gas injector contract.
+The generated *eWASM contract* contains gas metering. It is assumed *evm2wasm* will become a deployed trusted contract, which returns eWASM code that does not need to be run through the gas injector contract.
 
 # LICENSE
 [MPL-2.0](https://tldrlegal.com/license/mozilla-public-license-2.0-(mpl-2))
