@@ -57,35 +57,35 @@ function setupEnviroment (testData, rootVertex) {
   env.value = new U256(testData.exec.value)
 
   env.callValue = new U256(testData.exec.value)
-  env.code = new Uint8Array(new Buffer(testData.exec.code.slice(2), 'hex'))
+  env.code = new Uint8Array(Buffer.from(testData.exec.code.slice(2), 'hex'))
 
   // setup block
   env.block.header.number = testData.env.currentNumber
-  env.block.header.coinbase = new Buffer(testData.env.currentCoinbase, 'hex')
+  env.block.header.coinbase = Buffer.from(testData.env.currentCoinbase, 'hex')
   env.block.header.difficulty = testData.env.currentDifficulty
-  env.block.header.gasLimit = new Buffer(testData.env.currentGasLimit.slice(2), 'hex')
-  env.block.header.number = new Buffer(testData.env.currentNumber.slice(2), 'hex')
-  env.block.header.timestamp = new Buffer(testData.env.currentTimestamp.slice(2), 'hex')
+  env.block.header.gasLimit = Buffer.from(testData.env.currentGasLimit.slice(2), 'hex')
+  env.block.header.number = Buffer.from(testData.env.currentNumber.slice(2), 'hex')
+  env.block.header.timestamp = Buffer.from(testData.env.currentTimestamp.slice(2), 'hex')
 
   for (let address in testData.pre) {
     const account = testData.pre[address]
     const accountVertex = new Vertex()
 
     accountVertex.set('code', new Vertex({
-      value: new Buffer(account.code.slice(2), 'hex')
+      value: Buffer.from(account.code.slice(2), 'hex')
     }))
 
     accountVertex.set('balance', new Vertex({
-      value: new Buffer(account.balance.slice(2), 'hex')
+      value: Buffer.from(account.balance.slice(2), 'hex')
     }))
 
     for (let key in account.storage) {
-      accountVertex.set(['storage', ...new Buffer(key.slice(2), 'hex')], new Vertex({
-        value: new Buffer(account.storage[key].slice(2), 'hex')
+      accountVertex.set(['storage', ...Buffer.from(key.slice(2), 'hex')], new Vertex({
+        value: Buffer.from(account.storage[key].slice(2), 'hex')
       }))
     }
 
-    const path = [...new Buffer(address.slice(2), 'hex')]
+    const path = [...Buffer.from(address.slice(2), 'hex')]
     rootVertex.set(path, accountVertex)
     env.state = accountVertex
   }
@@ -97,7 +97,7 @@ async function checkResults (testData, t, instance, environment) {
   // check gas used
   t.equals(ethUtil.intToHex(environment.gasLeft), testData.gas, 'should have the correct gas')
   // check return value
-  t.equals(new Buffer(environment.returnValue).toString('hex'), testData.out.slice(2), 'return value')
+  t.equals(Buffer.from(environment.returnValue).toString('hex'), testData.out.slice(2), 'return value')
   // check storage
   const account = testData.post[testData.exec.address]
   // TODO: check all accounts
@@ -109,7 +109,7 @@ async function checkResults (testData, t, instance, environment) {
         const key = ['storage', ...ethUtil.toBuffer(testKey)]
         let {value} = await environment.state.get(key)
         if (value) {
-          value = '0x' + new Buffer(value).toString('hex')
+          value = '0x' + Buffer.from(value).toString('hex')
         }
         t.equals(value, testValue, `should have correct storage value at key ${key.join('')}`)
       }

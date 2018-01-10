@@ -16,7 +16,16 @@ matrix:
       node_js:
         - "8"
       env:
-        - LANG=js
+        - LANG=js TEST_SUITE=lint
+
+    - os: linux
+      dist: trusty
+      sudo: required
+      language: node_js
+      node_js:
+        - "8"
+      env:
+        - LANG=js TEST_SUITE=test
 
     - os: linux
       dist: trusty
@@ -31,12 +40,14 @@ before_install:
     if [ $LANG = js ]; then
       ./tools/wabt/scripts/travis-before-install.sh
       cd ./tools/wabt/ && make
+
+      npm install
     fi
 
 script:
   - |
     if [ $LANG = js ]; then
-      npm test
+      npm run $TEST_SUITE
     fi
   - |
     if [ $LANG = cpp ]; then

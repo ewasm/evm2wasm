@@ -39,13 +39,13 @@ tape('testing transcompiler', async t => {
 
       const accountAddress = ['accounts', test.environment.address, 'code']
       const startGas = message.gas = 90000
-      message.data = new Buffer(test.message.data.slice(2), 'hex')
+      message.data = Buffer.from(test.message.data.slice(2), 'hex')
       message.from = ['accounts', test.message.from]
 
       const block = new Block()
       block.header.coinbase = new Address(test.environment.coinbase)
 
-      const code = new Buffer(test.code.slice(2), 'hex')
+      const code = Buffer.from(test.code.slice(2), 'hex')
 
       state.set('block', new Vertex({
         value: block
@@ -88,7 +88,7 @@ tape('testing transcompiler', async t => {
         // check the results
         test.result.stack.forEach((item, index) => {
           const sp = index * 32
-          const expectedItem = new Uint8Array(ethUtil.setLength(new Buffer(item.slice(2), 'hex'), 32)).reverse()
+          const expectedItem = new Uint8Array(ethUtil.setLength(Buffer.from(item.slice(2), 'hex'), 32)).reverse()
           const result = new Uint8Array(kernel._vm.api.memory()).slice(sp, sp + 32)
           t.equals(result.toString(), expectedItem.toString(), 'should have correct item on stack')
         })

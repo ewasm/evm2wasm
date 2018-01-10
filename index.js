@@ -89,6 +89,7 @@ exports.evm2wasm = function (evmCode, opts = {
       fs.writeFile(`${__dirname}/temp.wast`, wast, () => {
         cp.exec(`${__dirname}/tools/wabt/out/wast2wasm ${__dirname}/temp.wast -o ${__dirname}/temp.wasm`, () => {
           fs.readFile(`${__dirname}/temp.wasm`, (err, wasm) => {
+            if (err) return reject(err)
             resolve(wasm)
           })
         })
@@ -355,7 +356,6 @@ exports.evm2wast = function (evmCode, opts = {
   funcs.push(wast)
   wast = exports.buildModule(funcs, imports, [], callbackTable)
   return wast
-
 }
 
 // given an array for segments builds a wasm module from those segments

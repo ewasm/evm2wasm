@@ -24,7 +24,7 @@
 //   address: opts.address || utils.zeros(32),
 //   caller: opts.caller || utils.zeros(32),
 //   origin: opts.origin || opts.caller || utils.zeros(32),
-//   callData: opts.data || new Buffer([0]),
+//   callData: opts.data || Buffer.from([0]),
 //   code: opts.code,
 //   populateCache: opts.populateCache === undefined ? true : opts.populateCache,
 //   enableHomestead: this.opts.enableHomestead === undefined ? block.isHomestead() : this.opts.enableHomestead // this == vm
@@ -52,7 +52,7 @@ tape('testing EVM1 Ops', (t) => {
       t.comment(`testing ${test.op} ${test.description}`)
 
       // populate the stack with predefined values
-      const stack = test.in.stack.map((i) => new Buffer(i.slice(2), 'hex'))
+      const stack = test.in.stack.map((i) => Buffer.from(i.slice(2), 'hex'))
       const startGas = '100000000000000000'
 
       const runState = {
@@ -69,7 +69,7 @@ tape('testing EVM1 Ops', (t) => {
       // populate the memory
       if (test.in.memory) {
         for (let item in test.in.memory) {
-          const memIn = new Buffer(test.in.memory[item].slice(2), 'hex')
+          const memIn = Buffer.from(test.in.memory[item].slice(2), 'hex')
           runState.memory.splice(item, 32, ...memIn)
         }
       }
