@@ -1,12 +1,50 @@
-language: node_js
-sudo: required
-node_js:
-  - "7"
+branches:
+  # We need to whitelist the branches which we want to have "push" automation.
+  # Pull request automation is not constrained to this set of branches.
+  only:
+    - master
+    - develop
+    - /travis/
+    - hunter
+
+matrix:
+  include:
+    - os: linux
+      dist: trusty
+      sudo: required
+      language: node_js
+      node_js:
+        - "8"
+      env:
+        - LANG=js
+
+    - os: linux
+      dist: trusty
+      sudo: required
+      language: cpp
+      env:
+        - LANG=cpp
+
 before_install:
   - git submodule update --init
-  - ./tools/wabt/scripts/travis-before-install.sh
-  - cd ./tools/wabt/ && make
-script: npm test
+  - |
+    if [ $LANG = js ]; then
+      ./tools/wabt/scripts/travis-before-install.sh
+      cd ./tools/wabt/ && make
+    fi
+
+script:
+  - |
+    if [ $LANG = js ]; then
+      npm test
+    fi
+  - |
+    if [ $LANG = cpp ]; then
+      mkdir build && cd build
+      cmake ..
+      cmake --build .
+    fi
+
 addons:
   apt:
     sources:
