@@ -37,6 +37,7 @@ string wast2wasm(string input, bool debug = false) {
 }
 
 string evm2wast(string input) {
+  (void)input;
   // FIXME: do evm magic here
   return "(module (func $test))";
 }
@@ -48,5 +49,7 @@ string evm2wasm(string input) {
 }
 
 int main(int argc, char **argv) {
+  (void)argc;
+  (void)argv;
   cout << evm2wasm("600160020200") << endl;
 }
