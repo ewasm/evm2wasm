@@ -13,8 +13,5 @@ project(evm2wasm)
 
 include(ProjectBinaryen)
 
-add_executable(evm2wasm
-    evm2wasm.cpp
-)
-
-target_link_libraries(evm2wasm PRIVATE binaryen::binaryen)
+add_subdirectory(libs)
+add_subdirectory(tools)

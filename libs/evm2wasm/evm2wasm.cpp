@@ -1,3 +1,5 @@
+#include <evm2wasm.h>
+
 #include "wasm-binary.h"
 #include "wasm-s-parser.h"
 
@@ -42,14 +44,8 @@ string evm2wast(string input) {
   return "(module (func $test))";
 }
 
+}
+
 string evm2wasm(string input) {
-  return wast2wasm(evm2wast(input));
-}
-
-}
-
-int main(int argc, char **argv) {
-  (void)argc;
-  (void)argv;
-  cout << evm2wasm("600160020200") << endl;
+    return wast2wasm(evm2wast(input));
 }
