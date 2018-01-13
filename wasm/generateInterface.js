@@ -1,5 +1,6 @@
 const fs = require('fs')
 const path = require('path')
+const USE_ASYNC_API = require('../index.js').USE_ASYNC_API
 
 const interfaceManifest = {
   LOG: {
@@ -24,7 +25,7 @@ const interfaceManifest = {
   },
   BALANCE: {
     name: 'getBalance',
-    async: true,
+    async: USE_ASYNC_API,
     input: ['address'],
     output: ['i128']
   },
@@ -55,25 +56,25 @@ const interfaceManifest = {
   },
   CODESIZE: {
     name: 'getCodeSize',
-    async: true,
+    async: USE_ASYNC_API,
     input: [],
     output: ['i32']
   },
   CODECOPY: {
     name: 'codeCopy',
-    async: true,
+    async: USE_ASYNC_API,
     input: ['writeOffset', 'i32', 'length'],
     output: []
   },
   EXTCODESIZE: {
     name: 'getExternalCodeSize',
-    async: true,
+    async: USE_ASYNC_API,
     input: ['address'],
     output: ['i32']
   },
   EXTCODECOPY: {
     name: 'externalCodeCopy',
-    async: true,
+    async: USE_ASYNC_API,
     input: ['address', 'writeOffset', 'i32', 'length'],
     output: []
   },
@@ -84,7 +85,7 @@ const interfaceManifest = {
   },
   BLOCKHASH: {
     name: 'getBlockHash',
-    async: true,
+    async: USE_ASYNC_API,
     input: ['i32'],
     output: ['i256']
   },
@@ -115,37 +116,38 @@ const interfaceManifest = {
   },
   CREATE: {
     name: 'create',
-    async: true,
+    async: USE_ASYNC_API,
     input: ['i128', 'readOffset', 'length'],
     output: ['address']
   },
   CALL: {
     name: 'call',
-    async: true,
-    input: ['i64', 'address', 'i128', 'readOffset', 'length', 'writeOffset', 'length'],
+    async: USE_ASYNC_API,
+    //input: ['i64', 'address', 'i128', 'readOffset', 'length', 'writeOffset', 'length'],
+    input: ['i32', 'address', 'i128', 'readOffset', 'length', 'writeOffset', 'length'],
     output: ['i32']
   },
   CALLCODE: {
     name: 'callCode',
-    async: true,
+    async: USE_ASYNC_API,
     input: ['i32', 'address', 'i128', 'readOffset', 'length', 'writeOffset', 'length'],
     output: ['i32']
   },
   DELEGATECALL: {
     name: 'callDelegate',
-    async: true,
+    async: USE_ASYNC_API,
     input: ['i32', 'address', 'i128', 'readOffset', 'length', 'writeOffset', 'length'],
     output: ['i32']
   },
   SSTORE: {
     name: 'storageStore',
-    async: true,
+    async: USE_ASYNC_API,
     input: ['pointer', 'pointer'],
     output: []
   },
   SLOAD: {
     name: 'storageLoad',
-    async: true,
+    async: USE_ASYNC_API,
     input: ['pointer'],
     output: ['i256']
   },

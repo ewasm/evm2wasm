@@ -54,6 +54,8 @@ const depMap = new Map([
   ['CALLER', ['bswap_m160']]
 ])
 
+const USE_ASYNC_API = false
+
 // maps the async ops to their call back function
 const callbackFuncs = new Map([
   ['SSTORE', '$callback'],
@@ -69,6 +71,15 @@ const callbackFuncs = new Map([
   ['BALANCE', '$callback_128'],
   ['BLOCKHASH', '$callback_256']
 ])
+
+// the files in e.g. wasm/callback_32.wast use these indexes as export names
+const callbackIndexes = {
+  '$callback': '0',
+  '$callback_256': '1',
+  '$callback_128': '2',
+  '$callback_32': '3',
+  '$callback_160': '4'
+}
 
 /**
  * compiles evmCode to wasm in the binary format
@@ -258,7 +269,7 @@ exports.evm2wast = function (evmCode, opts = {
           push = push + `(i64.const ${int64})`
         }
 
-        segment += `(call $PUSH ${push})`
+        segment += `(call $PUSH ${push})\n`
         i--
         break
       case 'POP':
@@ -288,14 +299,29 @@ exports.evm2wast = function (evmCode, opts = {
         i = findNextJumpDest(evmCode, i)
         break
       default:
-        if (callbackFuncs.has(op.name)) {
+        if (USE_ASYNC_API && callbackFuncs.has(op.name)) {
+          // transpiler code for async ewasm api
+
           const cbFunc = callbackFuncs.get(op.name)
+          /*
+          // old async callbacks, believed to be broken
           let index = callbackTable.indexOf(cbFunc)
           if (index === -1) {
             index = callbackTable.push(cbFunc) - 1
           }
+          // this index is incorrect. the table indexes are defined by eg `(export "1")` in wasm/callback.wast, wasm/callback_256.wast, etc.
+          segment += `(call $${op.name} (i32.const ${index}))\n`
+          */
+
+          // fix for the async callbacks, believed to be correct
+          let index = callbackIndexes[cbFunc]
+          if (typeof index === 'undefined') {
+            // todo: finish all the methods
+            index = 99
+          }
           segment += `(call $${op.name} (i32.const ${index}))\n`
         } else {
+          // using the synchronous ewasm api
           segment += `(call $${op.name})\n`
         }
     }
@@ -317,7 +343,7 @@ exports.evm2wast = function (evmCode, opts = {
 
     // adds the logic to save the stack pointer before exiting to wiat to for a callback
     // note, this must be done before the sp is updated above^
-    if (callbackFuncs.has(op.name)) {
+    if (USE_ASYNC_API && callbackFuncs.has(op.name)) {
       segment += `(set_global $cb_dest (i32.const ${jumpSegments.length + 1}))
           (br $done))`
       jumpSegments.push({
@@ -328,7 +354,7 @@ exports.evm2wast = function (evmCode, opts = {
 
   endSegment()
 
-  wast = assmebleSegments(jumpSegments) + wast + '))'
+  wast = assembleSegments(jumpSegments) + wast + '))'
 
   let imports = []
   let funcs = []
@@ -353,7 +379,7 @@ exports.evm2wast = function (evmCode, opts = {
 // given an array for segments builds a wasm module from those segments
 // @param {Array} segments
 // @return {String}
-function assmebleSegments (segments) {
+function assembleSegments (segments) {
   let wasm = buildJumpMap(segments)
 
   segments.forEach((seg, index) => {
@@ -405,7 +431,7 @@ function buildJumpMap (segments) {
             get_global $cb_dest
             (set_global $cb_dest (i32.const 0))
             (br_table $0 ${brTable})
-          )))))`
+          )))))\n`
 
   return wasm
 }
@@ -454,6 +480,8 @@ function resolveFunctionDeps (funcSet) {
   return funcs
 }
 
+exports.USE_ASYNC_API = USE_ASYNC_API
+
 /**
  * given a Set of wasm function this return an array for wasm equivalents
  * @param {Set} funcSet
@@ -480,9 +508,23 @@ exports.buildModule = function (funcs, imports = [], exports = [], cbs = []) {
   for (let func of funcs) {
     funcStr += func
   }
+  // exports is always empty, not sure what the intended use was?
   for (let exprt of exports) {
     funcStr += `(export "${exprt}" (func $${exprt}))`
   }
+
+  const asyncTable = `
+  (table
+    (export "callback")
+    anyfunc
+    (elem ${cbs.join(' ')})
+  )`
+
+  const syncTable = `
+  (table ${cbs.length} anyfunc)
+  (elem (i32.const 0) ${cbs.join(' ')} )
+`
+
   return `
 (module
   ${imports.join('\n')}
@@ -501,11 +543,10 @@ exports.buildModule = function (funcs, imports = [], exports = [], cbs = []) {
   (memory 500)
   (export "memory" (memory 0))
 
-  (table
-    (export "callback")
-    anyfunc
-    (elem ${cbs.join(' ')})
-  )
-   ${funcStr}
+  ;; table definition
+  ${USE_ASYNC_API ? asyncTable : syncTable}
+
+  ;; funcStr below
+  ${funcStr}
 )`
 }
