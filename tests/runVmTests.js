@@ -16,12 +16,30 @@ const DebugInterface = require('ewasm-kernel/debugInterface')
 // const skipList = [
 //   'sha3_bigOffset2' // some wierd memory error when we try to allocate 16mb of mem
 // ]
-async function runner (testData, t) {
+
+const skipList = [
+  // slow performance tests
+  'loop-mul',
+  'loop-add-10M',
+  'loop-divadd-10M',
+  'loop-divadd-unr100-10M',
+  'loop-exp-16b-100k',
+  'loop-exp-1b-1M',
+  'loop-exp-2b-100k',
+  'loop-exp-32b-100k',
+  'loop-exp-4b-100k',
+  'loop-exp-8b-100k',
+  'loop-exp-nop-1M',
+  'loop-mulmod-2M'
+]
+
+async function runner (testName, testData, t) {
   const code = Buffer.from(testData.exec.code.slice(2), 'hex')
   const {
     buffer: evm
   } = await evm2wasm(code, {
     stackTrace: argv.trace,
+    testName: testName,
     inlineOps: true,
     pprint: false,
     wabt: true
@@ -29,7 +47,6 @@ async function runner (testData, t) {
 
   const rootVertex = new Vertex()
   const enviroment = setupEnviroment(testData, rootVertex)
-
   try {
     const kernel = new Kernel({
       code: evm,
@@ -38,9 +55,7 @@ async function runner (testData, t) {
     const instance = await kernel.run(enviroment)
     await checkResults(testData, t, instance, enviroment)
   } catch (e) {
-    // console.log(e)
-    t.comment(e)
-    t.deepEquals({}, testData.post, 'should not have post data')
+    t.fail('VM test runner caught exception: ' + e)
   }
 }
 
@@ -61,7 +76,7 @@ function setupEnviroment (testData, rootVertex) {
 
   // setup block
   env.block.header.number = testData.env.currentNumber
-  env.block.header.coinbase = Buffer.from(testData.env.currentCoinbase, 'hex')
+  env.block.header.coinbase = Buffer.from(testData.env.currentCoinbase.slice(2), 'hex')
   env.block.header.difficulty = testData.env.currentDifficulty
   env.block.header.gasLimit = Buffer.from(testData.env.currentGasLimit.slice(2), 'hex')
   env.block.header.number = Buffer.from(testData.env.currentNumber.slice(2), 'hex')
@@ -105,8 +120,10 @@ async function checkResults (testData, t, instance, environment) {
     const testsStorage = account.storage
     if (testsStorage) {
       for (let testKey in testsStorage) {
-        const testValue = testsStorage[testKey]
-        const key = ['storage', ...ethUtil.toBuffer(testKey)]
+        const testValueBuf = ethUtil.setLengthLeft(ethUtil.toBuffer(testsStorage[testKey]), 32)
+        const testValue = '0x' + testValueBuf.toString('hex')
+        const bufferKey = ethUtil.setLengthLeft(ethUtil.toBuffer(testKey), 32)
+        const key = ['storage', ...bufferKey]
         let {value} = await environment.state.get(key)
         if (value) {
           value = '0x' + Buffer.from(value).toString('hex')
@@ -117,13 +134,16 @@ async function checkResults (testData, t, instance, environment) {
   }
 }
 
+let testGetterArgs = {}
+testGetterArgs.skipVM = skipList
+
 tape('VMTESTS', t => {
   testing.getTestsFromArgs('VMTests', (fileName, testName, tests) => {
     t.comment(fileName + ' ' + testName)
-    return runner(tests, t).catch(err => {
+    return runner(testName, tests, t).catch(err => {
       t.fail(err)
     })
-  }, argv).then(() => {
+  }, testGetterArgs).then(() => {
     t.end()
   })
 })
