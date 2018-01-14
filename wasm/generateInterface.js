@@ -123,8 +123,7 @@ const interfaceManifest = {
   CALL: {
     name: 'call',
     async: USE_ASYNC_API,
-    //input: ['i64', 'address', 'i128', 'readOffset', 'length', 'writeOffset', 'length'],
-    input: ['i32', 'address', 'i128', 'readOffset', 'length', 'writeOffset', 'length'],
+    input: ['i64', 'address', 'i128', 'readOffset', 'length', 'writeOffset', 'length'],
     output: ['i32']
   },
   CALLCODE: {
