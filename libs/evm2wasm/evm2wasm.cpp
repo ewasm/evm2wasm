@@ -2,12 +2,13 @@
 
 #include "wasm-binary.h"
 #include "wasm-s-parser.h"
+#include "evm2wast.h"
 
 using namespace std;
 
 namespace {
 
-string wast2wasm(const string& input, bool debug = false) {
+string wast2wasm(string input, bool debug = true) {
   wasm::Module wasm;
 
   try {
@@ -19,9 +20,7 @@ string wast2wasm(const string& input, bool debug = false) {
   } catch (wasm::ParseException& p) {
     p.dump(std::cerr);
     wasm::Fatal() << "error in parsing input";
-  }
-
-  // FIXME: perhaps call validate() here?
+	} 
 
   if (debug) std::cerr << "binarification..." << std::endl;
   wasm::BufferWithRandomAccess buffer(debug);
@@ -38,14 +37,35 @@ string wast2wasm(const string& input, bool debug = false) {
   return output.str();
 }
 
-string evm2wast(string input) {
-  (void)input;
-  // FIXME: do evm magic here
-  return "(module (func $test))";
+string evm2wast_wrapper(string input) {
+  size_t len = 0;
+  char *output = NULL;
+  if (evm2wast(const_cast<char*>(input.c_str()), input.size(), &output, &len) < 0)
+    return string();
+  string ret(output, output + len);
+  free(output);
+	cout << ret << endl;
+  return ret;
+}
+
+string evm2wasm(string input) {
+  return wast2wasm(evm2wast_wrapper(input));
 }
 
 }
 
-string evm2wasm(const string& input) {
-    return wast2wasm(evm2wast(input));
+int main(int argc, char **argv) {
+	if(argc<2) {
+		cout << "usage " << argv[0] << " <evm file>" << endl;
+		return 1;
+	}
+	FILE *fd = fopen(argv[1], "r");
+	fseek(fd, 0, SEEK_END);
+	size_t offset = ftell(fd);
+	rewind(fd);
+	char *code = (char*)malloc(8192);
+	fread(code, 1, 8192, fd);
+	fclose(fd);
+  cout << evm2wasm(string(code)) << endl;
+	return 0;
 }
