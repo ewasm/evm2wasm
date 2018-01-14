@@ -56,7 +56,7 @@ script:
       cmake --build . -- -j4
 
       # run the tool just to ensure it doesn't stop with exit 1
-      ./evm2wasm
+      tools/evm2wasm/evm2wasm <(echo "600160020200")
     fi
 
 addons:
