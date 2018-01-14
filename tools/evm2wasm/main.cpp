@@ -2,7 +2,6 @@
 #include <iostream>
 #include <fstream>
 #include <streambuf>
-
 #include <evm2wasm.h>
 
 using namespace std;
