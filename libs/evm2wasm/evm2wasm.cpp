@@ -47,5 +47,5 @@ string evm2wast(string input) {
 }
 
 string evm2wasm(const string& input) {
-    return wast2wasm(evm2wast(input));
+  return wast2wasm(evm2wast(input));
 }
