@@ -54,18 +54,6 @@ string evm2wasm(string input) {
 
 }
 
-int main(int argc, char **argv) {
-	if(argc<2) {
-		cout << "usage " << argv[0] << " <evm file>" << endl;
-		return 1;
-	}
-	FILE *fd = fopen(argv[1], "r");
-	fseek(fd, 0, SEEK_END);
-	size_t offset = ftell(fd);
-	rewind(fd);
-	char *code = (char*)malloc(8192);
-	fread(code, 1, 8192, fd);
-	fclose(fd);
-  cout << evm2wasm(string(code)) << endl;
-	return 0;
+string evm2wasm(const string& input) {
+  return wast2wasm(evm2wast(input));
 }
