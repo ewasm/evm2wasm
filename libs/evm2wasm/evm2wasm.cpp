@@ -21,8 +21,11 @@ string wast2wasm(const string& input, bool debug = false) {
     if (debug) std::cerr << "w-parsing..." << std::endl;
     wasm::SExpressionWasmBuilder builder(module, *root[0]);
   } catch (wasm::ParseException& p) {
-    p.dump(std::cerr);
-    wasm::Fatal() << "error in parsing input";
+    if (debug) {
+      std::cerr << "error in parsing input" << std::endl;
+      p.dump(std::cerr);
+    }
+    return string();
   }
 
   if (!wasm::WasmValidator().validate(module)) {
