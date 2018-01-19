@@ -38,10 +38,10 @@ string wast2wasm(const string& input, bool debug = false) {
   return output.str();
 }
 
-string evm2wast(string input) {
+string evm2wast(const string& input) {
   (void)input;
   // FIXME: do evm magic here
-  return "(module (func $test))";
+  return "(module (export \"main\" (func $main)) (func $main))";
 }
 
 }
