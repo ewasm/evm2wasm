@@ -1,14 +1,15 @@
 #include <evm2wasm.h>
 
-#include "wasm-binary.h"
-#include "wasm-s-parser.h"
+#include <wasm-binary.h>
+#include <wasm-s-parser.h>
+#include <wasm-validator.h>
 
 using namespace std;
 
 namespace {
 
 string wast2wasm(const string& input, bool debug = false) {
-  wasm::Module wasm;
+  wasm::Module module;
 
   try {
     if (debug) std::cerr << "s-parsing..." << std::endl;
@@ -18,17 +19,20 @@ string wast2wasm(const string& input, bool debug = false) {
     wasm::SExpressionParser parser(const_cast<char*>(tmp.c_str()));
     wasm::Element& root = *parser.root;
     if (debug) std::cerr << "w-parsing..." << std::endl;
-    wasm::SExpressionWasmBuilder builder(wasm, *root[0]);
+    wasm::SExpressionWasmBuilder builder(module, *root[0]);
   } catch (wasm::ParseException& p) {
     p.dump(std::cerr);
     wasm::Fatal() << "error in parsing input";
   }
 
-  // FIXME: perhaps call validate() here?
+  if (!wasm::WasmValidator().validate(module)) {
+    if (debug) std::cerr << "module is invalid" << std::endl;
+    return string();
+  }
 
   if (debug) std::cerr << "binarification..." << std::endl;
   wasm::BufferWithRandomAccess buffer(debug);
-  wasm::WasmBinaryWriter writer(&wasm, buffer, debug);
+  wasm::WasmBinaryWriter writer(&module, buffer, debug);
   writer.write();
 
   if (debug) std::cerr << "writing to output..." << std::endl;
