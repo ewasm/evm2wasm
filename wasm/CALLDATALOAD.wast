@@ -25,6 +25,5 @@
 
   (call $callDataCopy256 (get_global $sp) (get_local $writeOffset))
   ;; swap top stack item
-  (call $bswap_m256 (get_global $sp))
-  drop
+  (drop (call $bswap_m256 (get_global $sp)))
 )

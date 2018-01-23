@@ -747,8 +747,7 @@
   (param $context_offset i32)
 
   ;; clear out the context memory
-  (call $memset (get_local $context_offset) (i32.const 0) (i32.const 400))
-  drop
+  (drop (call $memset (get_local $context_offset) (i32.const 0) (i32.const 400)))
 )
 
 ;;
@@ -783,11 +782,11 @@
       )
 
       ;; fill up the residue buffer
-      (call $memcpy
+      (drop (call $memcpy
         (i32.add (get_local $residue_buffer) (get_local $residue_index))
         (get_local $input_offset)
         (get_local $tmp)
-      )
+      ))
 
       (set_local $residue_index (i32.add (get_local $residue_index) (get_local $tmp)))
 
@@ -801,7 +800,6 @@
       (i32.store (get_local $residue_offset) (get_local $residue_index))
 
       (set_local $input_length (i32.sub (get_local $input_length) (get_local $tmp)))
-      drop
     )
   )
 
@@ -823,15 +821,14 @@
   ;; copy to the residue buffer
   (if (i32.gt_u (get_local $input_length) (i32.const 0))
     (then
-      (call $memcpy
+      (drop (call $memcpy
         (i32.add (get_local $residue_buffer) (get_local $residue_index))
         (get_local $input_offset)
         (get_local $input_length)
-      )
+      ))
 
       (set_local $residue_index (i32.add (get_local $residue_index) (get_local $input_length)))
       (i32.store (get_local $residue_offset) (get_local $residue_index))
-      drop
     )
   )
 )
@@ -859,7 +856,7 @@
   (set_local $tmp (get_local $residue_index))
 
   ;; clear the rest of the residue buffer
-  (call $memset (i32.add (get_local $residue_buffer) (get_local $tmp)) (i32.const 0) (i32.sub (i32.const 136) (get_local $tmp)))
+  (drop (call $memset (i32.add (get_local $residue_buffer) (get_local $tmp)) (i32.const 0) (i32.sub (i32.const 136) (get_local $tmp))))
 
   ;; ((char*)ctx->message)[ctx->rest] |= 0x01;
   (set_local $tmp (i32.add (get_local $residue_buffer) (get_local $residue_index)))
@@ -876,7 +873,6 @@
   (i64.store (i32.add (get_local $output_offset) (i32.const 8)) (i64.load (i32.add (get_local $context_offset) (i32.const 8))))
   (i64.store (i32.add (get_local $output_offset) (i32.const 16)) (i64.load (i32.add (get_local $context_offset) (i32.const 16))))
   (i64.store (i32.add (get_local $output_offset) (i32.const 24)) (i64.load (i32.add (get_local $context_offset) (i32.const 24))))
-  drop
 )
 
 ;;

@@ -40,9 +40,8 @@
   (set_local $offset (i32.add (get_local $length) (i32.add (get_local $offset) (get_global $memstart))))
   (if (i32.gt_u (get_local $offset) (i32.mul (i32.const 65536) (current_memory)))
     (then
-      (grow_memory
-        (i32.div_u (i32.add (i32.const 65535) (i32.sub (get_local $offset) (current_memory))) (i32.const 65536)))
-      drop
+      (drop (grow_memory
+        (i32.div_u (i32.add (i32.const 65535) (i32.sub (get_local $offset) (current_memory))) (i32.const 65536))))
     )
   )
 )
