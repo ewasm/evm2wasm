@@ -74,8 +74,10 @@ const callbackFuncs = new Map([
  * compiles evmCode to wasm in the binary format
  * @param {Array} evmCode
  * @param {Object} opts
- * @param {boolean} opts.stackTrace if `true` generates a stack trace
- * @param {boolean} opts.inlineOps if `true` inlines the EVM1 operations
+ * @param {boolean} opts.stackTrace if `true` generates an runtime EVM stack trace (default: false)
+ * @param {boolean} opts.inlineOps if `true` inlines the EVM1 operations (default: true)
+ * @param {boolean} opts.wabt use wabt to compile wast to wasm instad of the built in JS module (default: false)
+ * @param {String} opts.testName is the name used for the wast file (default: 'temp')
  * @return {string}
  */
 exports.evm2wasm = function (evmCode, opts = {
@@ -107,8 +109,8 @@ exports.evm2wasm = function (evmCode, opts = {
  * * After a JUMPI opcode
  * @param {Integer} evmCode the evm byte code
  * @param {Object} opts
- * @param {boolean} opts.stackTrace if `true` generates a stack trace
- * @param {boolean} opts.inlineOps if `true` inlines the EVM1 operations
+ * @param {boolean} opts.stackTrace if `true` generates a stack trace (default: false)
+ * @param {boolean} opts.inlineOps if `true` inlines the EVM1 operations (default: true)
  * @return {string}
  */
 exports.evm2wast = function (evmCode, opts = {
