@@ -330,7 +330,7 @@ exports.evm2wast = function (evmCode, opts = {
 
   endSegment()
 
-  wast = assmebleSegments(jumpSegments) + wast + '))'
+  wast = assembleSegments(jumpSegments) + wast + '))'
 
   let imports = []
   let funcs = []
@@ -355,7 +355,7 @@ exports.evm2wast = function (evmCode, opts = {
 // given an array for segments builds a wasm module from those segments
 // @param {Array} segments
 // @return {String}
-function assmebleSegments (segments) {
+function assembleSegments (segments) {
   let wasm = buildJumpMap(segments)
 
   segments.forEach((seg, index) => {
