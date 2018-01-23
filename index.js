@@ -165,8 +165,8 @@ exports.evm2wast = function (evmCode, opts = {
   let segmentStackHigh = 0
   let segmentStackLow = 0
 
-  for (let i = 0; i < evmCode.length; i++) {
-    const opint = evmCode[i]
+  for (let pc = 0; pc < evmCode.length; pc++) {
+    const opint = evmCode[pc]
     const op = opcodes(opint)
 
     let bytes
@@ -194,7 +194,7 @@ exports.evm2wast = function (evmCode, opts = {
                       (set_global $sp (i32.sub (get_global $sp) (i32.const 32)))
                       (br $loop)`
         opcodesUsed.add('check_overflow')
-        i = findNextJumpDest(evmCode, i)
+        pc = findNextJumpDest(evmCode, pc)
         break
       case 'JUMPI':
         jumpFound = true
@@ -222,7 +222,7 @@ exports.evm2wast = function (evmCode, opts = {
       case 'JUMPDEST':
         endSegment()
         jumpSegments.push({
-          number: i,
+          number: pc,
           type: 'jump_dest'
         })
         gasCount = 1
@@ -240,11 +240,11 @@ exports.evm2wast = function (evmCode, opts = {
         segment += `(call $${op.name} (i32.const ${op.number - 1}))\n`
         break
       case 'PC':
-        segment += `(call $PC (i32.const ${i}))\n`
+        segment += `(call $PC (i32.const ${pc}))\n`
         break
       case 'PUSH':
-        i++
-        bytes = ethUtil.setLength(evmCode.slice(i, i += op.number), 32)
+        pc++
+        bytes = ethUtil.setLength(evmCode.slice(pc, pc += op.number), 32)
         const bytesRounded = Math.ceil(op.number / 8)
         let push = ''
         let q = 0
@@ -259,7 +259,7 @@ exports.evm2wast = function (evmCode, opts = {
         }
 
         segment += `(call $PUSH ${push})`
-        i--
+        pc--
         break
       case 'POP':
         // do nothing
@@ -267,25 +267,25 @@ exports.evm2wast = function (evmCode, opts = {
       case 'STOP':
         segment += '(br $done)'
         if (jumpFound) {
-          i = findNextJumpDest(evmCode, i)
+          pc = findNextJumpDest(evmCode, pc)
         } else {
           // the rest is dead code
-          i = evmCode.length
+          pc = evmCode.length
         }
         break
       case 'SUICIDE':
       case 'RETURN':
         segment += `(call $${op.name}) (br $done)\n`
         if (jumpFound) {
-          i = findNextJumpDest(evmCode, i)
+          pc = findNextJumpDest(evmCode, pc)
         } else {
           // the rest is dead code
-          i = evmCode.length
+          pc = evmCode.length
         }
         break
       case 'INVALID':
         segment = '(unreachable)'
-        i = findNextJumpDest(evmCode, i)
+        pc = findNextJumpDest(evmCode, pc)
         break
       default:
         if (callbackFuncs.has(op.name)) {
