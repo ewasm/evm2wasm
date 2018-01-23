@@ -39,7 +39,7 @@
   "dependencies": {
     "ethereumjs-block": "^1.2.2",
     "ethereumjs-util": "^5.1.2",
-    "ewasm-kernel": "https://github.com/ewasm/ewasm-kernel",
+    "ewasm-kernel": "git+https://github.com/ewasm/ewasm-kernel.git#eeb655c07a558d199efddb927223177ae9e20b03",
     "loglevel": "1.5.0",
     "merkle-trie": "0.0.0",
     "readable-stream": "2.3.3",
