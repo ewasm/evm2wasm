@@ -10,6 +10,9 @@
     "build": "node ./wasm/generateInterface.js",
     "build:docs": "documentation build --github  -f md ./index.js > ./docs/index.md"
   },
+  "bin": {
+    "evm2wasm": "bin/evm2wasm.js"
+  },
   "author": "mjbecze <mjbecze@gmail.com>",
   "license": "MPL-2.0",
   "devDependencies": {
