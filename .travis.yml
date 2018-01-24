@@ -47,6 +47,8 @@ before_install:
 script:
   - |
     if [ $LANG = js ]; then
+      bin/evm2wasm.js 0x600160020200 trace
+
       npm run $TEST_SUITE
     fi
   - |
