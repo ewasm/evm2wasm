@@ -314,7 +314,7 @@ exports.evm2wast = function (evmCode, opts = {
 
     // creates a stack trace
     if (opts.stackTrace) {
-      segment += `(call $stackTrace (get_global $sp) (i32.const ${opint}))\n`
+      segment += `(call $stackTrace (i32.const ${pc}) (i32.const ${opint}) (i32.const ${gasCount}) (get_global $sp))\n`
     }
 
     // adds the logic to save the stack pointer before exiting to wiat to for a callback
@@ -343,7 +343,7 @@ exports.evm2wast = function (evmCode, opts = {
   if (opts.stackTrace) {
     imports.push('(import "debug" "printMemHex" (func $printMem (param i32 i32)))')
     imports.push('(import "debug" "print" (func $print (param i32)))')
-    imports.push('(import "debug" "evmStackTrace" (func $stackTrace (param i32 i32)))')
+    imports.push('(import "debug" "evmTrace" (func $stackTrace (param i32 i32 i32 i32)))')
   }
   imports.push('(import "ethereum" "useGas" (func $useGas (param i64)))')
 
