@@ -1,3 +1,6 @@
+;;
+;; memcpy from ewasm-libc/ewasm-cleanup
+;;
 (func $memset
   (param $ptr i32)
   (param $value i32)

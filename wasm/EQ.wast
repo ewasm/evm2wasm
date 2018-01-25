@@ -1,5 +1,5 @@
 (func $EQ
-  (local  $sp i32)
+  (local $sp i32)
 
   (set_local $sp (i32.sub (get_global $sp) (i32.const 32)))
   (i64.store (get_local $sp)

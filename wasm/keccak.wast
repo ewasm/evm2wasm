@@ -1,3 +1,7 @@
+;;
+;; Copied from https://github.com/axic/keccak-wasm (has more comments)
+;;
+
 (func $keccak_theta
   (param $context_offset i32)
 
