@@ -63,7 +63,6 @@ tape('testing transcompiler', async t => {
         buffer: compiled
       } = await evm2wasm.evm2wasm(code, {
         inlineOps: true,
-        pprint: false,
         wabt: true
       })
 

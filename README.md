@@ -4,10 +4,16 @@
 
 [![js-standard-style](https://cdn.rawgit.com/feross/standard/master/badge.svg)](https://github.com/feross/standard)  
 
-EVM (Ethereum VM 1.0) to [eWASM](https://github.com/ethereum/evm2.0-design) transcompiler. Here is a online [frontend](https://ewasm.github.io/evm2wasm-frontend/dist/).
+EVM (Ethereum VM 1.0) to [eWASM](https://github.com/ewasm/design) transcompiler. Here is a online [frontend](https://ewasm.github.io/evm2wasm-frontend/dist/).
 
 # INSTALL
 `npm install evm2wasm`
+
+# USE
+There is a commandline tool to transcompile EVM input:
+```
+$ evm2wasm 0x600160020200 trace
+```
 
 # DEVELOP
 * After any changes to `.wast` file, `npm  run build` needs to be run to compile the files into a .json file 

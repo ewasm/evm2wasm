@@ -6,7 +6,7 @@ const Kernel = require('ewasm-kernel')
 const Environment = require('ewasm-kernel/environment.js')
 const Address = require('ewasm-kernel/deps/address.js')
 const U256 = require('ewasm-kernel/deps/u256.js')
-const evm2wasm = require('../index.js').evm2wasm
+const evm2wasm = require('../index.js')
 const Vertex = require('merkle-trie')
 
 const Interface = require('ewasm-kernel/EVMimports')
@@ -37,11 +37,10 @@ async function runner (testName, testData, t) {
   const code = Buffer.from(testData.exec.code.slice(2), 'hex')
   const {
     buffer: evm
-  } = await evm2wasm(code, {
+  } = await evm2wasm.evm2wasm(code, {
     stackTrace: argv.trace,
     testName: testName,
     inlineOps: true,
-    pprint: false,
     wabt: true
   })
 

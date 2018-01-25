@@ -1,4 +1,4 @@
 (func $callback
   (export "0")
-  call $main
+  (call $main)
 )

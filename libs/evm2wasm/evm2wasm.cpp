@@ -1,30 +1,41 @@
 #include <evm2wasm.h>
 
-#include "wasm-binary.h"
-#include "wasm-s-parser.h"
-#include "evm2wast.h"
+#include <wasm-binary.h>
+#include <wasm-s-parser.h>
+#include <wasm-validator.h>
 
 using namespace std;
 
 namespace {
 
-string wast2wasm(string input, bool debug = true) {
-  wasm::Module wasm;
+string wast2wasm(const string& input, bool debug = false) {
+  wasm::Module module;
 
   try {
     if (debug) std::cerr << "s-parsing..." << std::endl;
-    wasm::SExpressionParser parser(const_cast<char*>(input.c_str()));
+    // FIXME: binaryen 1.37.28 actually modifies the input...
+    //        as a workaround make a copy here
+    string tmp = input;
+    wasm::SExpressionParser parser(const_cast<char*>(tmp.c_str()));
     wasm::Element& root = *parser.root;
     if (debug) std::cerr << "w-parsing..." << std::endl;
-    wasm::SExpressionWasmBuilder builder(wasm, *root[0]);
+    wasm::SExpressionWasmBuilder builder(module, *root[0]);
   } catch (wasm::ParseException& p) {
-    p.dump(std::cerr);
-    wasm::Fatal() << "error in parsing input";
-	} 
+    if (debug) {
+      std::cerr << "error in parsing input" << std::endl;
+      p.dump(std::cerr);
+    }
+    return string();
+  }
+
+  if (!wasm::WasmValidator().validate(module)) {
+    if (debug) std::cerr << "module is invalid" << std::endl;
+    return string();
+  }
 
   if (debug) std::cerr << "binarification..." << std::endl;
   wasm::BufferWithRandomAccess buffer(debug);
-  wasm::WasmBinaryWriter writer(&wasm, buffer, debug);
+  wasm::WasmBinaryWriter writer(&module, buffer, debug);
   writer.write();
 
   if (debug) std::cerr << "writing to output..." << std::endl;
@@ -37,19 +48,10 @@ string wast2wasm(string input, bool debug = true) {
   return output.str();
 }
 
-string evm2wast_wrapper(string input) {
-  size_t len = 0;
-  char *output = NULL;
-  if (evm2wast(const_cast<char*>(input.c_str()), input.size(), &output, &len) < 0)
-    return string();
-  string ret(output, output + len);
-  free(output);
-	cout << ret << endl;
-  return ret;
-}
-
-string evm2wasm(string input) {
-  return wast2wasm(evm2wast_wrapper(input));
+string evm2wast(const string& input) {
+  (void)input;
+  // FIXME: do evm magic here
+  return "(module (export \"main\" (func $main)) (func $main))";
 }
 
 }
