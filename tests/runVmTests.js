@@ -33,6 +33,7 @@ async function runner (testName, testData, t) {
     buffer: evm
   } = await evm2wasm.evm2wasm(code, {
     stackTrace: argv.trace,
+    useAsyncAPI: true,
     testName: testName,
     inlineOps: true,
     wabt: true
