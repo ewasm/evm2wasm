@@ -13,4 +13,5 @@
       (i64.eqz  (get_local $b)))
     (return (get_local $a)))
 
-    (return (i64.const 0xffffffffffffffff)))
+    (return (i64.const 0xffffffffffffffff))
+)

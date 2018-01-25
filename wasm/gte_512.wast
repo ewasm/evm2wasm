@@ -34,4 +34,5 @@
   (i32.and (i64.eq   (get_local $a5) (get_local $b5))
   (i32.or  (i64.gt_u (get_local $a6) (get_local $b6)) ;; a6 > b6
   (i32.and (i64.eq   (get_local $a6) (get_local $b6))
-           (i64.ge_u (get_local $a7) (get_local $b7)))))))))))))))))
+           (i64.ge_u (get_local $a7) (get_local $b7))))))))))))))))
+)
