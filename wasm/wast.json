@@ -224,7 +224,7 @@
     "wast": "(func $bswap_m256\n  (param $sp i32)\n  (result i32)\n  (local $temp i64)\n\n  (set_local $temp (call $bswap_i64 (i64.load (get_local $sp))))\n  (i64.store (get_local $sp) (call $bswap_i64 (i64.load (i32.add (get_local $sp) (i32.const 24)))))\n  (i64.store (i32.add (get_local $sp) (i32.const 24)) (get_local $temp))\n\n  (set_local $temp (call $bswap_i64 (i64.load (i32.add (get_local $sp) (i32.const 8)))))\n  (i64.store (i32.add (get_local $sp) (i32.const  8)) (call $bswap_i64 (i64.load (i32.add (get_local $sp) (i32.const 16)))))\n  (i64.store (i32.add (get_local $sp) (i32.const 16)) (get_local $temp))\n  (get_local $sp)\n)\n"
   },
   "callback": {
-    "wast": "(func $callback\n  (export \"0\")\n  (call $main)\n)\n"
+    "wast": "(func $callback\n  (call $main)\n)\n"
   },
   "callback_128": {
     "wast": "(func $callback_128\n  (param $result i32)\n\n  (drop (call $bswap_m128 (get_global $sp)))\n  (call $main)\n)\n"
