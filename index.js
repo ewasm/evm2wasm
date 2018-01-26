@@ -151,7 +151,7 @@ exports.evm2wast = function (evmCode, opts = {
   // to figure out what .wast files to include
   const opcodesUsed = new Set()
   const ignoredOps = new Set(['JUMP', 'JUMPI', 'JUMPDEST', 'POP', 'STOP', 'INVALID'])
-  const callbackTable = []
+  let callbackTable = []
 
   // an array of found segments
   const jumpSegments = []
@@ -348,7 +348,7 @@ exports.evm2wast = function (evmCode, opts = {
   imports.push('(import "ethereum" "useGas" (func $useGas (param i64)))')
 
   funcs.push(wast)
-  wast = exports.buildModule(funcs, imports, [], callbackTable)
+  wast = exports.buildModule(funcs, imports, callbackTable)
   return wast
 }
 
@@ -477,14 +477,22 @@ exports.resolveFunctions = function (funcSet) {
  * @param {Array} imports the imports for the module's import table
  * @return {string}
  */
-exports.buildModule = function (funcs, imports = [], exports = [], cbs = []) {
+exports.buildModule = function (funcs, imports = [], callbacks = []) {
   let funcStr = ''
   for (let func of funcs) {
     funcStr += func
   }
-  for (let exprt of exports) {
-    funcStr += `(export "${exprt}" (func $${exprt}))`
+
+  let callbackTableStr = ''
+  if (callbacks.length) {
+    callbackTableStr = `
+    (table
+      (export "callback") ;; name of table
+        anyfunc
+        (elem ${callbacks.join(' ')}) ;; elements will have indexes in order
+      )`
   }
+
   return `
 (module
   ${imports.join('\n')}
@@ -503,11 +511,8 @@ exports.buildModule = function (funcs, imports = [], exports = [], cbs = []) {
   (memory 500)
   (export "memory" (memory 0))
 
-  (table
-    (export "callback")
-    anyfunc
-    (elem ${cbs.join(' ')})
-  )
-   ${funcStr}
+  ${callbackTableStr}
+
+  ${funcStr}
 )`
 }
