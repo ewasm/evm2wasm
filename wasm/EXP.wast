@@ -18,7 +18,7 @@
   (local $r2 i64)
   (local $r3 i64)
 
-  (local $gasCounter f32)
+  (local $gasCounter i32)
   (set_local $sp (get_global $sp))
 
   ;; load args from the stack
@@ -71,15 +71,20 @@
       (set_local $base2 (i64.load (i32.add (get_local $sp) (i32.const  8))))
       (set_local $base3 (i64.load          (get_local $sp)))
 
-      (set_local $gasCounter (f32.add (get_local $gasCounter) (f32.const 1)))
+      (set_local $gasCounter (i32.add (get_local $gasCounter) (i32.const 1)))
       (br $loop)
     )
   ) 
 
   ;; use gas
   ;; Log256[Exponent] * 10
-  (call $useGas (i64.extend_u/i32 (i32.mul (i32.const 10) (i32.trunc_s/f32 
-                         (f32.ceil (f32.div (get_local $gasCounter) (f32.const 8)))))))
+  (call $useGas
+    (i64.extend_u/i32
+      (i32.mul
+        (i32.const 10)
+        (i32.div_u
+          (i32.add (get_local $gasCounter) (i32.const 7))
+          (i32.const 8)))))
 
   ;; decement the stack pointer
   (i64.store (i32.add (get_local $sp) (i32.const 24)) (get_local $r0))
