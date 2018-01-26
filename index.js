@@ -2,7 +2,8 @@ const BN = require('bn.js')
 const wast2wasm = require('wast2wasm')
 const ethUtil = require('ethereumjs-util')
 const opcodes = require('./opcodes.js')
-const wastFiles = require('./wasm/wast.json')
+const wastSyncInterface = require('./wasm/wast.json')
+const wastAsyncInterface = require('./wasm/wast-async.json')
 const wabt = require('./wabt.js')
 
 // map to track dependent WASM functions
@@ -82,6 +83,7 @@ const callbackFuncs = new Map([
  */
 exports.evm2wasm = function (evmCode, opts = {
   'stackTrace': false,
+  'useAsyncAPI': false,
   'inlineOps': true,
   'testName': 'temp'
 }) {
@@ -115,6 +117,7 @@ exports.evm2wasm = function (evmCode, opts = {
  */
 exports.evm2wast = function (evmCode, opts = {
   'stackTrace': false,
+  'useAsyncAPI': false,
   'inlineOps': true
 }) {
   // adds stack height checks to the beginning of a segment
@@ -290,7 +293,7 @@ exports.evm2wast = function (evmCode, opts = {
         pc = findNextJumpDest(evmCode, pc)
         break
       default:
-        if (callbackFuncs.has(op.name)) {
+        if (opts.useAsyncAPI && callbackFuncs.has(op.name)) {
           const cbFunc = callbackFuncs.get(op.name)
           let index = callbackTable.indexOf(cbFunc)
           if (index === -1) {
@@ -298,6 +301,7 @@ exports.evm2wast = function (evmCode, opts = {
           }
           segment += `(call $${op.name} (i32.const ${index}))\n`
         } else {
+          // use synchronous API
           segment += `(call $${op.name})\n`
         }
     }
@@ -319,7 +323,7 @@ exports.evm2wast = function (evmCode, opts = {
 
     // adds the logic to save the stack pointer before exiting to wiat to for a callback
     // note, this must be done before the sp is updated above^
-    if (callbackFuncs.has(op.name)) {
+    if (opts.useAsyncAPI && callbackFuncs.has(op.name)) {
       segment += `(set_global $cb_dest (i32.const ${jumpSegments.length + 1}))
           (br $done))`
       jumpSegments.push({
@@ -332,11 +336,16 @@ exports.evm2wast = function (evmCode, opts = {
 
   wast = assembleSegments(jumpSegments) + wast + '))'
 
+  let wastFiles = wastSyncInterface // default to synchronous interface
+  if (opts.useAsyncAPI) {
+    wastFiles = wastAsyncInterface
+  }
+
   let imports = []
   let funcs = []
   // inline EVM opcode implemention
   if (opts.inlineOps) {
-    [funcs, imports] = exports.resolveFunctions(opcodesUsed)
+    [funcs, imports] = exports.resolveFunctions(opcodesUsed, wastFiles)
   }
 
   // import stack trace function
@@ -461,7 +470,7 @@ function resolveFunctionDeps (funcSet) {
  * @param {Set} funcSet
  * @return {Array}
  */
-exports.resolveFunctions = function (funcSet) {
+exports.resolveFunctions = function (funcSet, wastFiles) {
   let funcs = []
   let imports = []
   for (let func of resolveFunctionDeps(funcSet)) {
