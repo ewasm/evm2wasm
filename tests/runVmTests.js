@@ -7,15 +7,9 @@ const Environment = require('ewasm-kernel/environment.js')
 const Address = require('ewasm-kernel/deps/address.js')
 const U256 = require('ewasm-kernel/deps/u256.js')
 const evm2wasm = require('../index.js')
-const Vertex = require('merkle-trie')
 
 const Interface = require('ewasm-kernel/EVMimports')
 const DebugInterface = require('ewasm-kernel/debugInterface')
-
-// tests that we are skipping
-// const skipList = [
-//   'sha3_bigOffset2' // some wierd memory error when we try to allocate 16mb of mem
-// ]
 
 const skipList = [
   // slow performance tests
@@ -44,21 +38,23 @@ async function runner (testName, testData, t) {
     wabt: true
   })
 
-  const rootVertex = new Vertex()
-  const enviroment = setupEnviroment(testData, rootVertex)
+  const environment = setupEnviroment(testData)
+  let instance
+  let vmExceptionErr = null
   try {
     const kernel = new Kernel({
       code: evm,
       interfaces: [Interface, DebugInterface]
     })
-    const instance = await kernel.run(enviroment)
-    await checkResults(testData, t, instance, enviroment)
+    instance = await kernel.run(environment)
   } catch (e) {
-    t.fail('VM test runner caught exception: ' + e)
+    vmExceptionErr = e
+  } finally {
+    await checkResults(testData, t, instance, environment, vmExceptionErr)
   }
 }
 
-function setupEnviroment (testData, rootVertex) {
+function setupEnviroment (testData) {
   const env = new Environment()
 
   env.gasLeft = parseInt(testData.exec.gas.slice(2), 16)
@@ -81,53 +77,67 @@ function setupEnviroment (testData, rootVertex) {
   env.block.header.number = Buffer.from(testData.env.currentNumber.slice(2), 'hex')
   env.block.header.timestamp = Buffer.from(testData.env.currentTimestamp.slice(2), 'hex')
 
+  env.state = {}
   for (let address in testData.pre) {
-    const account = testData.pre[address]
-    const accountVertex = new Vertex()
-
-    accountVertex.set('code', new Vertex({
-      value: Buffer.from(account.code.slice(2), 'hex')
-    }))
-
-    accountVertex.set('balance', new Vertex({
-      value: Buffer.from(account.balance.slice(2), 'hex')
-    }))
-
-    for (let key in account.storage) {
-      accountVertex.set(['storage', ...Buffer.from(key.slice(2), 'hex')], new Vertex({
-        value: Buffer.from(account.storage[key].slice(2), 'hex')
-      }))
+    const testAccount = testData.pre[address]
+    let envAccount = {
+      code: testAccount.code,
+      balance: testAccount.balance,
+      storage: testAccount.storage
     }
 
-    const path = [...Buffer.from(address.slice(2), 'hex')]
-    rootVertex.set(path, accountVertex)
-    env.state = accountVertex
+    env.state[address] = envAccount
   }
 
   return env
 }
 
-async function checkResults (testData, t, instance, environment) {
-  // check gas used
-  t.equals(ethUtil.intToHex(environment.gasLeft), testData.gas, 'should have the correct gas')
+async function checkResults (testData, t, instance, environment, vmExceptionErr) {
+  // https://github.com/ethereum/tests/wiki/VM-Tests
+  // > It is generally expected that the test implementer will read env, exec
+  // and pre then check their results against gas, logs, out, post and
+  // callcreates. If an exception is expected, then latter sections are absent
+  // in the test.
+
+  if ((testData.gas && testData.out && testData.post)) {
+    if (vmExceptionErr) {
+      t.fail('should not have VM exception')
+      console.log('vmExceptionErr:', vmExceptionErr)
+    }
+  } else {
+    // if any of the expected fields are missing then a VM exception is expected
+    t.true(vmExceptionErr, 'should have VM exception')
+  }
+
+  if (testData.gas) {
+    t.equals(ethUtil.intToHex(environment.gasLeft), testData.gas, 'should have the correct gas')
+  }
+
   // check return value
-  t.equals(Buffer.from(environment.returnValue).toString('hex'), testData.out.slice(2), 'return value')
+  if (testData.out) {
+    t.equals(Buffer.from(environment.returnValue).toString('hex'), testData.out.slice(2), 'return value')
+  }
+
   // check storage
-  const account = testData.post[testData.exec.address]
-  // TODO: check all accounts
-  if (account) {
-    const testsStorage = account.storage
-    if (testsStorage) {
-      for (let testKey in testsStorage) {
-        const testValueBuf = ethUtil.setLengthLeft(ethUtil.toBuffer(testsStorage[testKey]), 32)
-        const testValue = '0x' + testValueBuf.toString('hex')
-        const bufferKey = ethUtil.setLengthLeft(ethUtil.toBuffer(testKey), 32)
-        const key = ['storage', ...bufferKey]
-        let {value} = await environment.state.get(key)
-        if (value) {
-          value = '0x' + Buffer.from(value).toString('hex')
+  if (testData.post) {
+    const expectedAccount = testData.post[testData.exec.address]
+    // TODO: check all accounts
+    if (expectedAccount) {
+      const expectedStorage = expectedAccount.storage
+      if (expectedStorage) {
+        for (let key in expectedStorage) {
+          const keyHex = (new U256(key)).toString(16)
+          // pad values to get consistent hex strings for comparison
+          let expectedValue = ethUtil.setLengthLeft(ethUtil.toBuffer(expectedStorage[key]), 32)
+          expectedValue = '0x' + expectedValue.toString('hex')
+          let actualValue = environment.state[testData.exec.address]['storage'][keyHex]
+          if (actualValue) {
+            actualValue = '0x' + ethUtil.setLengthLeft(ethUtil.toBuffer(actualValue), 32).toString('hex')
+          } else {
+            actualValue = '0x' + ethUtil.setLengthLeft(ethUtil.toBuffer(0), 32).toString('hex')
+          }
+          t.equals(actualValue, expectedValue, `should have correct storage value at key ${key}`)
         }
-        t.equals(value, testValue, `should have correct storage value at key ${key.join('')}`)
       }
     }
   }
