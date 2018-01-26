@@ -149,7 +149,7 @@ const codes = {
   0xf4: ['DELEGATECALL', 0, 6, 1],
 
   // '0x70', range - other
-  0xff: ['SUICIDE', 0, 1, 0]
+  0xff: ['SELFDESTRUCT', 0, 1, 0]
 }
 
 module.exports = function (op) {
