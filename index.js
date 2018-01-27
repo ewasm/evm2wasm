@@ -44,7 +44,7 @@ const depMap = new Map([
   ['CREATE', ['bswap_m256', 'bswap_m160', 'callback_160', 'memusegas', 'check_overflow']],
   ['RETURN', ['memusegas', 'check_overflow']],
   ['BALANCE', ['bswap_m256', 'callback_128']],
-  ['SUICIDE', ['bswap_m256']],
+  ['SELFDESTRUCT', ['bswap_m256']],
   ['SSTORE', ['bswap_m256', 'callback']],
   ['SLOAD', ['callback_256']],
   ['CODESIZE', ['callback_32']],
@@ -278,7 +278,7 @@ exports.evm2wast = function (evmCode, opts = {
           pc = evmCode.length
         }
         break
-      case 'SUICIDE':
+      case 'SELFDESTRUCT':
       case 'RETURN':
         segment += `(call $${op.name}) (br $done)\n`
         if (jumpFound) {

@@ -149,7 +149,7 @@ const interfaceManifest = {
     input: ['pointer'],
     output: ['i256']
   },
-  SUICIDE: {
+  SELFDESTRUCT: {
     name: 'selfDestruct',
     input: ['address'],
     output: []
