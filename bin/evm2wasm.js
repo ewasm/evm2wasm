@@ -13,5 +13,5 @@ evm2wasm.evm2wasm(input, {
 }).then(function (output) {
   console.log(output.toString('binary'))
 }).catch(function (err) {
-  console.err('Failed: ' + err)
+  console.error('Failed: ' + err)
 })
