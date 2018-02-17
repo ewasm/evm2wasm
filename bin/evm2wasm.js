@@ -90,7 +90,6 @@ function storeOrPrintResult(output, outputFile) {
       bytecode = await readEVM(file)
     }
 
-    debugger
     let result = await convert(bytecode, wast)
     await storeOrPrintResult(result, outputFile)
   } catch (err) {
