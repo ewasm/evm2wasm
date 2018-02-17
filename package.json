@@ -46,7 +46,7 @@
     "loglevel": "1.5.0",
     "merkle-trie": "0.0.0",
     "readable-stream": "2.3.3",
-    "wast2wasm": "0.0.1"
+    "wast2wasm": "git+https://github.com/ewasm/wast2wasm.git#66ced0c04f1bc7d1ebd63c3348c29e26a336bc95"
   },
   "standard": {
     "ignore": [
