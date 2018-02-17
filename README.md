@@ -7,12 +7,19 @@
 EVM (Ethereum VM 1.0) to [eWASM](https://github.com/ewasm/design) transcompiler. Here is a online [frontend](https://ewasm.github.io/evm2wasm-frontend/dist/).
 
 # INSTALL
-`npm install evm2wasm`
+Clone the repository and run `npm install`
 
 # USE
 There is a commandline tool to transcompile EVM input:
+
+#### Transcompile EVM to WASM
 ```
-$ evm2wasm 0x600160020200 trace
+$ bin/evm2wasm.js -e `evm_bytecode_file` -o `wasm_output_file`
+```
+
+#### Transcompile EVM to WAST
+```
+$ bin/evm2wasm.js -e `evm_bytecode_file` -o `wasm_output_file` --wast
 ```
 
 # DEVELOP
