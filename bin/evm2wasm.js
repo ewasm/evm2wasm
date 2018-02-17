@@ -1,16 +1,15 @@
 #!/usr/bin/env node
 
 const evm2wasm = require('../index.js')
-const ethUtil = require('ethereumjs-util')
 const argv = require('minimist')(process.argv.slice(2))
 const fs = require('fs')
 
-//convert evm bytecode to WASM or WAST
+// convert evm bytecode to WASM or WAST
 function convert (bytecode, wast) {
   return new Promise((resolve, reject) => {
     outputFile = argv.o ? argv.o : undefined
 
-    if(!bytecode) {
+    if (!bytecode) {
       resolve(Buffer.from(''))
     }
 
@@ -19,12 +18,12 @@ function convert (bytecode, wast) {
         stackTrace: false,
         tempName: 'temp',
         inlineOps: true,
-        wabt: false 
+        wabt: false
       })
       resolve(output)
     } else {
       evm2wasm.evm2wasm(bytecode, {
-        stackTrace: false, 
+        stackTrace: false,
         tempName: 'temp',
         inlineOps: true,
         wabt: false
@@ -37,8 +36,8 @@ function convert (bytecode, wast) {
   })
 }
 
-function storeOrPrintResult(output, outputFile) {
-  if (typeof(output) !== 'string') {
+function storeOrPrintResult (output, outputFile) {
+  if (typeof output !== 'string') {
     output = output.buffer
   }
 
@@ -49,7 +48,6 @@ function storeOrPrintResult(output, outputFile) {
   }
 }
 
-
 let outputFile = argv.o ? argv.o : undefined
 let wast = argv.wast !== undefined
 let file = argv.e ? argv.e : undefined
@@ -59,9 +57,9 @@ let bytecode
 try {
   if (!file) {
     if (argv._.length > 0) {
-      bytecode = argv._[0]  
+      bytecode = argv._[0]
     } else {
-      throw("must provide evm bytecode file or supply bytecode as a non-named argument")
+      throw new Error('must provide evm bytecode file or supply bytecode as a non-named argument')
     }
   } else {
     bytecode = fs.readFileSync(file)
@@ -70,8 +68,8 @@ try {
   convert(bytecode, wast).then((result) => {
     storeOrPrintResult(result, outputFile)
   }).catch((err) => {
-    throw(err)
+    throw err
   })
 } catch (err) {
-  console.error("Error: " + err)
+  console.error('Error: ' + err)
 }
