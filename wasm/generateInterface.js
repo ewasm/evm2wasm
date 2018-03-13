@@ -1,6 +1,42 @@
 const fs = require('fs')
 const path = require('path')
 
+const EEI = {
+  useGas: '(import "ethereum" "useGas" (func $useGas (param i32)))',
+  getAddress: '(import "ethereum" "getAddress" (func $getAddress (param i32)))',
+  getBalance: '(import "ethereum" "getBalance" (func $getBalance (param i32 i32)))',
+  getBlockHash: '(import "ethereum" "getBlockHash" (func $getBlockHash (param i64 i32)))',
+  call: '(import "ethereum" "call" (func $call (param i64 i32 i32 i32 i32 i32 i32) (result i32)))',
+  callDataCopy: '(import "ethereum" "callDataCopy" (func $callDataCopy (param i32 i32 i32)))',
+  getCallDataSize: '(import "ethereum" "getCallDataSize" (func $getCallDataSize (result i32)))',
+  callCode: '(import "ethereum" "callCode" (func $callCode (param i64 i32 i32 i32 i32 i32 i32) (result i32)))',
+  callDelegate: '(import "ethereum" "callDelegate" (func $callDelegate (param i64 i32 i32 i32) (result i32)))',
+  callStatic: '(import "ethereum" "callStatic" (func $callStatic (param i64 i32 i32 i32) (result i32)))',
+  storageStore: '(import "ethereum" "storageStore" (func $storageStore (param i32 i32)))',
+  storageLoad: '(import  "ethereum" "storageLoad"  (func $storageLoad (param i32 i32)))',
+  getCaller: '(import "ethereum" "getCaller" (func $getCaller (param i32)))',
+  getCallValue: '(import "ethereum" "getCallValue" (func $getCallValue (param i32)))',
+  codeCopy: '(import  "ethereum" "codeCopy"  (func $codeCopy (param i32 i32 i32)))',
+  getCodeSize: '(import "ethereum" "getCodeSize" (func $getCodeSize (result i32)))',
+  getBlockCoinbase: '(import "ethereum" "getBlockCoinbase" (func $getBlockCoinbase (param i32)))',
+  create: '(import "ethereum" "create" (func $create (param i32 i32 i32 i32) (result i32)))',
+  getBlockDifficulty: '(import "ethereum" "getBlockDifficulty" (func $getBlockDifficulty (param i32)))',
+  externalCodeCopy: '(import  "ethereum" "externalCodeCopy"  (func $externalCodeCopy (param i32 i32 i32 i32)))',
+  getExternalCodeSize: '(import "ethereum" "getExternalCodeSize" (func $getExternalCodeSize (param i32) (result i32)))',
+  getGasLeft: '(import "ethereum" "getGasLeft" (func $getGasLeft (result i64)))',
+  getBlockGasLimit: '(import  "ethereum" "getBlockGasLimit"  (func $getBlockGasLimit (result i64)))',
+  getTxGasPrice: '(import  "ethereum" "getTxGasPrice"  (func $getTxGasPrice (param i32)))',
+  log: '',
+  getBlockNumber: '(import "ethereum" "getBlockNumber" (func $getBlockNumber (result i64)))',
+  getTxOrigin: '(import  "ethereum" "getTxOrigin"  (func $getTxOrigin (param i32 )))',
+  return: '(import "ethereum" "return" (func $return (param i32 i32)))',
+  revert: '(import "ethereum" "revert" (func $return (param i32 i32)))',
+  getReturnDataSize: '(import "ethereum" "getReturnDataSize" (func $getReturnDataSize (result i32)))',
+  returnDataCopy: '(import "ethereum" "returnDataCopy" (func $returnDataCopy (param i32 i32 i32)))',
+  selfDestruct: '(import "ethereum" "selfDestruct" (func $selfDestruct (param i32)))',
+  getBlockTimestamp: '(import  "ethereum" "getBlockTimestamp"  (func $getBlockTimestamp (result i64)))'
+}
+
 const interfaceManifest = {
   LOG: {
     name: 'log',
@@ -167,6 +203,10 @@ function generateManifest (interfaceManifest, opts) {
   for (let opcode in interfaceManifest) {
     const op = interfaceManifest[opcode]
       // generate the import params
+    if (opcode == 'CALLCODE') {
+      debugger
+    }
+
     let inputs = op.input.map(input => input === 'i64' ? 'i64' : 'i32').concat(op.output.filter(type => type !== 'i32' && type !== 'i64').map(() => 'i32'))
     let params = ''
 
