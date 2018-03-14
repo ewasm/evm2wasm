@@ -2,6 +2,10 @@ set(include_dir ${PROJECT_SOURCE_DIR}/include)
 
 find_package(Threads REQUIRED)
 
+hunter_add_package(fmt)
+
+find_package(fmt CONFIG REQUIRED)
+
 add_library(libevm2wasm STATIC
     evm2wasm.cpp ${include_dir}/evm2wasm.h
 )
@@ -12,4 +16,4 @@ if(BUILD_SHARED_LIBS)
 endif()
 
 target_include_directories(libevm2wasm PUBLIC ${include_dir})
-target_link_libraries(libevm2wasm PRIVATE binaryen::binaryen Threads::Threads)
+target_link_libraries(libevm2wasm PRIVATE binaryen::binaryen Threads::Threads fmt::fmt)
