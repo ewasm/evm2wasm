@@ -9,8 +9,17 @@ using namespace std;
 
 int main(int argc, char **argv) {
     if (argc < 2) {
-        cerr << "Usage: " << argv[0] << " <EVM file>" << endl;
+        cerr << "Usage: " << argv[0] << " <EVM file> [--wast]" << endl;
         return 1;
+    }
+
+    bool wast = false;
+    if (argc == 3) {
+        wast = (string(argv[2]) == "--wast");
+        if (!wast) {
+            cerr << "Usage: " << argv[0] << " <EVM file> [--wast]" << endl;
+            return 1;
+        }
     }
 
     ifstream input(argv[1]);
@@ -24,7 +33,11 @@ int main(int argc, char **argv) {
         std::istreambuf_iterator<char>()
     );
 
-    cout << evm2wasm::evm2wasm(str) << endl;
+    if (wast) {
+        cout << evm2wasm::evm2wast(str) << endl;
+    } else {
+        cout << evm2wasm::evm2wasm(str) << endl;
+    }
 
     return 0;
 }
