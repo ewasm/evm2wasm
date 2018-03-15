@@ -161,6 +161,16 @@ const interfaceManifest = {
     input: ['gasLimit', 'address', 'readOffset', 'length'],
     output: ['i32']
   },
+  RETURNDATACOPY: {
+    name: 'returnDataCopy',
+    input: ['writeOffset', 'i32', 'length'],
+    output: []
+  },
+  RETURNDATASIZE: {
+    name: 'getReturnDataSize',
+    input: [],
+    output: ['i32']
+  },
   SSTORE: {
     name: 'storageStore',
     async: true,
@@ -180,6 +190,11 @@ const interfaceManifest = {
   },
   RETURN: {
     name: 'return',
+    input: ['readOffset', 'length'],
+    output: []
+  },
+  REVERT: {
+    name: 'revert',
     input: ['readOffset', 'length'],
     output: []
   }
