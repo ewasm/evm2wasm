@@ -187,6 +187,11 @@ exports.evm2wast = function (evmCode, opts = {
       segmentStackLow = segmentStackDeta
     }
 
+    // creates a stack trace
+    if (opts.stackTrace) {
+      segment += `(call $stackTrace (i32.const ${pc}) (i32.const ${opint}) (i32.const ${gasCount}) (get_global $sp))\n`
+    }
+
     switch (op.name) {
       case 'JUMP':
         jumpFound = true
@@ -314,11 +319,6 @@ exports.evm2wast = function (evmCode, opts = {
     // update the stack pointer
     if (stackDeta !== 0) {
       segment += `(set_global $sp (i32.add (get_global $sp) (i32.const ${stackDeta * 32})))\n`
-    }
-
-    // creates a stack trace
-    if (opts.stackTrace) {
-      segment += `(call $stackTrace (i32.const ${pc}) (i32.const ${opint}) (i32.const ${gasCount}) (get_global $sp))\n`
     }
 
     // adds the logic to save the stack pointer before exiting to wiat to for a callback
