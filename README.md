@@ -17,6 +17,8 @@ There is a commandline tool to transcompile EVM input:
 $ bin/evm2wasm.js -e `evm_bytecode_file` -o `wasm_output_file`
 ```
 
+`evm_bytecode_file` is expected to be UTF8 encoded ASCII
+
 #### Transcompile EVM to WAST
 ```
 $ bin/evm2wasm.js -e `evm_bytecode_file` -o `wasm_output_file` --wast
