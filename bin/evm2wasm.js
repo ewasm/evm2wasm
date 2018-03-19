@@ -63,9 +63,9 @@ try {
     }
   } else {
     bytecode = fs.readFileSync(file, 'utf8')
-    bytes = []
+    let bytes = []
     for (let i = 0; i < bytecode.length; i += 2) {
-      bytes.push(parseInt(bytecode.slice(i, i+2), '16'))
+      bytes.push(parseInt(bytecode.slice(i, i + 2), '16'))
     }
     bytecode = Buffer.from(bytes)
   }
