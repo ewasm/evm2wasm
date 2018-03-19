@@ -62,7 +62,12 @@ try {
       throw new Error('must provide evm bytecode file or supply bytecode as a non-named argument')
     }
   } else {
-    bytecode = fs.readFileSync(file).toString()
+    bytecode = fs.readFileSync(file, 'utf8')
+    let bytes = []
+    for (let i = 0; i < bytecode.length; i += 2) {
+      bytes.push(parseInt(bytecode.slice(i, i + 2), '16'))
+    }
+    bytecode = Buffer.from(bytes)
   }
 
   // always consider input EVM as a hex string and translate that into binary for the next stage
