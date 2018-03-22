@@ -215,9 +215,9 @@ function generateManifest (interfaceManifest, opts) {
         }
       } else if (input === 'pointer') {
         if (spOffset) {
-          call += `(call $bswap_m256 (i32.add (get_global $sp) (i32.const ${spOffset * 32})))`
+          call += `(i32.add (get_global $sp) (i32.const ${spOffset * 32}))`
         } else {
-          call += '(call $bswap_m256 (get_global $sp))'
+          call += '(get_global $sp)'
         }
         // call += ' drop '
       } else if (input === 'i32') {
