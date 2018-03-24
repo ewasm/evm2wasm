@@ -15,7 +15,7 @@ function convert (bytecode, wast) {
 
     if (wast) {
       let output = evm2wasm.evm2wast(bytecode, {
-        stackTrace: false,
+        stackTrace: trace,
         tempName: 'temp',
         inlineOps: true,
         wabt: false
@@ -23,7 +23,7 @@ function convert (bytecode, wast) {
       resolve(output)
     } else {
       evm2wasm.evm2wasm(bytecode, {
-        stackTrace: false,
+        stackTrace: trace,
         tempName: 'temp',
         inlineOps: true,
         wabt: false
@@ -50,6 +50,7 @@ function storeOrPrintResult (output, outputFile) {
 
 let outputFile = argv.o ? argv.o : undefined
 let wast = argv.wast !== undefined
+const trace = argv.trace !== undefined
 let file = argv.e ? argv.e : undefined
 
 let bytecode
