@@ -16,7 +16,8 @@ function convert (bytecode, opts) {
         stackTrace: opts.trace,
         tempName: 'temp',
         inlineOps: true,
-        wabt: false
+        wabt: false,
+        chargePerOp: false
       })
       resolve(output)
     } else {
@@ -24,7 +25,8 @@ function convert (bytecode, opts) {
         stackTrace: opts.trace,
         tempName: 'temp',
         inlineOps: true,
-        wabt: false
+        wabt: false,
+        chargePerOp: false
       }).then(function (output) {
         resolve(output)
       }).catch(function (err) {
