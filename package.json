@@ -7,6 +7,7 @@
     "test": "node --expose-wasm --harmony ./tests/allRunner.js",
     "vmTests": "node --expose-wasm --harmony ./tests/runVmTests.js",
     "lint": "standard",
+    "validateBuild": "node ./wasm/generateInterface.js && git diff --exit-code wasm/",
     "build": "node ./wasm/generateInterface.js",
     "build:docs": "documentation build --github  -f md ./index.js > ./docs/index.md"
   },
