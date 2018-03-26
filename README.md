@@ -48,11 +48,9 @@ The stack grows from memory location 0, where 256 bit values are stored linearly
 The `$sp` points to the starting position of the top stack entry (and not the next free stack position). If the stack is empty, it is set to `-32`.
 
 ### MEMORY LAYOUT  
-The eWASM contract memory layout is currently as follows:  
+The resulting (after transpilation) contract memory layout is currently as follows:
 ```
 .---------------------------------------------------
-| eWASM memory starts here
-+---------------------------------------------------
 | Reserved space for the stack (32768 bytes)
 | - each stack entry is 256 bits
 | - the stack is limited to 1024 entries
@@ -65,9 +63,9 @@ The eWASM contract memory layout is currently as follows:
 +---------------------------------------------------
 | Scratch space (32 bytes)
 +---------------------------------------------------
-| Reserved space for the SHA3 context (1024 bytes)
+| Reserved space for the Keccak-256 context (1024 bytes)
 +---------------------------------------------------
-| Contract memory starts here ("unlimited" in size)
+| "EVM 1.0" contract memory starts here ("unlimited" in size)
 `---------------------------------------------------
 ```
 
