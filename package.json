@@ -21,7 +21,7 @@
     "ethereumjs-testing": "https://github.com/ethereumjs/ethereumjs-testing",
     "ethereumjs-vm": "^2.3.3",
     "minimist": "^1.2.0",
-    "standard": "^10.0.2",
+    "standard": "^11.0.1",
     "tape": "^4.9.0"
   },
   "repository": {

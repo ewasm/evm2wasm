@@ -18,9 +18,9 @@ tape('testing js VM', (t) => {
     async.eachSeries(codeTests, (test, cb1) => {
       t.comment(test.description)
       const vm = new VM()
-        // vm.on('step', (info) => {
-        //   console.log(info.opcode.name, info.opcode.fee);
-        // })
+      // vm.on('step', (info) => {
+      //   console.log(info.opcode.name, info.opcode.fee);
+      // })
       vm.runCode({
         data: test.environment.callData,
         code: Buffer.from(test.code.slice(2), 'hex'),
