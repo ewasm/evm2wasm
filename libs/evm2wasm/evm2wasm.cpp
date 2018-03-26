@@ -4,6 +4,10 @@
 #include <wasm-s-parser.h>
 #include <wasm-validator.h>
 
+#include "evm2wast.h"
+
+#include "evm2wast.h"
+
 using namespace std;
 
 namespace {
@@ -48,14 +52,18 @@ string wast2wasm(const string& input, bool debug = false) {
   return output.str();
 }
 
-string evm2wast(const string& input) {
-  (void)input;
-  // FIXME: do evm magic here
-  return "(module (export \"main\" (func $main)) (func $main))";
+string evm2wast_wrapper(string input) {
+  size_t len = 0;
+  char *output = NULL;
+  if (evm2wast(input.c_str(), input.size(), &output, &len) < 0)
+    return string();
+  string ret(output, output + len);
+  free(output);
+  return ret;
 }
 
 }
 
 string evm2wasm(const string& input) {
-  return wast2wasm(evm2wast(input));
+  return wast2wasm(evm2wast_wrapper(input), true);
 }
