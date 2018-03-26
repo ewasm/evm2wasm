@@ -16,13 +16,13 @@
   "author": "mjbecze <mjbecze@gmail.com>",
   "license": "MPL-2.0",
   "devDependencies": {
-    "async": "^2.0.0-rc.6",
-    "bn.js": "^4.11.6",
+    "async": "^2.6.0",
+    "bn.js": "^4.11.8",
     "ethereumjs-testing": "https://github.com/ethereumjs/ethereumjs-testing",
-    "ethereumjs-vm": "^2.0.0",
+    "ethereumjs-vm": "^2.3.3",
     "minimist": "^1.2.0",
     "standard": "^10.0.2",
-    "tape": "^4.6.0"
+    "tape": "^4.9.0"
   },
   "repository": {
     "type": "git",
@@ -41,11 +41,11 @@
   ],
   "dependencies": {
     "ethereumjs-block": "^1.2.2",
-    "ethereumjs-util": "^5.1.2",
+    "ethereumjs-util": "^5.1.5",
     "ewasm-kernel": "git+https://github.com/ewasm/ewasm-kernel.git#async-pojo",
-    "loglevel": "1.5.0",
+    "loglevel": "^1.6.0",
     "merkle-trie": "0.0.0",
-    "readable-stream": "2.3.3",
+    "readable-stream": "^2.3.5",
     "wast2wasm": "git+https://github.com/ewasm/wast2wasm.git#66ced0c04f1bc7d1ebd63c3348c29e26a336bc95"
   },
   "standard": {
