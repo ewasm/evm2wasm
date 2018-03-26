@@ -245,12 +245,12 @@ static char *padleft(const char *bytes, int curr_len, int len)
 	return ret;
 }
 
-/*static char *slice(char *bytes, int len)
+static char *slice(char *bytes, int len)
 {
 	char *ret = malloc(len+1);
 	memcpy(ret, bytes, len);
 	return ret;
-}*/
+}
 
 static int index_of(char **table, char *elem, int len)
 {
