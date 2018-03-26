@@ -8,7 +8,7 @@ const fs = require('fs')
 function convert (bytecode, opts) {
   return new Promise((resolve, reject) => {
     if (!bytecode) {
-      resolve(Buffer.from(''))
+      return resolve(Buffer.from(''))
     }
 
     if (opts.wast) {
