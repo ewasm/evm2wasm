@@ -7,8 +7,6 @@ const fs = require('fs')
 // convert evm bytecode to WASM or WAST
 function convert (bytecode, wast) {
   return new Promise((resolve, reject) => {
-    outputFile = argv.o ? argv.o : undefined
-
     if (!bytecode) {
       resolve(Buffer.from(''))
     }
