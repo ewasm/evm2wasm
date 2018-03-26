@@ -43,7 +43,7 @@ before_install:
       (cd ./tools/wabt/ && make)
 
       npm install
-      npm run validateBuild
+      npm run build:validate
     fi
 
 script:

@@ -29,7 +29,7 @@ defaults:
     run:
       name: "Validate build artifacts were correctly included"
       command: |
-        npm run validateBuild
+        npm run build:validate
   build-cpp: &build-cpp
     run:
       name: "Build C++ evm2wasm"
