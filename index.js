@@ -449,9 +449,9 @@ function bytes2int64 (bytes) {
   return new BN(bytes).fromTwos(64).toString()
 }
 
- // Ensure that dependencies are only imported once (use the Set)
- // @param {Set} funcSet a set of wasm function that need to be linked to their dependencies
- // @return {Set}
+// Ensure that dependencies are only imported once (use the Set)
+// @param {Set} funcSet a set of wasm function that need to be linked to their dependencies
+// @return {Set}
 function resolveFunctionDeps (funcSet) {
   let funcs = funcSet
   for (let func of funcSet) {
