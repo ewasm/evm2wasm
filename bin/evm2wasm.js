@@ -56,7 +56,8 @@ let bytecode
 try {
   if (!inputFile) {
     if (argv._.length > 0) {
-      bytecode = argv._[0]
+      // ensure it is a string even it was passed as a number
+      bytecode = argv._[0].toString()
     } else {
       throw new Error('must provide evm bytecode file or supply bytecode as a non-named argument')
     }
