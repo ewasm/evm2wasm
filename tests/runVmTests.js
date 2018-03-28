@@ -53,7 +53,7 @@ async function runner (testName, testData, t) {
     useAsyncAPI: true,
     testName: testName,
     inlineOps: true,
-    wabt: true
+    wabt: false
   })
 
   const environment = setupEnviroment(testData)

@@ -63,7 +63,7 @@ tape('testing transcompiler', async t => {
         buffer: compiled
       } = await evm2wasm.evm2wasm(code, {
         inlineOps: true,
-        wabt: true
+        wabt: false
       })
 
       const startingState = await state.get(accountAddress)

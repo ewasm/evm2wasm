@@ -85,6 +85,7 @@ exports.evm2wasm = function (evmCode, opts = {
   'stackTrace': false,
   'useAsyncAPI': false,
   'inlineOps': true,
+  'wabt': false,
   'testName': 'temp'
 }) {
   const wast = exports.evm2wast(evmCode, opts)
