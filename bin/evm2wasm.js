@@ -5,17 +5,15 @@ const argv = require('minimist')(process.argv.slice(2))
 const fs = require('fs')
 
 // convert evm bytecode to WASM or WAST
-function convert (bytecode, wast) {
+function convert (bytecode, opts) {
   return new Promise((resolve, reject) => {
-    outputFile = argv.o ? argv.o : undefined
-
     if (!bytecode) {
-      resolve(Buffer.from(''))
+      return resolve(Buffer.from(''))
     }
 
-    if (wast) {
+    if (opts.wast) {
       let output = evm2wasm.evm2wast(bytecode, {
-        stackTrace: trace,
+        stackTrace: opts.trace,
         tempName: 'temp',
         inlineOps: true,
         wabt: false
@@ -23,7 +21,7 @@ function convert (bytecode, wast) {
       resolve(output)
     } else {
       evm2wasm.evm2wasm(bytecode, {
-        stackTrace: trace,
+        stackTrace: opts.trace,
         tempName: 'temp',
         inlineOps: true,
         wabt: false
@@ -48,28 +46,29 @@ function storeOrPrintResult (output, outputFile) {
   }
 }
 
-let outputFile = argv.o ? argv.o : undefined
-let wast = argv.wast !== undefined
+const outputFile = argv.o ? argv.o : undefined
+const wast = argv.wast !== undefined
 const trace = argv.trace !== undefined
-let file = argv.e ? argv.e : undefined
+const inputFile = argv.e ? argv.e : undefined
 
 let bytecode
 
 try {
-  if (!file) {
+  if (!inputFile) {
     if (argv._.length > 0) {
-      bytecode = argv._[0]
+      // ensure it is a string even it was passed as a number
+      bytecode = argv._[0].toString()
     } else {
       throw new Error('must provide evm bytecode file or supply bytecode as a non-named argument')
     }
   } else {
-    bytecode = fs.readFileSync(file).toString()
+    bytecode = fs.readFileSync(inputFile).toString()
   }
 
   // always consider input EVM as a hex string and translate that into binary for the next stage
   bytecode = Buffer.from(bytecode, 'hex')
 
-  convert(bytecode, wast).then((result) => {
+  convert(bytecode, { wast: wast, trace: trace }).then((result) => {
     storeOrPrintResult(result, outputFile)
   }).catch((err) => {
     throw err

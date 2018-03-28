@@ -35,11 +35,12 @@ matrix:
         - LANG=cpp
 
 before_install:
-  - git submodule update --init
   - |
+    set -e
+    git submodule update --init
     if [ $LANG = js ]; then
       ./tools/wabt/scripts/travis-before-install.sh
-      cd ./tools/wabt/ && make
+      (cd ./tools/wabt/ && make)
 
       npm install
       npm run validateBuild
@@ -47,12 +48,12 @@ before_install:
 
 script:
   - |
+    set -e
     if [ $LANG = js ]; then
-      bin/evm2wasm.js 0x600160020200 trace
+      ./bin/evm2wasm.js 600160020200 --trace
 
       npm run $TEST_SUITE
     fi
-  - |
     if [ $LANG = cpp ]; then
       mkdir build && cd build
       cmake ..
