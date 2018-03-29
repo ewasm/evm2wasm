@@ -9,7 +9,7 @@
     "lint": "standard",
     "build:validate": "npm run build && npm run build:docs && git diff --exit-code docs/ wasm/",
     "build": "node ./wasm/generateInterface.js",
-    "build:docs": "documentation build --github  -f md ./index.js > ./docs/index.md"
+    "build:docs": "documentation build -f md ./index.js > ./docs/index.md"
   },
   "bin": {
     "evm2wasm": "bin/evm2wasm.js"
