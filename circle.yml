@@ -24,7 +24,7 @@ defaults:
     run:
       name: "Install npm deps"
       command: |
-        npm install
+        npm install --no-package-lock
   validate-build: &validate-build
     run:
       name: "Validate build artifacts were correctly included"
