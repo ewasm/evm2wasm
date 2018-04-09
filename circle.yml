@@ -1,0 +1,83 @@
+defaults:
+  install-deps: &install-deps
+    run:
+      name: "Install dependencies"
+      command: |
+        apt update -y
+        apt install -y curl cmake git g++
+        curl -sL https://deb.nodesource.com/setup_8.x | bash -
+        apt install -y nodejs
+  lint: &lint
+    run:
+      name: "Lint source code"
+      command: |
+        npm run lint
+  build-wabt: &build-wabt
+    run:
+      name: "Build wabt"
+      command: |
+        git submodule update --init --recursive
+        cd tools/wabt
+        cmake -DBUILD_TESTS=OFF
+        make -j8
+  npm-install: &npm-install
+    run:
+      name: "Install npm deps"
+      command: |
+        npm install
+  validate-build: &validate-build
+    run:
+      name: "Validate build artifacts were correctly included"
+      command: |
+        npm run validateBuild
+  build-cpp: &build-cpp
+    run:
+      name: "Build C++ evm2wasm"
+      command: |
+        mkdir build
+        cd build
+        cmake ..
+        cmake --build . -- -j4
+  vm-tests: &vm-tests
+    run:
+      name: "Run ethereum VM tests"
+      command: |
+        npm run vmTests
+  state-tests: &state-tests
+    run:
+      name: "Run Ethereum state tests"
+      command: |
+        echo "ran the state tests."
+  cli-tests: &cli-tests
+    run:
+      name: "Basic CLI validation"
+      command: |
+        bin/evm2wasm.js 600160020200 --trace
+
+        build/tools/evm2wasm/evm2wasm <(echo "600160020200")
+
+  state-test-steps: &state-test-steps
+    - checkout
+    - *install-deps
+    - *build-wabt
+    - *npm-install
+    - *validate-build
+    - *build-cpp
+    - *cli-tests
+    - *vm-tests
+    - *state-tests
+
+version: 2
+jobs:
+  # to run this using local circleci tool, rename Ewasm-Tests to `build` then do `circleci build -c circle.yml`
+  build:
+    working_directory: ~/projects
+    docker:
+      - image: ubuntu:xenial
+    steps: *state-test-steps
+
+workflows:
+  version: 2
+  evm2wasm-build:
+    jobs:
+       - build
