@@ -42,8 +42,8 @@ before_install:
       ./tools/wabt/scripts/travis-before-install.sh
       (cd ./tools/wabt/ && make)
 
-      npm install
-      npm run validateBuild
+      npm install --no-package-lock
+      npm run build:validate
     fi
 
 script:

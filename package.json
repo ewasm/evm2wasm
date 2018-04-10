@@ -7,9 +7,9 @@
     "test": "node --expose-wasm --harmony ./tests/allRunner.js",
     "vmTests": "node --expose-wasm --harmony ./tests/runVmTests.js",
     "lint": "standard",
-    "validateBuild": "node ./wasm/generateInterface.js && git diff --exit-code wasm/",
+    "build:validate": "npm run build && npm run build:docs && git diff --exit-code docs/ wasm/",
     "build": "node ./wasm/generateInterface.js",
-    "build:docs": "documentation build --github  -f md ./index.js > ./docs/index.md"
+    "build:docs": "documentation build -f md ./index.js > ./docs/index.md"
   },
   "bin": {
     "evm2wasm": "bin/evm2wasm.js"
@@ -19,6 +19,7 @@
   "devDependencies": {
     "async": "^2.6.0",
     "bn.js": "^4.11.8",
+    "documentation": "^6.1.0",
     "ethereumjs-testing": "https://github.com/ethereumjs/ethereumjs-testing",
     "ethereumjs-vm": "^2.3.3",
     "minimist": "^1.2.0",
