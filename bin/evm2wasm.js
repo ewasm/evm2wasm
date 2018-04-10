@@ -17,7 +17,7 @@ function convert (bytecode, opts) {
         tempName: 'temp',
         inlineOps: true,
         wabt: false,
-        chargePerOp: false
+        chargePerOp: opts.chargePerOp
       })
       resolve(output)
     } else {
@@ -26,7 +26,7 @@ function convert (bytecode, opts) {
         tempName: 'temp',
         inlineOps: true,
         wabt: false,
-        chargePerOp: false
+        chargePerOp: opts.chargePerOp
       }).then(function (output) {
         resolve(output)
       }).catch(function (err) {
@@ -52,6 +52,7 @@ const outputFile = argv.o ? argv.o : undefined
 const wast = argv.wast !== undefined
 const trace = argv.trace !== undefined
 const inputFile = argv.e ? argv.e : undefined
+const chargePerOp = argv['charge-per-op'] ? argv['charge-per-op'] : undefined
 
 let bytecode
 
@@ -70,7 +71,7 @@ try {
   // always consider input EVM as a hex string and translate that into binary for the next stage
   bytecode = Buffer.from(bytecode, 'hex')
 
-  convert(bytecode, { wast: wast, trace: trace }).then((result) => {
+  convert(bytecode, { wast: wast, trace: trace, chargePerOp: chargePerOp }).then((result) => {
     storeOrPrintResult(result, outputFile)
   }).catch((err) => {
     throw err
