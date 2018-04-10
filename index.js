@@ -79,13 +79,15 @@ const callbackFuncs = new Map([
  * @param {boolean} opts.inlineOps if `true` inlines the EVM1 operations (default: true)
  * @param {boolean} opts.wabt use wabt to compile wast to wasm instad of the built in JS module (default: false)
  * @param {String} opts.testName is the name used for the wast file (default: 'temp')
+ * @param {boolean} opts.chargePerOp if `true` adds metering statements for the wasm code section corresponding to each EVM opcode as opposed to metering once per branch segment (default: false).
  * @return {string}
  */
 exports.evm2wasm = function (evmCode, opts = {
   'stackTrace': false,
   'useAsyncAPI': false,
   'inlineOps': true,
-  'testName': 'temp'
+  'testName': 'temp',
+  'chargePerOp': false
 }) {
   const wast = exports.evm2wast(evmCode, opts)
   const testName = opts.testName
@@ -113,12 +115,14 @@ exports.evm2wasm = function (evmCode, opts = {
  * @param {Object} opts
  * @param {boolean} opts.stackTrace if `true` generates a stack trace (default: false)
  * @param {boolean} opts.inlineOps if `true` inlines the EVM1 operations (default: true)
+ * @param {boolean} opts.chargePerOp if `true` adds metering statements for the wasm code section corresponding to each EVM opcode as opposed to metering once per branch segment (default: false).
  * @return {string}
  */
 exports.evm2wast = function (evmCode, opts = {
   'stackTrace': false,
   'useAsyncAPI': false,
-  'inlineOps': true
+  'inlineOps': true,
+  'chargePerOp': false
 }) {
   // adds stack height checks to the beginning of a segment
   function addStackCheck () {
@@ -139,7 +143,11 @@ exports.evm2wast = function (evmCode, opts = {
 
   // add a metering statment at the beginning of a segment
   function addMetering () {
-    wast += `(call $useGas (i64.const ${gasCount})) ` + segment
+    if (!opts.chargePerOp) {
+      wast += `(call $useGas (i64.const ${gasCount})) `
+    }
+
+    wast += segment
     segment = ''
     gasCount = 0
   }
@@ -175,6 +183,9 @@ exports.evm2wast = function (evmCode, opts = {
     const op = opcodes(opint)
 
     let bytes
+    if (opts.chargePerOp) {
+      segment += `(call $useGas (i64.const ${op.fee})) `
+    }
     gasCount += op.fee
 
     segmentStackDeta += op.on

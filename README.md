@@ -27,6 +27,11 @@ $ bin/evm2wasm.js -e `evm_bytecode_file` -o `wasm_output_file` --wast
 $ bin/evm2wasm.js -e `evm_bytecode_file` -o `wasm_output_file` --wast --trace
 ```
 
+#### Transcompile EVM to WAST with gas metering per transpiled EVM opcode (not per branch segment)
+```
+$ bin/evm2wasm.js -e `evm_bytecode_file` -o `wasm_output_file` --wast --charge-per-op
+```
+
 # DEVELOP
 * After any changes to `.wast` file, `npm  run build` needs to be run to compile the files into a .json file 
 * To rebuild the documentation run `npm run build:docs`

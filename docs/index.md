@@ -14,11 +14,12 @@ compiles evmCode to wasm in the binary format
 **Parameters**
 
 -   `evmCode` **[Array][5]** 
--   `opts` **[Object][6]**  (optional, default `{'stackTrace':false,'useAsyncAPI':false,'inlineOps':true,'testName':'temp'}`)
+-   `opts` **[Object][6]**  (optional, default `{'stackTrace':false,'useAsyncAPI':false,'inlineOps':true,'testName':'temp','chargePerOp':false}`)
     -   `opts.stackTrace` **[boolean][7]** if `true` generates an runtime EVM stack trace (default: false)
     -   `opts.inlineOps` **[boolean][7]** if `true` inlines the EVM1 operations (default: true)
     -   `opts.wabt` **[boolean][7]** use wabt to compile wast to wasm instad of the built in JS module (default: false)
     -   `opts.testName` **[String][8]** is the name used for the wast file (default: 'temp')
+    -   `opts.chargePerOp` **[boolean][7]** if `true` adds metering statements for the wasm code section corresponding to each EVM opcode as opposed to metering once per branch segment (default: false).
 
 Returns **[string][8]** 
 
@@ -41,9 +42,10 @@ All segments start at
 **Parameters**
 
 -   `evmCode` **Integer** the evm byte code
--   `opts` **[Object][6]**  (optional, default `{'stackTrace':false,'useAsyncAPI':false,'inlineOps':true}`)
+-   `opts` **[Object][6]**  (optional, default `{'stackTrace':false,'useAsyncAPI':false,'inlineOps':true,'chargePerOp':false}`)
     -   `opts.stackTrace` **[boolean][7]** if `true` generates a stack trace (default: false)
     -   `opts.inlineOps` **[boolean][7]** if `true` inlines the EVM1 operations (default: true)
+    -   `opts.chargePerOp` **[boolean][7]** if `true` adds metering statements for the wasm code section corresponding to each EVM opcode as opposed to metering once per branch segment (default: false).
 
 Returns **[string][8]** 
 
