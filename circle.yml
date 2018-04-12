@@ -1,17 +1,17 @@
 defaults:
-  install-deps: &install-deps
+
+  npm-install: &npm-install
     run:
-      name: "Install dependencies"
+      name: "Install npm deps"
       command: |
-        apt update -y
-        apt install -y curl cmake git g++
-        curl -sL https://deb.nodesource.com/setup_8.x | bash -
-        apt install -y nodejs
+        npm install --no-package-lock
+
   lint: &lint
     run:
       name: "Lint source code"
       command: |
         npm run lint
+
   build-wabt: &build-wabt
     run:
       name: "Build wabt"
@@ -20,16 +20,13 @@ defaults:
         cd tools/wabt
         cmake -DBUILD_TESTS=OFF
         make -j8
-  npm-install: &npm-install
-    run:
-      name: "Install npm deps"
-      command: |
-        npm install --no-package-lock
+
   validate-build: &validate-build
     run:
       name: "Validate build artifacts were correctly included"
       command: |
         npm run build:validate
+
   build-cpp: &build-cpp
     run:
       name: "Build C++ evm2wasm"
@@ -38,42 +35,98 @@ defaults:
         cd build
         cmake ..
         cmake --build . -- -j4
+
   vm-tests: &vm-tests
     run:
       name: "Run ethereum VM tests"
       command: |
         npm run vmTests
+
+  clone-cpp-eth: &clone-cpp-eth
+    run:
+      name: "Clone cpp-ethereum and hera"
+      working_directory: ~/
+      # to fetch Hera branch that does evm2wasm.js --trace:
+      # cd hera
+      # git fetch origin evm2wasm-trace
+      # git checkout evm2wasm-trace
+      command: |
+        git clone https://github.com/ethereum/cpp-ethereum --branch ewasm-json-trace --single-branch
+        cd cpp-ethereum
+        git reset --hard b85a810d5b003d3d5046c0664d3d49e9bfe58939
+        git submodule update --init
+        cd hera
+        git pull origin master
+
+  build-cpp-eth: &build-cpp-eth
+    run:
+      name: "Build cpp-ethereum and hera"
+      working_directory: ~/
+      command: |
+        mkdir -p build
+        cd build
+        cmake ../cpp-ethereum -DCMAKE_BUILD_TYPE=RelWithDebInfo -DHERA=ON -DHERA_DEBUGGING=ON -DHERA_EVM2WASM=ON -DHERA_EVM2WASM_EVM_TRACE=ON
+        make -j4
+
+  print-cpp-hera-version: &print-cpp-hera-version
+    run:
+      name: "Using cpp-ethereum and Hera versions:"
+      working_directory: ~/
+      command: |
+        cd cpp-ethereum
+        echo "cpp-ethereum branch: $(git rev-parse --abbrev-ref HEAD)  commit: $(git rev-parse HEAD)"
+        cd hera
+        echo "hera branch: $(git rev-parse --abbrev-ref HEAD)  commit: $(git rev-parse HEAD)"
+
+  evm2wasm-trace-option: &evm2wasm-trace-option
+    run:
+      name: "Enable evm2wasm trace option"
+      # cat ~/evm2wasm/bin/evm2wasm.js
+      command: |
+        sed -i 's/stackTrace: opts.trace,/stackTrace: true,/g' ~/evm2wasm/bin/evm2wasm.js
+
   state-tests: &state-tests
     run:
       name: "Run Ethereum state tests"
+      working_directory: ~/build
       command: |
+        echo 'export PATH=~/evm2wasm/bin:$PATH' >> $BASH_ENV
+        source $BASH_ENV
+        echo "running testeth commnad..."
+        test/testeth -t GeneralStateTests/stExample -- --testpath ~/cpp-ethereum/test/jsontests --singlenet "Byzantium" --singletest "add11" --vm hera --evmc evm2wasm.js=true --evmc fallback=false
         echo "ran the state tests."
+
   cli-tests: &cli-tests
     run:
       name: "Basic CLI validation"
+      working_directory: ~/evm2wasm
       command: |
         bin/evm2wasm.js 600160020200 --trace
-
         build/tools/evm2wasm/evm2wasm <(echo "600160020200")
 
   state-test-steps: &state-test-steps
     - checkout
-    - *install-deps
     - *build-wabt
     - *npm-install
+    - *lint
     - *validate-build
-    - *build-cpp
-    - *cli-tests
-    - *vm-tests
+    #- *build-cpp
+    #- *cli-tests # weird chars mess up the console
+    #- *vm-tests # vm-tests temporarily disabled until ewasm-kernel is fixed
+    - *clone-cpp-eth
+    - *build-cpp-eth
+    - *print-cpp-hera-version
+    # evm2wasm-trace-option step only needed until Hera branch evm2wasm-trace is merged
+    - *evm2wasm-trace-option
     - *state-tests
 
 version: 2
 jobs:
   # to run this using local circleci tool, rename Ewasm-Tests to `build` then do `circleci build -c circle.yml`
   build:
-    working_directory: ~/projects
+    working_directory: ~/evm2wasm
     docker:
-      - image: ubuntu:xenial
+      - image: cdetrio/nodejs-cpp-build-env
     steps: *state-test-steps
 
 workflows:
