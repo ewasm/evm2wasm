@@ -56,10 +56,7 @@ defaults:
         git reset --hard b85a810d5b003d3d5046c0664d3d49e9bfe58939
         git submodule update --init
         cd hera
-        git remote add cdetrio https://github.com/cdetrio/hera.git
-        git fetch cdetrio debug-evm2wasmjs
-        git checkout debug-evm2wasmjs
-        git reset --hard 2ba498fa282e60c85a2280d2e43c38e1a7a89908
+        git reset --hard b21a78df638c7ec3798494f5019be6be5672f324
 
   build-cpp-eth: &build-cpp-eth
     run:
@@ -68,7 +65,7 @@ defaults:
       command: |
         mkdir -p build
         cd build
-        cmake ../cpp-ethereum -DCMAKE_BUILD_TYPE=RelWithDebInfo -DHERA=ON -DHERA_DEBUGGING=ON -DHERA_EVM2WASM=ON -DHERA_EVM2WASM_EVM_TRACE=ON
+        cmake ../cpp-ethereum -DCMAKE_BUILD_TYPE=RelWithDebInfo -DHERA=ON -DHERA_DEBUGGING=ON -DHERA_EVM2WASM=ON
         make -j4
 
   print-cpp-hera-version: &print-cpp-hera-version
@@ -97,7 +94,7 @@ defaults:
         echo 'export PATH=~/evm2wasm/bin:$PATH' >> $BASH_ENV
         source $BASH_ENV
         echo "running testeth command..."
-        test/testeth -t GeneralStateTests/stExample -- --testpath ~/cpp-ethereum/test/jsontests --singlenet "Byzantium" --singletest "add11" --vm hera --evmc evm2wasm.js=true --evmc fallback=false
+        test/testeth -t GeneralStateTests/stExample -- --testpath ~/cpp-ethereum/test/jsontests --singlenet "Byzantium" --singletest "add11" --vm hera --evmc evm2wasm.js=true --evmc evm2wasm.js-trace=true --evmc fallback=false
         echo "ran the state tests."
 
   cli-tests: &cli-tests
