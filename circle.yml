@@ -78,13 +78,6 @@ defaults:
         cd hera
         echo "hera branch: $(git rev-parse --abbrev-ref HEAD)  commit: $(git rev-parse HEAD)"
 
-  evm2wasm-trace-option: &evm2wasm-trace-option
-    run:
-      name: "Enable evm2wasm trace option"
-      # cat ~/evm2wasm/bin/evm2wasm.js
-      command: |
-        sed -i 's/stackTrace: opts.trace,/stackTrace: true,/g' ~/evm2wasm/bin/evm2wasm.js
-
   state-tests: &state-tests
     run:
       name: "Run Ethereum state tests"
@@ -117,8 +110,6 @@ defaults:
     - *clone-cpp-eth
     - *build-cpp-eth
     - *print-cpp-hera-version
-    # evm2wasm-trace-option step only needed until Hera branch evm2wasm-trace is merged
-    - *evm2wasm-trace-option
     - *state-tests
 
 version: 2
