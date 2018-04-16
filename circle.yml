@@ -100,6 +100,8 @@ defaults:
 
   state-test-steps: &state-test-steps
     - checkout
+    - setup_remote_docker:
+        docker_layer_caching: true
     - *build-wabt
     - *npm-install
     - *lint
