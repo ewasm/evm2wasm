@@ -4,6 +4,8 @@ const evm2wasm = require('../index.js')
 const argv = require('minimist')(process.argv.slice(2))
 const fs = require('fs')
 
+console.log('evm2wasm.js process.argv:', process.argv)
+
 // convert evm bytecode to WASM or WAST
 function convert (bytecode, opts) {
   return new Promise((resolve, reject) => {
@@ -48,6 +50,8 @@ function storeOrPrintResult (output, outputFile) {
   }
 }
 
+console.log('evm2wasm.js argv:', argv)
+
 const outputFile = argv.o ? argv.o : undefined
 const wast = argv.wast !== undefined
 const trace = argv.trace !== undefined
@@ -57,6 +61,7 @@ const chargePerOp = argv['charge-per-op'] ? argv['charge-per-op'] : undefined
 let bytecode
 
 try {
+  console.log('evm2wasm.js inputFile:', inputFile)
   if (!inputFile) {
     if (argv._.length > 0) {
       // ensure it is a string even it was passed as a number
@@ -65,12 +70,15 @@ try {
       throw new Error('must provide evm bytecode file or supply bytecode as a non-named argument')
     }
   } else {
+    console.log('evm2wasm.js calling fs.readFileSync...')
     bytecode = fs.readFileSync(inputFile).toString()
   }
 
+  console.log('evm2wasm.js converting bytecode to buffer..')
   // always consider input EVM as a hex string and translate that into binary for the next stage
   bytecode = Buffer.from(bytecode, 'hex')
 
+  console.log('evm2wasm.js calling convert..')
   convert(bytecode, { wast: wast, trace: trace, chargePerOp: chargePerOp }).then((result) => {
     storeOrPrintResult(result, outputFile)
   }).catch((err) => {
