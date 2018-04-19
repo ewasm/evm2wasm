@@ -11,6 +11,7 @@ import (
   "sync"
   "sort"
   "bufio"
+  //"bytes"
 )
 
 /*
@@ -56,7 +57,7 @@ func (q *MapQueue) Pop() (string, []string) {
 }
 
 func getTests() TestCases {
-  files, err := filepath.Glob("/home/jwasinger/projects/tests/GeneralStateTests/**/*.json")
+  files, err := filepath.Glob(os.Args[1]+"/GeneralStateTests/**/*.json")
 	if err != nil {
     panic("foobar")
 	}
@@ -115,6 +116,56 @@ func merge(cs ...<-chan TestResult) <-chan TestResult{
     return out
 }
 
+func runTestCase() bool {
+  testPath := "/home/jwasinger/projects/tests"
+  testFile := "/home/jwasinger/projects/tests/GeneralStateTests/stExample/add11.json"
+  testName := "add11"
+
+  cmd_str := "/home/jwasinger/projects/cpp-ethereum/build/test/testeth"
+  cmd_args := []string{"-t", "GeneralStateTests/stExample", "--", "--testpath", testPath, "--singlenet", "Byzantium", "--singletest", testFile, testName}
+
+  //var out bytes.Buffer
+  cmd := exec.Command(cmd_str, cmd_args...)
+	cmd.Env = os.Environ()
+	cmd.Env = append(cmd.Env, "ETHEREUM_TEST_PATH=/home/jwasinger/projects/tests")
+  //cmd.Stderr = &out
+
+  /*
+  stdout, err := cmd.StdoutPipe()
+  if err != nil {
+    fmt.Println(err)
+  }
+  */
+
+  /*
+  if err := cmd.Start(); err != nil {
+    fmt.Println(err)
+  }
+  if err := cmd.Wait(); err != nil {
+    fmt.Println(err)
+  }
+  */
+
+  output, err := cmd.CombinedOutput()
+  if err != nil {
+    fmt.Println(err)
+  }
+
+  fmt.Println(string(output[:len(output)]))
+  return true
+
+  /*
+  if _, err := ioutil.ReadAll(stdout); err == nil {
+    fmt.Println("foobar")
+    return true
+  } else {
+    fmt.Println(err)
+    fmt.Println("foobar2")
+    return false
+  }
+  */
+}
+
 func makeWorker(q *MapQueue) chan TestResult {
 	outCh := make(chan TestResult)
 	go func (q *MapQueue, ch chan TestResult) {
@@ -125,22 +176,7 @@ func makeWorker(q *MapQueue) chan TestResult {
         break
 			}
 
-			cmd := exec.Command("sleep", "0.05s")
-			stdout, err := cmd.StdoutPipe()
-
-			if err != nil {
-				fmt.Println(err)
-			}
-			if err := cmd.Start(); err != nil {
-				fmt.Println(err)
-			}
-			if err := cmd.Wait(); err != nil {
-				fmt.Println(err)
-			}
-			if _, err := ioutil.ReadAll(stdout); err == nil {
-					//fmt.Println(string(b))
-			}
-
+      runTestCase()
 			passed := true
 			outCh <- TestResult{file, passed}
 		}
@@ -175,7 +211,7 @@ func writeoutTests(tests []string) {
   w := bufio.NewWriter(f)
   for _, test := range tests {
     fmt.Fprintln(w, test)
-    fmt.Println(test)
+    //fmt.Println(test)
   }
   w.Flush()
 }
@@ -186,7 +222,7 @@ func main() {
 	tests := getTests()
 
 	q := NewMapQueue(tests)
-  num := 20
+  num := 50
   outputChs := make([]<-chan TestResult, num)
   for i := 0; i < num; i++ {
     outputChs[i] = makeWorker(&q)

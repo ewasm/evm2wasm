@@ -86,6 +86,12 @@ defaults:
         cd hera
         echo "hera branch: $(git rev-parse --abbrev-ref HEAD)  commit: $(git rev-parse HEAD)"
 
+  clone-tests: &clone-tests
+    run:
+      name: "Clone tests repo"
+      command: |
+        git clone https://github.com/ethereum/tests
+
   sstate-tests: &sstate-tests
     run:
       name: "Run Ethereum state tests"
