@@ -42,7 +42,7 @@ defaults:
       command: |
         cd check
         go build
-        ./check
+        ./check ~/tests
 
   vm-tests: &vm-tests
     run:
@@ -114,6 +114,7 @@ defaults:
 
   state-test-steps: &state-test-steps
     - checkout
+    - *clone-tests
     - *state-tests
     #- *build-wabt
     #- *npm-install
