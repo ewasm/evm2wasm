@@ -42,7 +42,8 @@ defaults:
       command: |
         cd check
         go build
-        ./check test-suite
+        cd ..
+        ./check/check test-suite
 
   vm-tests: &vm-tests
     run:
