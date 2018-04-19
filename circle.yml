@@ -35,6 +35,14 @@ defaults:
         cd build
         cmake ..
         cmake --build . -- -j4
+  
+  state-tests: &state-tests
+    run:
+      name: "state tests n shit"
+      command: |
+        cd check
+        go build
+        ./check
 
   vm-tests: &vm-tests
     run:
@@ -78,7 +86,7 @@ defaults:
         cd hera
         echo "hera branch: $(git rev-parse --abbrev-ref HEAD)  commit: $(git rev-parse HEAD)"
 
-  state-tests: &state-tests
+  sstate-tests: &sstate-tests
     run:
       name: "Run Ethereum state tests"
       working_directory: ~/build
@@ -100,17 +108,18 @@ defaults:
 
   state-test-steps: &state-test-steps
     - checkout
-    - *build-wabt
-    - *npm-install
-    - *lint
-    - *validate-build
-    #- *build-cpp
-    #- *cli-tests # weird chars mess up the console
-    #- *vm-tests # vm-tests temporarily disabled until ewasm-kernel is fixed
-    - *clone-cpp-eth
-    - *build-cpp-eth
-    - *print-cpp-hera-version
     - *state-tests
+    #- *build-wabt
+    #- *npm-install
+    #- *lint
+    #- *validate-build
+      #- *build-cpp
+      #- *cli-tests # weird chars mess up the console
+      #- *vm-tests # vm-tests temporarily disabled until ewasm-kernel is fixed
+    #- *clone-cpp-eth
+    #- *build-cpp-eth
+    #- *print-cpp-hera-version
+    #- *state-tests
 
 version: 2
 jobs:
@@ -118,7 +127,7 @@ jobs:
   build:
     working_directory: ~/evm2wasm
     docker:
-      - image: cdetrio/nodejs-cpp-build-env
+      - image: jwasinger/cpp-node-go-env
     steps: *state-test-steps
 
 workflows:

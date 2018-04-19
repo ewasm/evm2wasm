@@ -125,9 +125,7 @@ func makeWorker(q *MapQueue) chan TestResult {
         break
 			}
 
-			// run the test
-
-			cmd := exec.Command("echo", "\"hello world\"")
+			cmd := exec.Command("sleep", "0.05s")
 			stdout, err := cmd.StdoutPipe()
 
 			if err != nil {
@@ -188,7 +186,7 @@ func main() {
 	tests := getTests()
 
 	q := NewMapQueue(tests)
-  num := 1
+  num := 20
   outputChs := make([]<-chan TestResult, num)
   for i := 0; i < num; i++ {
     outputChs[i] = makeWorker(&q)
@@ -196,7 +194,6 @@ func main() {
 
   outputCh := merge(outputChs...)
   for result := range outputCh {
-    //fmt.Println(result.testName)
     if contains(prevPassingTests, result.testName) && !result.passed {
       panic("previously-passing test is now failing")
     }
