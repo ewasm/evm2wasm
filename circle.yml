@@ -89,6 +89,7 @@ defaults:
   clone-tests: &clone-tests
     run:
       name: "Clone tests repo"
+      working_directory: ~
       command: |
         git clone https://github.com/ethereum/tests
 
