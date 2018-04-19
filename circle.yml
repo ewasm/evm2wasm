@@ -91,9 +91,8 @@ defaults:
       name: "Clone tests repo"
       working_directory: ~
       command: |
-        # git clone https://github.com/ethereum/tests
-        ls tests
-        echo "$(pwd)"
+        cd ~/tests
+        git clone https://github.com/ethereum/tests
 
   sstate-tests: &sstate-tests
     run:
