@@ -3,11 +3,14 @@ package main
 import (
   "fmt"
   "os/exec"
+  "os"
   "io/ioutil"
 	"encoding/json"
 	"strings"
 	"path/filepath"
   "sync"
+  "sort"
+  "bufio"
 )
 
 /*
@@ -20,27 +23,43 @@ func getPassingTests() []string{
 }
 */
 
+//map a test file name to the list of cases it contains
+type TestCases = map[string][]string
+
 type TestResult struct {
   testName string
   passed bool
 }
 
-type Queue struct {
+type MapQueue struct {
   m *sync.Mutex
-  tests []string
+  tests TestCases
 }
 
-func NewQueue(tests []string) Queue {
-  return Queue{&sync.Mutex{}, tests}
+func NewMapQueue(tests TestCases) MapQueue {
+  return MapQueue{&sync.Mutex{}, tests}
 }
 
-func getTests() map[string][]string {
+func (q *MapQueue) Pop() (string, []string) {
+  q.m.Lock()
+  defer q.m.Unlock()
+  if len(q.tests) > 0 {
+    for k, v := range q.tests {
+      delete(q.tests, k)
+      return k, v
+    }
+
+    return "", nil
+  } else {
+    return "", nil
+  }
+}
+
+func getTests() TestCases {
   files, err := filepath.Glob("/home/jwasinger/projects/tests/GeneralStateTests/**/*.json")
 	if err != nil {
     panic("foobar")
 	}
-
-	//fmt.Printf("files: %d\n", len(files))
 
 	testInfo := make(map[string]struct{}) //raw json object for test
 	tests := make(map[string][]string)
@@ -68,17 +87,6 @@ func getTests() map[string][]string {
 	return tests
 }
 
-func (q *Queue) Pop() string {
-  q.m.Lock()
-  defer q.m.Unlock()
-  if len(q.tests) > 0 {
-    val := q.tests[0]
-    q.tests = q.tests[1:]
-    return val
-  } else {
-    return ""
-  }
-}
 
 // merge a bunch of channels into one
 func merge(cs ...<-chan TestResult) <-chan TestResult{
@@ -107,51 +115,99 @@ func merge(cs ...<-chan TestResult) <-chan TestResult{
     return out
 }
 
-func makeWorker(q *Queue) chan TestResult {
+func makeWorker(q *MapQueue) chan TestResult {
 	outCh := make(chan TestResult)
-	go func (q *Queue, ch chan TestResult) {
+	go func (q *MapQueue, ch chan TestResult) {
+    defer close(ch)
 		for {
-			val := q.Pop()
-		  if val == "" {
+			file, cases:= q.Pop()
+		  if file == "" || cases == nil {
         break
 			}
+
 			// run the test
 
 			cmd := exec.Command("echo", "\"hello world\"")
 			stdout, err := cmd.StdoutPipe()
 
 			if err != nil {
-				fmt.Println("err")
+				fmt.Println(err)
 			}
 			if err := cmd.Start(); err != nil {
-				fmt.Println("err")
+				fmt.Println(err)
 			}
-			if b, err := ioutil.ReadAll(stdout); err == nil {
-					fmt.Println(string(b))
+			if err := cmd.Wait(); err != nil {
+				fmt.Println(err)
+			}
+			if _, err := ioutil.ReadAll(stdout); err == nil {
+					//fmt.Println(string(b))
 			}
 
 			passed := true
-			outCh <- TestResult{val, passed}
+			outCh <- TestResult{file, passed}
 		}
 	} (q, outCh)
 	return outCh
 }
 
+func loadPrevPassingTests() []string {
+		stream, err := ioutil.ReadFile("passing_tests.txt")
+		if err != nil {
+      panic("err")
+		}
+
+		return  strings.Split(string(stream), "\n")
+}
+
+func contains(arr []string, val string) bool {
+  for _, v := range arr {
+    if v == val {
+      return true
+    }
+  }
+  return false
+}
+
+func writeoutTests(tests []string) {
+  f, err := os.Create("passing_tests.txt")
+  if err != nil {
+    fmt.Println(err)
+  }
+
+  w := bufio.NewWriter(f)
+  for _, test := range tests {
+    fmt.Fprintln(w, test)
+    fmt.Println(test)
+  }
+  w.Flush()
+}
+
 func main() {
-	fmt.Println(getTests())
-	/*
-	q := NewQueue(files)
-  num := 4
-  outputChs := make(chan[]bool, num)
+  prevPassingTests := loadPrevPassingTests()
+  passingTests := make([]string, 0)
+	tests := getTests()
+
+	q := NewMapQueue(tests)
+  num := 1
+  outputChs := make([]<-chan TestResult, num)
   for i := 0; i < num; i++ {
     outputChs[i] = makeWorker(&q)
   }
 
-  outputCh := merge(outputChs)
-  for result, ok := <-outputChs; ; ok {
-    fmt.Println(result.testName)
-  }
-	*/
+  outputCh := merge(outputChs...)
+  for result := range outputCh {
+    //fmt.Println(result.testName)
+    if contains(prevPassingTests, result.testName) && !result.passed {
+      panic("previously-passing test is now failing")
+    }
 
+    if result.passed {
+      passingTests = append(passingTests, result.testName)
+    }
+  }
+
+  sort.Strings(passingTests)
+  writeoutTests(passingTests)
+  return
   // read 
 }
