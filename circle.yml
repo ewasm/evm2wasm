@@ -38,7 +38,7 @@ defaults:
   
   state-tests: &state-tests
     run:
-      name: "state tests n shit"
+      name: "run state tests"
       command: |
         cd check
         go build
@@ -135,7 +135,7 @@ jobs:
   build:
     working_directory: ~/evm2wasm
     docker:
-      - image: jwasinger/cpp-node-go-env
+      - image: jwasinger/cpp-node-go-env-cpp-ethereum
     steps: *state-test-steps
 
 workflows:
