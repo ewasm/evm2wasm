@@ -681,7 +681,7 @@ std::tuple<std::vector<std::string>, std::vector<std::string>> resolveFunctions(
         funcs.push_back(wastFiles[func].wast);
         imports.push_back(wastFiles[func].imports);
     }
-    return {funcs, imports};
+    return std::tuple<std::vector<std::string>, std::vector<std::string>>{funcs, imports};
 }
 
 /**
