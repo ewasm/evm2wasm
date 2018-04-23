@@ -85,7 +85,7 @@ defaults:
         source $BASH_ENV
         echo "running testeth command..."
         test/testeth -t GeneralStateTests/stExample -- --testpath ~/cpp-ethereum/test/jsontests --singlenet "Byzantium" --vm hera --evmc evm2wasm.js=true --evmc evm2wasm.js-trace=true --evmc fallback=false
-        test/testeth -t GeneralStateTests/stStackTests -- --testpath ~/cpp-ethereum/test/jsontests --singlenet "Byzantium" --vm hera --evmc evm2wasm.js=true --evmc evm2wasm.js-trace=true --evmc fallback=false
+        test/testeth -t GeneralStateTests/stStackTests -- --testpath ~/cpp-ethereum/test/jsontests --singlenet "Byzantium" --vm hera --evmc evm2wasm.js=true --evmc fallback=false
         echo "ran the state tests."
 
   cli-tests: &cli-tests
