@@ -364,7 +364,7 @@ std::string opcodeToString(opcodeEnum opcode);
 
 Op opcodes(int op);
 
-size_t findNextJumpDest(const std::string& evmCode, size_t i);
+size_t findNextJumpDest(const std::vector<uint8_t>& evmCode, size_t i);
 
 std::set<opcodeEnum> resolveFunctionDeps(const std::set<opcodeEnum>& funcSet);
 
