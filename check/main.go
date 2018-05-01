@@ -124,7 +124,7 @@ func runTestCase(testFile string, testName string) bool {
   testPath := "/home/jwasinger/projects/tests"
   //testFile := "/home/jwasinger/projects/tests/GeneralStateTests/stExample/add11.json"
 
-  cmd_str :=  "testeth" // "/home/jwasinger/projects/cpp-ethereum/build/test/testeth"
+  cmd_str :=  "/home/builder/build/test/testeth" // "/home/jwasinger/projects/cpp-ethereum/build/test/testeth"
   cmd_args := []string{"-t", "GeneralStateTests", "--", "--testpath", testPath, "--singlenet", "Byzantium", "--vm", "hera",  "--singletest", testFile, testName, "--evmc", "evm2wasm.js=true"}
 
   cmd := exec.Command(cmd_str, cmd_args...)
