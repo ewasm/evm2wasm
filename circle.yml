@@ -53,10 +53,8 @@ defaults:
       command: |
         git clone https://github.com/ethereum/cpp-ethereum --branch ewasm-json-trace --single-branch
         cd cpp-ethereum
-        git reset --hard b85a810d5b003d3d5046c0664d3d49e9bfe58939
-        git submodule update --init
+        git submodule update --init --recursive
         cd hera
-        git reset --hard b21a78df638c7ec3798494f5019be6be5672f324
 
   build-cpp-eth: &build-cpp-eth
     run:
