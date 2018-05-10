@@ -46,15 +46,14 @@ defaults:
     run:
       name: "Clone cpp-ethereum and hera"
       working_directory: ~/
-      # to fetch Hera branch that does evm2wasm.js --trace:
-      # cd hera
-      # git fetch origin evm2wasm-trace
-      # git checkout evm2wasm-trace
       command: |
-        git clone https://github.com/ethereum/cpp-ethereum --branch ewasm-json-trace --single-branch
+        git clone https://github.com/ethereum/cpp-ethereum --branch develop --single-branch
         cd cpp-ethereum
+        git reset --hard a17f30a41aa2af506b6b453f052c53bd323a36e0
         git submodule update --init --recursive
         cd hera
+        git pull origin master
+        git submodule update --init
 
   build-cpp-eth: &build-cpp-eth
     run:
@@ -85,7 +84,8 @@ defaults:
         echo 'export PATH=~/evm2wasm/bin:$PATH' >> $BASH_ENV
         source $BASH_ENV
         echo "running testeth command..."
-        test/testeth -t GeneralStateTests/stExample -- --testpath ~/cpp-ethereum/test/jsontests --singlenet "Byzantium" --singletest "add11" --vm hera --evmc evm2wasm.js=true --evmc evm2wasm.js-trace=true --evmc fallback=false
+        test/testeth -t GeneralStateTests/stExample -- --testpath ~/cpp-ethereum/test/jsontests --singlenet "Byzantium" --vm hera --evmc evm2wasm.js=true --evmc evm2wasm.js-trace=true --evmc fallback=false
+        test/testeth -t GeneralStateTests/stStackTests -- --testpath ~/cpp-ethereum/test/jsontests --singlenet "Byzantium" --vm hera --evmc evm2wasm.js=true --evmc fallback=false
         echo "ran the state tests."
 
   cli-tests: &cli-tests
