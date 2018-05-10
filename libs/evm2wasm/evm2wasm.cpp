@@ -6,9 +6,7 @@
 
 using namespace std;
 
-namespace {
-
-string wast2wasm(const string& input, bool debug = false) {
+string wast2wasm(const string& input, bool debug) {
   wasm::Module module;
 
   try {
@@ -47,6 +45,8 @@ string wast2wasm(const string& input, bool debug = false) {
   
   return output.str();
 }
+
+namespace {
 
 string evm2wast(const string& input) {
   (void)input;
