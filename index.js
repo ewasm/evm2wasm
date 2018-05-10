@@ -182,6 +182,11 @@ exports.evm2wast = function (evmCode, opts = {
     const opint = evmCode[pc]
     const op = opcodes(opint)
 
+    // creates a stack trace
+    if (opts.stackTrace) {
+      segment += `(call $stackTrace (i32.const ${pc}) (i32.const ${opint}) (i32.const ${gasCount}) (get_global $sp))\n`
+    }
+
     let bytes
     if (opts.chargePerOp) {
       segment += `(call $useGas (i64.const ${op.fee})) `
@@ -196,11 +201,6 @@ exports.evm2wast = function (evmCode, opts = {
     segmentStackDeta -= op.off
     if (segmentStackDeta < segmentStackLow) {
       segmentStackLow = segmentStackDeta
-    }
-
-    // creates a stack trace
-    if (opts.stackTrace) {
-      segment += `(call $stackTrace (i32.const ${pc}) (i32.const ${opint}) (i32.const ${gasCount}) (get_global $sp))\n`
     }
 
     switch (op.name) {
