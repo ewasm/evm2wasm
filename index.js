@@ -250,7 +250,7 @@ exports.evm2wast = function (evmCode, opts = {
         break
       case 'GAS':
         segment += `(call $GAS)\n`
-        addMetering()
+        // addMetering() // this causes an unreachable error in stackOverflowM1 -d 14
         break
       case 'LOG':
         segment += `(call $LOG (i32.const ${op.number}))\n`
