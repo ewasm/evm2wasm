@@ -79,8 +79,8 @@ const interfaceManifest = {
   },
   GASPRICE: {
     name: 'getTxGasPrice',
-    input: [],
-    output: ['i32']
+    input: ['pointer'],
+    output: []
   },
   BLOCKHASH: {
     name: 'getBlockHash',
@@ -96,17 +96,17 @@ const interfaceManifest = {
   TIMESTAMP: {
     name: 'getBlockTimestamp',
     input: [],
-    output: ['i32']
+    output: ['i64']
   },
   NUMBER: {
     name: 'getBlockNumber',
     input: [],
-    output: ['i32']
+    output: ['i64']
   },
   DIFFICULTY: {
     name: 'getBlockDifficulty',
     input: [],
-    output: ['i256']
+    output: ['i64']
   },
   GASLIMIT: {
     name: 'getBlockGasLimit',
