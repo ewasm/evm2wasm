@@ -105,13 +105,13 @@ const interfaceManifest = {
   },
   DIFFICULTY: {
     name: 'getBlockDifficulty',
-    input: [],
-    output: ['i64']
+    input: ['pointer'],
+    output: []
   },
   GASLIMIT: {
     name: 'getBlockGasLimit',
     input: [],
-    output: ['i32']
+    output: ['i64']
   },
   CREATE: {
     name: 'create',
@@ -199,7 +199,64 @@ function generateManifest (interfaceManifest, opts) {
     let spOffset = 0
     let numOfLocals = 0
     let lastOffset
+
     let call = `(call $${op.name}`
+
+    // handle some EEI pointer special cases
+    if (opcode === 'DIFFICULTY') {
+
+      op.input.forEach((input) => {
+        if (input === 'pointer') {
+          // a pointer input is more like an output
+          // a pointer to a wasm memory offset
+          // the wasm memory offset is a new item on the EVM stack
+          
+          // for outputs, do spOffset++
+          spOffset++
+
+          if (spOffset) {
+            call += `(i32.add (get_global $sp) (i32.const ${spOffset * 32}))`
+          } else {
+            call += '(get_global $sp)'
+          }
+        }
+      })
+      spOffset++
+
+      const output = op.output.shift()
+      if (!output) {
+        if (useAsyncAPI && op.async) {
+          call += '(get_local $callback)'
+        }
+        call += ')'
+      }
+
+    } else if (opcode === 'GASPRICE') {
+
+      op.input.forEach((input) => {
+        if (input === 'pointer') {
+          spOffset++
+
+          if (spOffset) {
+            call += `(i32.add (get_global $sp) (i32.const ${spOffset * 32}))`
+          } else {
+            call += '(get_global $sp)'
+          }
+        }
+      })
+      spOffset++
+
+      // generate output handling
+      const output = op.output.shift()
+      if (!output) {
+        if (useAsyncAPI && op.async) {
+          call += '(get_local $callback)'
+        }
+        call += ')'
+      }
+
+    } else { // end EEI pointer special cases
+
     op.input.forEach((input) => {
       if (input === 'i128' || input == 'address' || input == 'pointer') {
         if (spOffset) {
@@ -324,6 +381,9 @@ function generateManifest (interfaceManifest, opts) {
       }
       call += ')'
     }
+
+    } // close special cases block
+
 
     wasm += `${locals} ${body} ${call})`
     json[opcode] = {
