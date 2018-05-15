@@ -201,25 +201,12 @@ function generateManifest (interfaceManifest, opts) {
     let lastOffset
     let call = `(call $${op.name}`
     op.input.forEach((input) => {
-      if (input === 'i128') {
-        if (spOffset) {
-          call += `(i32.add (i32.const 16) (call $bswap_m256 (i32.add (get_global $sp) (i32.const ${spOffset * 32}))))`
-        } else {
-          call += '(i32.add (i32.const 16) (call $bswap_m256 (get_global $sp)))'
-        }
-      } else if (input === 'address') {
-        if (spOffset) {
-          call += `(i32.add (i32.const 12) (call $bswap_m256 (i32.add (get_global $sp) (i32.const ${spOffset * 32}))))`
-        } else {
-          call += '(i32.add (i32.const 12) (call $bswap_m256 (get_global $sp)))'
-        }
-      } else if (input === 'pointer') {
+      if (input === 'i128' || input == 'address' || input == 'pointer') {
         if (spOffset) {
           call += `(i32.add (get_global $sp) (i32.const ${spOffset * 32}))`
         } else {
           call += '(get_global $sp)'
         }
-        // call += ' drop '
       } else if (input === 'i32') {
         call += `(call $check_overflow
            (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32})))
