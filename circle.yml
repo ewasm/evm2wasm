@@ -16,6 +16,7 @@ defaults:
     run:
       name: "Build wabt"
       command: |
+        ls
         git submodule update --init --recursive
         cd tools/wabt
         cmake -DBUILD_TESTS=OFF
@@ -35,6 +36,14 @@ defaults:
         cd build
         cmake ..
         cmake --build . -- -j4
+  
+  state-tests: &state-tests
+    run:
+      name: "run state tests"
+      command: |
+        /usr/local/go/bin/go build check/main.go
+        PATH=$PATH:/home/builder/test
+        ./check/check test-suite
 
   vm-tests: &vm-tests
     run:
@@ -54,7 +63,6 @@ defaults:
         git clone https://github.com/ethereum/cpp-ethereum --branch ewasm-json-trace --single-branch
         cd cpp-ethereum
         git submodule update --init --recursive
-        cd hera
 
   build-cpp-eth: &build-cpp-eth
     run:
@@ -76,17 +84,11 @@ defaults:
         cd hera
         echo "hera branch: $(git rev-parse --abbrev-ref HEAD)  commit: $(git rev-parse HEAD)"
 
-  state-tests: &state-tests
+  clone-tests: &clone-tests
     run:
-      name: "Run Ethereum state tests"
-      working_directory: ~/build
-      # test/testeth -t GeneralStateTests/stExample -- --testpath ~/cpp-ethereum/test/jsontests --singlenet "Byzantium" --singletest "add11" --vm hera --evmc evm2wasm.js=true --evmc evm2wasm.js-trace=true --evmc fallback=false
+      name: "Clone tests repo"
       command: |
-        echo 'export PATH=~/evm2wasm/bin:$PATH' >> $BASH_ENV
-        source $BASH_ENV
-        echo "running testeth command..."
-        test/testeth -t GeneralStateTests/stExample -- --testpath ~/cpp-ethereum/test/jsontests --singlenet "Byzantium" --singletest "add11" --vm hera --evmc evm2wasm.js=true --evmc evm2wasm.js-trace=true --evmc fallback=false
-        echo "ran the state tests."
+        git clone https://github.com/ethereum/tests test-suite
 
   cli-tests: &cli-tests
     run:
@@ -98,25 +100,28 @@ defaults:
 
   state-test-steps: &state-test-steps
     - checkout
-    - *build-wabt
     - *npm-install
     - *lint
+    - *clone-tests
+    - *build-wabt
     - *validate-build
-    #- *build-cpp
-    #- *cli-tests # weird chars mess up the console
-    #- *vm-tests # vm-tests temporarily disabled until ewasm-kernel is fixed
+      #- *build-cpp
+      #- *cli-tests # weird chars mess up the console
+      #- *vm-tests # vm-tests temporarily disabled until ewasm-kernel is fixed
     - *clone-cpp-eth
     - *build-cpp-eth
-    - *print-cpp-hera-version
     - *state-tests
+    # - *print-cpp-hera-version
 
 version: 2
 jobs:
   # to run this using local circleci tool, rename Ewasm-Tests to `build` then do `circleci build -c circle.yml`
   build:
+    environment:
+      GOPATH: /home/builder/go
     working_directory: ~/evm2wasm
     docker:
-      - image: cdetrio/nodejs-cpp-build-env
+      - image: jwasinger/evm2wasm-circleci
     steps: *state-test-steps
 
 workflows:
