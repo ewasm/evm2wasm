@@ -51,12 +51,14 @@ defaults:
       # git fetch origin evm2wasm-trace
       # git checkout evm2wasm-trace
       command: |
-        git clone https://github.com/ethereum/cpp-ethereum --branch ewasm --single-branch
+        git clone https://github.com/ethereum/cpp-ethereum --branch develop --single-branch
         cd cpp-ethereum
         git submodule update --init --recursive
         cd hera
         git pull origin master
         git submodule update --init --recursive
+        cd evmc
+        ls -al
 
   build-cpp-eth: &build-cpp-eth
     run:
