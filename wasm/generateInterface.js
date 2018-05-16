@@ -4,13 +4,13 @@ const path = require('path')
 const interfaceManifest = {
   LOG: {
     name: 'log',
-    input: ['readOffset', 'length', 'i32', 'pointer', 'pointer', 'pointer', 'pointer'],
+    input: ['readOffset', 'length', 'i32', 'ipointer', 'ipointer', 'ipointer', 'ipointer'],
     output: []
   },
   CALLDATALOAD: {
     name: 'callDataCopy256',
     input: ['pointer'],
-    output: ['i256']
+    output: ['i256'] // TODO: this is wrong
   },
   GAS: {
     name: 'getGasLeft',
@@ -79,7 +79,7 @@ const interfaceManifest = {
   },
   GASPRICE: {
     name: 'getTxGasPrice',
-    input: ['pointer'],
+    input: ['opointer'],
     output: []
   },
   BLOCKHASH: {
@@ -105,7 +105,7 @@ const interfaceManifest = {
   },
   DIFFICULTY: {
     name: 'getBlockDifficulty',
-    input: ['pointer'],
+    input: ['opointer'],
     output: []
   },
   GASLIMIT: {
@@ -140,14 +140,14 @@ const interfaceManifest = {
   SSTORE: {
     name: 'storageStore',
     async: true,
-    input: ['pointer', 'pointer'],
+    input: ['ipointer', 'ipointer'],
     output: []
   },
   SLOAD: {
     name: 'storageLoad',
     async: true,
-    input: ['pointer'],
-    output: ['i256']
+    input: ['ipointer'],
+    output: ['i256'] // TODO: this is wrong
   },
   SELFDESTRUCT: {
     name: 'selfDestruct',
@@ -201,12 +201,28 @@ function generateManifest (interfaceManifest, opts) {
     let lastOffset
     let call = `(call $${op.name}`
     op.input.forEach((input) => {
+      // TODO: remove 'pointer' type, replace with 'ipointer' or 'opointer'
       if (input === 'i128' || input == 'address' || input == 'pointer') {
         if (spOffset) {
           call += `(i32.add (get_global $sp) (i32.const ${spOffset * 32}))`
         } else {
           call += '(get_global $sp)'
         }
+      } else if (input === 'ipointer') {
+        // input pointer
+        // points to a wasm memory offset where input data will be read
+        // the wasm memory offset is an existing item on the EVM stack
+        if (spOffset) {
+          call += `(i32.add (get_global $sp) (i32.const ${spOffset * 32}))`
+        } else {
+          call += '(get_global $sp)'
+        }
+      } else if (input === 'opointer') {
+        // output pointer
+        // points to a wasm memory offset where the result should be written
+        // the wasm memory offset is a new item on the EVM stack
+        spOffset++
+        call += `(i32.add (get_global $sp) (i32.const ${spOffset * 32}))`
       } else if (input === 'i32') {
         call += `(call $check_overflow
            (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32})))
