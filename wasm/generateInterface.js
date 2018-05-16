@@ -105,13 +105,13 @@ const interfaceManifest = {
   },
   DIFFICULTY: {
     name: 'getBlockDifficulty',
-    input: [],
-    output: ['i64']
+    input: ['pointer'],
+    output: []
   },
   GASLIMIT: {
     name: 'getBlockGasLimit',
     input: [],
-    output: ['i32']
+    output: ['i64']
   },
   CREATE: {
     name: 'create',
