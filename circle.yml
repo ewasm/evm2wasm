@@ -52,9 +52,8 @@ defaults:
       # git checkout evm2wasm-trace
       # cpp-ethereum 39298c7c2ed658dcb1e35bff4f88d09f26e1df11 was working locally
       command: |
-        git clone https://github.com/ethereum/cpp-ethereum --branch develop --single-branch
+        git clone https://github.com/cdetrio/cpp-ethereum --branch ewasm-dump-state --single-branch
         cd cpp-ethereum
-        git reset --hard 40df049e8fffcd99f5d6b8cc7845ad15aaed8947
         git submodule update --init
         cd hera
         git pull origin master
