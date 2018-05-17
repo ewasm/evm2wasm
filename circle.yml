@@ -58,8 +58,9 @@ defaults:
         git submodule update --init
         cd hera
         git pull origin master
-        git fetch origin code-size
-        git checkout code-size
+        git fetch origin gas-63-64ths
+        git checkout gas-63-64ths
+        git checkout 90275f859de6f71d56120b5693beee5de4c45a34
         git submodule update --init
         cd evmc
         ls -al
