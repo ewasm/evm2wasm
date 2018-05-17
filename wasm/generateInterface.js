@@ -279,10 +279,6 @@ function generateManifest (interfaceManifest, opts) {
     ;; zero out mem
     (i64.store (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 3})) (i64.const 0))
     (i64.store (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 2})) (i64.const 0))`
-
-      if (!op.async) {
-        call += '(drop (call $bswap_m128 (i32.add (i32.const 32)(get_global $sp))))'
-      }
     } else if (output === 'address') {
       call =
         `${call} (i32.add (get_global $sp) (i32.const ${spOffset * 32}))`
@@ -292,7 +288,6 @@ function generateManifest (interfaceManifest, opts) {
       }
 
       call += `)
-    (drop (call $bswap_m160 (i32.add (get_global $sp) (i32.const ${spOffset * 32}))))
     ;; zero out mem
     (i64.store (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 3})) (i64.const 0))
     (i32.store (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 2 + 4})) (i32.const 0))`
