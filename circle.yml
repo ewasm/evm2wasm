@@ -51,12 +51,15 @@ defaults:
       # git fetch origin evm2wasm-trace
       # git checkout evm2wasm-trace
       # cpp-ethereum 39298c7c2ed658dcb1e35bff4f88d09f26e1df11 was working locally
+      # hera branch code-size has the getCodeSize fix https://github.com/ewasm/hera/pull/217
       command: |
         git clone https://github.com/cdetrio/cpp-ethereum --branch ewasm-dump-state --single-branch
         cd cpp-ethereum
         git submodule update --init
         cd hera
         git pull origin master
+        git fetch origin code-size
+        git checkout code-size
         git submodule update --init
         cd evmc
         ls -al
