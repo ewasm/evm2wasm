@@ -228,9 +228,18 @@ function generateManifest (interfaceManifest, opts) {
         // add 2300 gas subsidy
         // for now this only works if the gas is a 64-bit value
         // TODO: use 256-bit arithmetic
+        /*
         call += `(call $check_overflow_i64
            (i64.add (i64.const 2300)
              (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32}))))
+           (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8})))
+           (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 2})))
+           (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 3}))))`
+        */
+
+        // 2300 gas subsidy is done in Hera
+        call += `(call $check_overflow_i64
+           (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32})))
            (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8})))
            (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 2})))
            (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 3}))))`
