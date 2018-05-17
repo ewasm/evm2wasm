@@ -50,10 +50,11 @@ defaults:
       # cd hera
       # git fetch origin evm2wasm-trace
       # git checkout evm2wasm-trace
+      # cpp-ethereum 39298c7c2ed658dcb1e35bff4f88d09f26e1df11 was working locally
       command: |
         git clone https://github.com/ethereum/cpp-ethereum --branch develop --single-branch
         cd cpp-ethereum
-        git reset --hard 39298c7c2ed658dcb1e35bff4f88d09f26e1df11
+        git reset --hard 40df049e8fffcd99f5d6b8cc7845ad15aaed8947
         git submodule update --init
         cd hera
         git pull origin master
@@ -65,10 +66,11 @@ defaults:
     run:
       name: "Build cpp-ethereum and hera"
       working_directory: ~/
+      # cmake ../cpp-ethereum -DCMAKE_BUILD_TYPE=RelWithDebInfo -DHERA=ON -DHERA_DEBUGGING=ON -DHERA_EVM2WASM=ON
       command: |
         mkdir -p build
         cd build
-        cmake ../cpp-ethereum -DCMAKE_BUILD_TYPE=RelWithDebInfo -DHERA=ON -DHERA_DEBUGGING=ON -DHERA_EVM2WASM=ON
+        cmake ../cpp-ethereum -DCMAKE_BUILD_TYPE=RelWithDebInfo -DHERA=ON
         make -j4
 
   print-cpp-hera-version: &print-cpp-hera-version
