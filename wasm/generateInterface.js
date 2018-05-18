@@ -370,16 +370,27 @@ function generateManifest (interfaceManifest, opts) {
         call += '(get_local $callback)'
       }
 
+      if (opcode === 'CALL') {
+        call =
+          `(i64.store
+      (i32.add (get_global $sp) (i32.const ${spOffset * 32}))
+      (i64.extend_u/i32
+        (i32.xor (i32.const 1) ${call}) ;; flip CALL result from EVM convention to POSIX convention, 0 -> 1, 1 -> 0
+      )))`
+      } else {
       call =
         `(i64.store
     (i32.add (get_global $sp) (i32.const ${spOffset * 32}))
     (i64.extend_u/i32
-      ${call})))
+      ${call})))`
+      }
 
+      call += `
     ;; zero out mem
     (i64.store (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 3})) (i64.const 0))
     (i64.store (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 2})) (i64.const 0))
     (i64.store (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8})) (i64.const 0))`
+
     } else if (output === 'i64') {
       if (useAsyncAPI && op.async) {
         call += '(get_local $callback)'
