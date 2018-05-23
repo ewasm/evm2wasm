@@ -44,7 +44,7 @@
     "eslint": "^4.19.1",
     "ethereumjs-block": "^1.2.2",
     "ethereumjs-util": "^5.1.5",
-    "ewasm-kernel": "git+https://github.com/ewasm/ewasm-kernel.git#async-pojo",
+    "ewasm-kernel": "git+https://github.com/ewasm/ewasm-kernel.git",
     "loglevel": "^1.6.0",
     "merkle-trie": "0.0.0",
     "readable-stream": "^2.3.5",
