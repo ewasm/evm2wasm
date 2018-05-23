@@ -4,7 +4,6 @@
   "description": "This is a JS protope of a EVM to eWASM transcompiler",
   "main": "index.js",
   "scripts": {
-    "test": "node --expose-wasm --harmony ./tests/allRunner.js",
     "vmTests": "node --expose-wasm --harmony ./tests/runVmTests.js",
     "lint": "standard",
     "build:validate": "npm run build && npm run build:docs && git diff --exit-code docs/ wasm/",
