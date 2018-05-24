@@ -17,7 +17,6 @@ compiles evmCode to wasm in the binary format
 -   `opts` **[Object][6]**  (optional, default `{'stackTrace':false,'useAsyncAPI':false,'inlineOps':true,'testName':'temp','chargePerOp':false}`)
     -   `opts.stackTrace` **[boolean][7]** if `true` generates an runtime EVM stack trace (default: false)
     -   `opts.inlineOps` **[boolean][7]** if `true` inlines the EVM1 operations (default: true)
-    -   `opts.wabt` **[boolean][7]** use wabt to compile wast to wasm instad of the built in JS module (default: false)
     -   `opts.testName` **[String][8]** is the name used for the wast file (default: 'temp')
     -   `opts.chargePerOp` **[boolean][7]** if `true` adds metering statements for the wasm code section corresponding to each EVM opcode as opposed to metering once per branch segment (default: false).
 
