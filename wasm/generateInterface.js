@@ -128,7 +128,7 @@ const interfaceManifest = {
   CALLCODE: {
     name: 'callCode',
     async: true,
-    input: ['i32', 'address', 'i128', 'readOffset', 'length', 'writeOffset', 'length'],
+    input: ['i64', 'address', 'i128', 'readOffset', 'length'],
     output: ['i32']
   },
   DELEGATECALL: {
@@ -265,7 +265,7 @@ function generateManifest (interfaceManifest, opts) {
       (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 2})))
       (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 3})))))`
         call += `(get_local $offset${numOfLocals})`
-      } else if (input === 'length' && opcode === 'CALL') {
+      } else if (input === 'length' && (opcode === 'CALL' || opcode === 'CALLCODE')) {
         // CALLs in EVM have 7 arguments
         // but in ewasm CALLs only have 5 arguments
         // so delete the bottom two stack elements, after processing the 5th argument
@@ -302,7 +302,7 @@ function generateManifest (interfaceManifest, opts) {
       (i64.store (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 2})) (i64.const 0))
       (i64.store (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 1})) (i64.const 0))`
 
-      } else if (input === 'length' && opcode !== 'CALL') {
+      } else if (input === 'length' && (opcode !== 'CALL' && opcode !== 'CALLCODE')) {
         locals += `(local $length${numOfLocals} i32)`
         body += `(set_local $length${numOfLocals} 
     (call $check_overflow 
@@ -370,7 +370,7 @@ function generateManifest (interfaceManifest, opts) {
         call += '(get_local $callback)'
       }
 
-      if (opcode === 'CALL') {
+      if (opcode === 'CALL' || opcode === 'CALLCODE') {
         call =
           `(i64.store
       (i32.add (get_global $sp) (i32.const ${spOffset * 32}))
