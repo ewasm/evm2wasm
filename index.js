@@ -1,10 +1,9 @@
 const BN = require('bn.js')
-const wast2wasm = require('wast2wasm')
 const ethUtil = require('ethereumjs-util')
 const opcodes = require('./opcodes.js')
 const wastSyncInterface = require('./wasm/wast.json')
 const wastAsyncInterface = require('./wasm/wast-async.json')
-const wabt = require('./wabt.js')
+const wabt = require('wabt')
 
 // map to track dependent WASM functions
 const depMap = new Map([
@@ -77,7 +76,6 @@ const callbackFuncs = new Map([
  * @param {Object} opts
  * @param {boolean} opts.stackTrace if `true` generates an runtime EVM stack trace (default: false)
  * @param {boolean} opts.inlineOps if `true` inlines the EVM1 operations (default: true)
- * @param {boolean} opts.wabt use wabt to compile wast to wasm instad of the built in JS module (default: false)
  * @param {String} opts.testName is the name used for the wast file (default: 'temp')
  * @param {boolean} opts.chargePerOp if `true` adds metering statements for the wasm code section corresponding to each EVM opcode as opposed to metering once per branch segment (default: false).
  * @return {string}
@@ -91,11 +89,14 @@ exports.evm2wasm = function (evmCode, opts = {
 }) {
   const wast = exports.evm2wast(evmCode, opts)
   const testName = opts.testName
-  if (opts.wabt) {
-    return wabt.compile(wast, testName)
-  } else {
-    return wast2wasm(wast)
-  }
+
+  // Unclear whether the testName arg matters here.
+  const mod = wabt.parseWat(testName, wast)
+  mod.resolveNames()
+  mod.validate()
+  const bin = mod.toBinary({log: false, write_debug_names: false}).buffer
+  mod.destroy()
+  return bin
 }
 
 /**
