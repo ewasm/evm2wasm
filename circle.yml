@@ -12,15 +12,6 @@ defaults:
       command: |
         npm run lint
 
-  build-wabt: &build-wabt
-    run:
-      name: "Build wabt"
-      command: |
-        git submodule update --init --recursive
-        cd tools/wabt
-        cmake -DBUILD_TESTS=OFF
-        make -j8
-
   validate-build: &validate-build
     run:
       name: "Validate build artifacts were correctly included"
@@ -99,7 +90,6 @@ defaults:
 
   state-test-steps: &state-test-steps
     - checkout
-    - *build-wabt
     - *npm-install
     - *lint
     - *validate-build
