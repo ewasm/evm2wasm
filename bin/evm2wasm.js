@@ -3,6 +3,7 @@
 const evm2wasm = require('../index.js')
 const argv = require('minimist')(process.argv.slice(2))
 const fs = require('fs')
+var tou8 = require('buffer-to-uint8array')
 
 // convert evm bytecode to WASM or WAST
 function convert (bytecode, opts) {
@@ -28,7 +29,10 @@ function convert (bytecode, opts) {
         wabt: false,
         chargePerOp: opts.chargePerOp
       }).then(function (output) {
-        resolve(output)
+        // output is a node buffer. convert to Uint8Array
+        let outputUint8 = {}
+        outputUint8.buffer = tou8(output)
+        resolve(outputUint8)
       }).catch(function (err) {
         reject(err)
       })

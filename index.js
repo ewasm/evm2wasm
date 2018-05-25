@@ -88,15 +88,14 @@ exports.evm2wasm = function (evmCode, opts = {
   'chargePerOp': false
 }) {
   const wast = exports.evm2wast(evmCode, opts)
-  const testName = opts.testName
-
-  // Unclear whether the testName arg matters here.
-  const mod = wabt.parseWat(testName, wast)
+  const mod = wabt.parseWat('arbitraryModuleName', wast)
   mod.resolveNames()
   mod.validate()
   const bin = mod.toBinary({log: false, write_debug_names: false}).buffer
   mod.destroy()
-  return bin
+  return new Promise((resolve, reject) => {
+    resolve(bin)
+  })
 }
 
 /**
