@@ -93,9 +93,7 @@ exports.evm2wasm = function (evmCode, opts = {
   mod.validate()
   const bin = mod.toBinary({log: false, write_debug_names: false}).buffer
   mod.destroy()
-  return new Promise((resolve, reject) => {
-    resolve(bin)
-  })
+  return Promise.resolve(bin)
 }
 
 /**
