@@ -17,7 +17,6 @@ function convert (bytecode, opts) {
         stackTrace: opts.trace,
         tempName: 'temp',
         inlineOps: true,
-        wabt: false,
         chargePerOp: opts.chargePerOp
       })
       resolve(output)
@@ -26,7 +25,6 @@ function convert (bytecode, opts) {
         stackTrace: opts.trace,
         tempName: 'temp',
         inlineOps: true,
-        wabt: false,
         chargePerOp: opts.chargePerOp
       }).then(function (output) {
         // output is a node buffer. convert to Uint8Array

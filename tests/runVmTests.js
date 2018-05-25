@@ -52,8 +52,7 @@ async function runner (testName, testData, t) {
     stackTrace: argv.trace,
     useAsyncAPI: true,
     testName: testName,
-    inlineOps: true,
-    wabt: true
+    inlineOps: true
   })
 
   const environment = setupEnviroment(testData)
