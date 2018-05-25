@@ -41,6 +41,7 @@
     "transcompiler"
   ],
   "dependencies": {
+    "buffer-to-uint8array": "^1.1.0",
     "eslint": "^4.19.1",
     "ethereumjs-block": "^1.2.2",
     "ethereumjs-util": "^5.1.5",
@@ -48,7 +49,7 @@
     "loglevel": "^1.6.0",
     "merkle-trie": "0.0.0",
     "readable-stream": "^2.3.5",
-    "wast2wasm": "git+https://github.com/ewasm/wast2wasm.git#66ced0c04f1bc7d1ebd63c3348c29e26a336bc95"
+    "wabt": "^1.0.0"
   },
   "standard": {
     "ignore": [
