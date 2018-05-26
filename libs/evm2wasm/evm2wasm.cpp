@@ -6,6 +6,8 @@
 
 using namespace std;
 
+namespace evm2wasm {
+
 string wast2wasm(const string& input, bool debug) {
   wasm::Module module;
 
@@ -46,16 +48,14 @@ string wast2wasm(const string& input, bool debug) {
   return output.str();
 }
 
-namespace {
-
 string evm2wast(const string& input) {
   (void)input;
   // FIXME: do evm magic here
   return "(module (export \"main\" (func $main)) (func $main))";
 }
 
-}
-
 string evm2wasm(const string& input) {
   return wast2wasm(evm2wast(input));
+}
+
 }

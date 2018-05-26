@@ -24,7 +24,7 @@ int main(int argc, char **argv) {
         std::istreambuf_iterator<char>()
     );
 
-    cout << evm2wasm(str) << endl;
+    cout << evm2wasm::evm2wasm(str) << endl;
 
     return 0;
 }
