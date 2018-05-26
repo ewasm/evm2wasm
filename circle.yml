@@ -42,7 +42,7 @@ defaults:
       # git fetch origin evm2wasm-trace
       # git checkout evm2wasm-trace
       command: |
-        git clone https://github.com/ethereum/cpp-ethereum --branch ewasm-json-trace --single-branch
+        git clone https://github.com/ethereum/cpp-ethereum --branch ewasm --single-branch
         cd cpp-ethereum
         git submodule update --init --recursive
         cd hera
