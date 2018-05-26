@@ -122,7 +122,7 @@ const interfaceManifest = {
   CALL: {
     name: 'call',
     async: true,
-    input: ['i64', 'address', 'i128', 'readOffset', 'length', 'writeOffset', 'length'],
+    input: ['i64', 'address', 'i128', 'readOffset', 'length'],
     output: ['i32']
   },
   CALLCODE: {
@@ -223,13 +223,33 @@ function generateManifest (interfaceManifest, opts) {
         // the wasm memory offset is a new item on the EVM stack
         spOffset++
         call += `(i32.add (get_global $sp) (i32.const ${spOffset * 32}))`
+      } else if (input === 'i64' && opcode === 'CALL') {
+        // i64 param for CALL is the gas
+        // add 2300 gas subsidy
+        // for now this only works if the gas is a 64-bit value
+        // TODO: use 256-bit arithmetic
+        /*
+        call += `(call $check_overflow_i64
+           (i64.add (i64.const 2300)
+             (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32}))))
+           (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8})))
+           (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 2})))
+           (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 3}))))`
+        */
+
+        // 2300 gas subsidy is done in Hera
+        call += `(call $check_overflow_i64
+           (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32})))
+           (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8})))
+           (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 2})))
+           (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 3}))))`
       } else if (input === 'i32') {
         call += `(call $check_overflow
            (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32})))
            (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8})))
            (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 2})))
            (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 3}))))`
-      } else if (input === 'i64') {
+      } else if (input === 'i64' && opcode !== 'CALL') {
         call += `(call $check_overflow_i64
            (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32})))
            (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8})))
@@ -245,7 +265,44 @@ function generateManifest (interfaceManifest, opts) {
       (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 2})))
       (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 3})))))`
         call += `(get_local $offset${numOfLocals})`
-      } else if (input === 'length') {
+      } else if (input === 'length' && opcode === 'CALL') {
+        // CALLs in EVM have 7 arguments
+        // but in ewasm CALLs only have 5 arguments
+        // so delete the bottom two stack elements, after processing the 5th argument
+
+        locals += `(local $length${numOfLocals} i32)`
+        body += `(set_local $length${numOfLocals} 
+    (call $check_overflow 
+      (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32})))
+      (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8})))
+      (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 2})))
+      (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 3})))))
+
+    (call $memusegas (get_local $offset${numOfLocals}) (get_local $length${numOfLocals}))
+    (set_local $offset${numOfLocals} (i32.add (get_global $memstart) (get_local $offset${numOfLocals})))`
+
+        call += `(get_local $length${numOfLocals})`
+        numOfLocals++
+
+        // delete 6th stack element
+        spOffset--
+        call += `
+      ;; zero out mem
+      (i64.store (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 4})) (i64.const 0))
+      (i64.store (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 3})) (i64.const 0))
+      (i64.store (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 2})) (i64.const 0))
+      (i64.store (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 1})) (i64.const 0))`
+
+        // delete 7th stack element
+        spOffset--
+        call += `
+      ;; zero out mem
+      (i64.store (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 4})) (i64.const 0))
+      (i64.store (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 3})) (i64.const 0))
+      (i64.store (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 2})) (i64.const 0))
+      (i64.store (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 1})) (i64.const 0))`
+
+      } else if (input === 'length' && opcode !== 'CALL') {
         locals += `(local $length${numOfLocals} i32)`
         body += `(set_local $length${numOfLocals} 
     (call $check_overflow 
@@ -281,7 +338,7 @@ function generateManifest (interfaceManifest, opts) {
     (i64.store (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 2})) (i64.const 0))`
 
       if (!op.async) {
-        call += '(drop (call $bswap_m128 (i32.add (i32.const 32)(get_global $sp))))'
+        call += '(drop (i32.add (i32.const 32)(get_global $sp)))'
       }
     } else if (output === 'address') {
       call =
@@ -292,7 +349,7 @@ function generateManifest (interfaceManifest, opts) {
       }
 
       call += `)
-    (drop (call $bswap_m160 (i32.add (get_global $sp) (i32.const ${spOffset * 32}))))
+    (drop (i32.add (get_global $sp) (i32.const ${spOffset * 32})))
     ;; zero out mem
     (i64.store (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 3})) (i64.const 0))
     (i32.store (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 2 + 4})) (i32.const 0))`
@@ -313,16 +370,27 @@ function generateManifest (interfaceManifest, opts) {
         call += '(get_local $callback)'
       }
 
+      if (opcode === 'CALL') {
+        call =
+          `(i64.store
+      (i32.add (get_global $sp) (i32.const ${spOffset * 32}))
+      (i64.extend_u/i32
+        (i32.xor (i32.const 1) ${call}) ;; flip CALL result from EVM convention to POSIX convention, 0 -> 1, 1 -> 0
+      )))`
+      } else {
       call =
         `(i64.store
     (i32.add (get_global $sp) (i32.const ${spOffset * 32}))
     (i64.extend_u/i32
-      ${call})))
+      ${call})))`
+      }
 
+      call += `
     ;; zero out mem
     (i64.store (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 3})) (i64.const 0))
     (i64.store (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 2})) (i64.const 0))
     (i64.store (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8})) (i64.const 0))`
+
     } else if (output === 'i64') {
       if (useAsyncAPI && op.async) {
         call += '(get_local $callback)'
