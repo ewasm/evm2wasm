@@ -347,6 +347,17 @@ function generateManifest (interfaceManifest, opts) {
       imports: imports
     }
   }
+
+  // add math ops
+  const files = fs.readdirSync(__dirname).filter(file => file.slice(-5) === '.wast')
+  files.forEach((file) => {
+    const wast = fs.readFileSync(path.join(__dirname, file)).toString()
+    file = file.slice(0, -5)
+    // don't overwrite import generation
+    json[file] = json[file] || {}
+    json[file].wast = wast
+  })
+
   return json
 }
 
@@ -355,18 +366,6 @@ const interfaceManifestCopy = JSON.parse(JSON.stringify(interfaceManifest))
 
 let syncJson = generateManifest(interfaceManifest, {'useAsyncAPI': false})
 let asyncInterfaceJson = generateManifest(interfaceManifestCopy, {'useAsyncAPI': true})
-// add math ops
-const files = fs.readdirSync(__dirname).filter(file => file.slice(-5) === '.wast')
-files.forEach((file) => {
-  const wast = fs.readFileSync(path.join(__dirname, file)).toString()
-  file = file.slice(0, -5)
-  // don't overwrite import generation
-  syncJson[file] = syncJson[file] || {}
-  syncJson[file].wast = wast
-
-  asyncInterfaceJson[file] = asyncInterfaceJson[file] || {}
-  asyncInterfaceJson[file].wast = wast
-})
 
 fs.writeFileSync(path.join(__dirname, 'wast.json'), JSON.stringify(syncJson, null, 2))
 fs.writeFileSync(path.join(__dirname, 'wast-async.json'), JSON.stringify(asyncInterfaceJson, null, 2))
