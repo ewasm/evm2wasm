@@ -24,7 +24,7 @@ int main(int argc, char **argv) {
     if (!input.size())
         return 1;
 
-    string output = wast2wasm(input);
+    string output = evm2wasm::wast2wasm(input);
 
     if (!output.size())
         return 1;
