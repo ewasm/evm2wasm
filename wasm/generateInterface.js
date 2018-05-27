@@ -313,12 +313,22 @@ function generateManifest (interfaceManifest, opts) {
         call += '(get_local $callback)'
       }
 
-      call =
-        `(i64.store
-    (i32.add (get_global $sp) (i32.const ${spOffset * 32}))
-    (i64.extend_u/i32
-      ${call})))
+      if (opcode === 'CALL' || opcode === 'CALLCODE' || opcode === 'DELEGATECALL') {
+        call =
+          `(i64.store
+      (i32.add (get_global $sp) (i32.const ${spOffset * 32}))
+      (i64.extend_u/i32
+        (i32.eqz ${call}) ;; flip CALL result from EEI to EVM convention (0 -> 1, 1,2,.. -> 1)
+      )))`
+      } else {
+        call =
+          `(i64.store
+      (i32.add (get_global $sp) (i32.const ${spOffset * 32}))
+      (i64.extend_u/i32
+        ${call})))`
+      }
 
+      call += `
     ;; zero out mem
     (i64.store (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 3})) (i64.const 0))
     (i64.store (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 2})) (i64.const 0))
