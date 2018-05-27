@@ -63,14 +63,13 @@ defaults:
     run:
       name: "Run Ethereum state tests"
       working_directory: ~/build
-      # test/testeth -t GeneralStateTests/stExample -- --testpath ~/cpp-ethereum/test/jsontests --singlenet "Byzantium" --singletest "add11" --vm hera --evmc evm2wasm.js=true --evmc evm2wasm.js-trace=true --evmc fallback=false
       command: |
         echo 'export PATH=~/evm2wasm/bin:$PATH' >> $BASH_ENV
         source $BASH_ENV
         echo "running testeth command..."
-        testeth -t GeneralStateTests/stExample -- --testpath ~/tests --singlenet "Byzantium" --singletest "add11" --vm ~/libhera.so --evmc evm2wasm.js=true --evmc evm2wasm.js-trace=true --evmc fallback=false
-        testeth -t GeneralStateTests/stStackTests -- --testpath ~/tests --singlenet "Byzantium" --vm ~/libhera.so --evmc evm2wasm.js=true --evmc fallback=false
-        testeth -t GeneralStateTests/stBadOpcode -- --testpath ~/tests --singlenet "Byzantium" --vm ~/libhera.so --evmc evm2wasm.js=true --evmc fallback=false
+        testeth -t GeneralStateTests/stExample -- --testpath ~/tests --singlenet "Byzantium" --singletest "add11" --vm ~/libhera.so --evmc evm2wasm.js-trace=true
+        testeth -t GeneralStateTests/stStackTests -- --testpath ~/tests --singlenet "Byzantium" --vm ~/libhera.so --evmc evm2wasm.js=true
+        testeth -t GeneralStateTests/stBadOpcode -- --testpath ~/tests --singlenet "Byzantium" --vm ~/libhera.so --evmc evm2wasm.js=true
         echo "ran the state tests."
 
   cli-tests: &cli-tests
