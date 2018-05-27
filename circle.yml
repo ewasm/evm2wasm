@@ -32,6 +32,7 @@ defaults:
       command: |
         git clone https://github.com/ewasm/hera
         cd hera
+        git reset fd89562c7dcea5d66b5516cdc09ac21605be2c02 --hard
         git submodule update --init --recursive
         cmake -DBUILD_SHARED_LIBS=ON .
         make -j8
