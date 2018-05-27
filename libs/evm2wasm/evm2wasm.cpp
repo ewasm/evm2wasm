@@ -48,14 +48,15 @@ string wast2wasm(const string& input, bool debug) {
   return output.str();
 }
 
-string evm2wast(const string& input) {
+string evm2wast(const string& input, bool tracing) {
   (void)input;
+  (void)tracing;
   // FIXME: do evm magic here
   return "(module (export \"main\" (func $main)) (func $main))";
 }
 
-string evm2wasm(const string& input) {
-  return wast2wasm(evm2wast(input));
+string evm2wasm(const string& input, bool tracing) {
+  return wast2wasm(evm2wast(input, tracing));
 }
 
 }
