@@ -136,7 +136,7 @@ exports.evm2wast = function (evmCode, opts = {
     segment = check + segment
     segmentStackHigh = 0
     segmentStackLow = 0
-    segmentStackDeta = 0
+    segmentStackDelta = 0
   }
 
   // add a metering statment at the beginning of a segment
@@ -172,7 +172,7 @@ exports.evm2wast = function (evmCode, opts = {
   // used for pruning dead code
   let jumpFound = false
   // the accumlitive stack difference for the current segmnet
-  let segmentStackDeta = 0
+  let segmentStackDelta = 0
   let segmentStackHigh = 0
   let segmentStackLow = 0
 
@@ -191,14 +191,14 @@ exports.evm2wast = function (evmCode, opts = {
     }
     gasCount += op.fee
 
-    segmentStackDeta += op.on
-    if (segmentStackDeta > segmentStackHigh) {
-      segmentStackHigh = segmentStackDeta
+    segmentStackDelta += op.on
+    if (segmentStackDelta > segmentStackHigh) {
+      segmentStackHigh = segmentStackDelta
     }
 
-    segmentStackDeta -= op.off
-    if (segmentStackDeta < segmentStackLow) {
-      segmentStackLow = segmentStackDeta
+    segmentStackDelta -= op.off
+    if (segmentStackDelta < segmentStackLow) {
+      segmentStackLow = segmentStackDelta
     }
 
     switch (op.name) {
@@ -324,10 +324,10 @@ exports.evm2wast = function (evmCode, opts = {
       opcodesUsed.add(op.name)
     }
 
-    const stackDeta = op.on - op.off
+    const stackDelta = op.on - op.off
     // update the stack pointer
-    if (stackDeta !== 0) {
-      segment += `(set_global $sp (i32.add (get_global $sp) (i32.const ${stackDeta * 32})))\n`
+    if (stackDelta !== 0) {
+      segment += `(set_global $sp (i32.add (get_global $sp) (i32.const ${stackDelta * 32})))\n`
     }
 
     // adds the logic to save the stack pointer before exiting to wiat to for a callback
