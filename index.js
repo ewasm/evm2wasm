@@ -383,7 +383,7 @@ function assembleSegments (segments) {
   return `
   (func $main
     (export "main")
-    (local $jump_dest i32)
+    (local $jump_dest i32) (local $jump_map_switch i32)
     (set_local $jump_dest (i32.const -1))
 
     (block $done
@@ -422,9 +422,9 @@ function buildJumpMap (segments) {
           )
           (else 
             ;; return callback destination and zero out $cb_dest 
-            get_global $cb_dest
+            (set_local $jump_map_switch (get_global $cb_dest))
             (set_global $cb_dest (i32.const 0))
-            (br_table $0 ${brTable})
+            (br_table $0 ${brTable} (get_local $jump_map_switch))
           )))))`
 
   return wasm
