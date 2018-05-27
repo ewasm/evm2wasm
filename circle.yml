@@ -18,44 +18,30 @@ defaults:
       command: |
         npm run build:validate
 
-  build-cpp: &build-cpp
+  install-cpp-ethereum: &install-cpp-ethereum
     run:
-      name: "Build C++ evm2wasm"
+      name: "Install cpp-ethereum"
       command: |
-        mkdir build
-        cd build
-        cmake ..
-        cmake --build . -- -j4
+        URL=https://github.com/ethereum/cpp-ethereum/releases/download/v1.4.0.dev0/cpp-ethereum-1.4.0.dev0-linux.tar.gz
+        curl -L $URL | sudo tar xz -C /usr/local
+
+  build-hera: &build-hera
+    run: 
+      name: "build hera"
+      working_directory: ~
+      command: |
+        git clone https://github.com/ewasm/hera
+        cd hera
+        git submodule update --init --recursive
+        cmake -DBUILD_SHARED_LIBS=ON .
+        make -j8
+        mv ~/evm2wasm/hera/src/libhera.so ~/libhera.so
 
   vm-tests: &vm-tests
     run:
       name: "Run ethereum VM tests"
       command: |
         npm run vmTests
-
-  clone-cpp-eth: &clone-cpp-eth
-    run:
-      name: "Clone cpp-ethereum and hera"
-      working_directory: ~/
-      # to fetch Hera branch that does evm2wasm.js --trace:
-      # cd hera
-      # git fetch origin evm2wasm-trace
-      # git checkout evm2wasm-trace
-      command: |
-        git clone https://github.com/ethereum/cpp-ethereum --branch ewasm --single-branch
-        cd cpp-ethereum
-        git submodule update --init --recursive
-        cd hera
-
-  build-cpp-eth: &build-cpp-eth
-    run:
-      name: "Build cpp-ethereum and hera"
-      working_directory: ~/
-      command: |
-        mkdir -p build
-        cd build
-        cmake ../cpp-ethereum -DCMAKE_BUILD_TYPE=RelWithDebInfo -DHERA=ON -DHERA_DEBUGGING=ON -DHERA_EVM2WASM=ON
-        make -j4
 
   print-cpp-hera-version: &print-cpp-hera-version
     run:
@@ -67,6 +53,12 @@ defaults:
         cd hera
         echo "hera branch: $(git rev-parse --abbrev-ref HEAD)  commit: $(git rev-parse HEAD)"
 
+  clone-tests: &clone-tests
+    run:
+      name: "Run Ethereum state tests"
+      command: |
+        git clone https://github.com/ethereum/tests ~/tests
+
   state-tests: &state-tests
     run:
       name: "Run Ethereum state tests"
@@ -76,9 +68,9 @@ defaults:
         echo 'export PATH=~/evm2wasm/bin:$PATH' >> $BASH_ENV
         source $BASH_ENV
         echo "running testeth command..."
-        test/testeth -t GeneralStateTests/stExample -- --testpath ~/cpp-ethereum/test/jsontests --singlenet "Byzantium" --singletest "add11" --vm hera --evmc evm2wasm.js=true --evmc evm2wasm.js-trace=true --evmc fallback=false
-        test/testeth -t GeneralStateTests/stStackTests -- --testpath ~/cpp-ethereum/test/jsontests --singlenet "Byzantium" --vm hera --evmc evm2wasm.js=true --evmc fallback=false
-        test/testeth -t GeneralStateTests/stBadOpcode -- --testpath ~/cpp-ethereum/test/jsontests --singlenet "Byzantium" --vm hera --evmc evm2wasm.js=true --evmc fallback=false
+        testeth -t GeneralStateTests/stExample -- --testpath ~/tests --singlenet "Byzantium" --singletest "add11" --vm ~/libhera.so --evmc evm2wasm.js=true --evmc evm2wasm.js-trace=true --evmc fallback=false
+        testeth -t GeneralStateTests/stStackTests -- --testpath ~/tests --singlenet "Byzantium" --vm ~/libhera.so --evmc evm2wasm.js=true --evmc fallback=false
+        testeth -t GeneralStateTests/stBadOpcode -- --testpath ~/tests --singlenet "Byzantium" --vm ~/libhera.so --evmc evm2wasm.js=true --evmc fallback=false
         echo "ran the state tests."
 
   cli-tests: &cli-tests
@@ -94,12 +86,14 @@ defaults:
     - *npm-install
     - *lint
     - *validate-build
+    - *clone-tests
     #- *build-cpp
     #- *cli-tests # weird chars mess up the console
     #- *vm-tests # vm-tests temporarily disabled until ewasm-kernel is fixed
-    - *clone-cpp-eth
-    - *build-cpp-eth
-    - *print-cpp-hera-version
+    # - *print-cpp-hera-version
+    - *install-cpp-ethereum
+    - *build-hera
+    # - *store-hera
     - *state-tests
 
 version: 2
