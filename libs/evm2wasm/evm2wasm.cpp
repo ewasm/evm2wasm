@@ -183,6 +183,14 @@ string evm2wast(const vector<uint8_t>& evmCode, bool stackTrace, bool useAsyncAP
             segmentStackLow = segmentStackDelta;
         }
 
+        // creates a stack trace
+        if (stackTrace)
+        {
+            segment << "(call $stackTrace(i32.const {pc})(i32.const {opint})( \
+                        i32.const {gasCount})(get_global $sp))\n"_format(
+                "pc"_a = pc, "opint"_a = opint, "gasCount"_a = gasCount);
+        }
+
         switch (op.name)
         {
         case opcodeEnum::JUMP:
@@ -342,14 +350,6 @@ string evm2wast(const vector<uint8_t>& evmCode, bool stackTrace, bool useAsyncAP
         {
             segment << "(set_global $sp(i32.add(get_global $sp)(i32.const {stackDelta})))\n"_format(
                 "stackDelta"_a = stackDelta * 32);
-        }
-
-        // creates a stack trace
-        if (stackTrace)
-        {
-            segment << "(call $stackTrace(i32.const {pc})(i32.const {opint})( \
-                        i32.const {gasCount})(get_global $sp))\n"_format(
-                "pc"_a = pc, "opint"_a = opint, "gasCount"_a = gasCount);
         }
 
         // adds the logic to save the stack pointer before exiting to wiat to for a callback
