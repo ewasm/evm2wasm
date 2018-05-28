@@ -100,7 +100,7 @@ string wast2wasm(const string& input, bool debug) {
   return output.str();
 }
 
-string evm2wast(const vector<uint8_t>& evmCode, bool stackTrace, bool useAsyncAPI, bool inlineOps)
+string evm2wast(const vector<uint8_t>& evmCode, bool stackTrace, bool useAsyncAPI, bool inlineOps, bool chargePerOp)
 {
     // this keep track of the opcode we have found so far. This will be used to
     // to figure out what .wast files to include
@@ -150,9 +150,11 @@ string evm2wast(const vector<uint8_t>& evmCode, bool stackTrace, bool useAsyncAP
     };
 
     // add a metering statment at the beginning of a segment
-    auto addMetering = [&segment, &wast, &gasCount]() {
-        wast << "(call $useGas (i64.const {gasCount}))"_format("gasCount"_a = gasCount)
-             << segment.str();
+    auto addMetering = [&segment, &wast, &gasCount, &chargePerOp]() {
+        if (!chargePerOp) {
+            wast << "(call $useGas (i64.const {gasCount}))"_format("gasCount"_a = gasCount);
+        }
+        wast << segment.str();
         segment.clear();
         gasCount = 0;
     };
@@ -175,6 +177,10 @@ string evm2wast(const vector<uint8_t>& evmCode, bool stackTrace, bool useAsyncAP
             segment << "(call $stackTrace(i32.const {pc})(i32.const {opint})( \
                         i32.const {gasCount})(get_global $sp))\n"_format(
                 "pc"_a = pc, "opint"_a = opint, "gasCount"_a = gasCount);
+        }
+
+        if (chargePerOp) {
+            segment << "(call $useGas (i64.const ${fee}))"_format("fee"_a = op.fee);
         }
 
         // do not charge gas for interface methods
