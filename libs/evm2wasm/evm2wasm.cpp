@@ -652,7 +652,7 @@ size_t findNextJumpDest(const std::vector<uint8_t>& evmCode, size_t i)
 std::set<opcodeEnum> resolveFunctionDeps(const std::set<opcodeEnum>& funcSet)
 {
     std::set<opcodeEnum> funcs = funcSet;
-    for (auto&& func : funcSet)
+    for (auto&& func : funcs)
     {
         auto deps = depMap.find(func);
         if (deps != depMap.end())
