@@ -60,6 +60,17 @@ defaults:
       command: |
         git clone https://github.com/ethereum/tests ~/tests
 
+  vm-tests: &vm-tests
+    run:
+      name: "Run Ethereum vm tests"
+      working_directory: ~/build
+      command: |
+        echo 'export PATH=~/evm2wasm/bin:$PATH' >> $BASH_ENV
+        source $BASH_ENV
+        echo "running testeth command..."
+        testeth -t VMTests -- --testpath ~/tests --vm ~/libhera.so --evmc evm2wasm.js=true --singlenet Byzantium
+        echo "ran the vm tests."
+
   state-tests: &state-tests
     run:
       name: "Run Ethereum state tests"
@@ -97,6 +108,7 @@ defaults:
     - *install-cpp-ethereum
     - *build-hera
     # - *store-hera
+    - *vm-tests
     - *state-tests
 
 version: 2
