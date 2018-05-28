@@ -169,6 +169,14 @@ string evm2wast(const vector<uint8_t>& evmCode, bool stackTrace, bool useAsyncAP
         auto opint = evmCode[pc];
         auto op = opcodes(opint);
 
+        // creates a stack trace
+        if (stackTrace)
+        {
+            segment << "(call $stackTrace(i32.const {pc})(i32.const {opint})( \
+                        i32.const {gasCount})(get_global $sp))\n"_format(
+                "pc"_a = pc, "opint"_a = opint, "gasCount"_a = gasCount);
+        }
+
         // do not charge gas for interface methods
         // TODO: implement proper gas charging and enable this here
         if (opint < 0x30 || (opint > 0x45 && opint < 0xa0)) {
@@ -185,14 +193,6 @@ string evm2wast(const vector<uint8_t>& evmCode, bool stackTrace, bool useAsyncAP
         if (segmentStackDelta < segmentStackLow)
         {
             segmentStackLow = segmentStackDelta;
-        }
-
-        // creates a stack trace
-        if (stackTrace)
-        {
-            segment << "(call $stackTrace(i32.const {pc})(i32.const {opint})( \
-                        i32.const {gasCount})(get_global $sp))\n"_format(
-                "pc"_a = pc, "opint"_a = opint, "gasCount"_a = gasCount);
         }
 
         switch (op.name)
