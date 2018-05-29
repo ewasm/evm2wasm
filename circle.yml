@@ -73,7 +73,7 @@ defaults:
         testeth -t GeneralStateTests/stBadOpcode -- --testpath ~/tests --singlenet "Byzantium" --vm ~/libhera.so --evmc evm2wasm.js=true
         testeth -t GeneralStateTests/stCallCodes -- --testpath ~/tests --singlenet "Byzantium" --singletest "callcall_00" --vm ~/libhera.so --evmc evm2wasm.js=true
         testeth -t GeneralStateTests/stCallCodes -- --testpath ~/tests --singlenet "Byzantium" --singletest "callcallcode_01" --vm ~/libhera.so --evmc evm2wasm.js=true
-        testeth -t GeneralStateTests/stMemoryTest -- --testpath ~/tests --singlenet "Byzantium" --singletest "memReturn" --vm ~/libhera.so --evmc evm2wasm.js=true
+        testeth -t GeneralStateTests/stMemoryTest -- --testpath ~/tests --singlenet "Byzantium" --vm ~/libhera.so --evmc evm2wasm.js=true
         echo "ran the state tests."
 
   cli-tests: &cli-tests
