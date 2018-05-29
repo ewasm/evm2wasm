@@ -313,7 +313,7 @@ static std::map<opcodeEnum, std::vector<opcodeEnum>> depMap = {
             opcodeEnum::check_overflow, opcodeEnum::memset, opcodeEnum::callback_32}},
     {opcodeEnum::DELEGATECALL, {opcodeEnum::callback, opcodeEnum::memusegas,
                                    opcodeEnum::check_overflow, opcodeEnum::memset,
-                                       opcodeEnum::check_overflow_i64}},
+                                       opcodeEnum::check_overflow_i64, opcodeEnum::callback_32}},
     {opcodeEnum::CALLCODE,
         {opcodeEnum::bswap_m256, opcodeEnum::callback, opcodeEnum::memusegas,
             opcodeEnum::check_overflow, opcodeEnum::memset, opcodeEnum::callback_32,
