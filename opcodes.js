@@ -147,6 +147,7 @@ const codes = {
   0xf2: ['CALLCODE', 0, 7, 1],
   0xf3: ['RETURN', 0, 2, 0],
   0xf4: ['DELEGATECALL', 0, 6, 1],
+  0xfa: ['STATICCALL', 0, 6, 1],
 
   // '0x70', range - other
   0xff: ['SELFDESTRUCT', 0, 1, 0]
