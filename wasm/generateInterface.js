@@ -195,6 +195,8 @@ function generateManifest (interfaceManifest, opts) {
     let locals = ''
     let body = ''
 
+    let callStrip = ''
+
     // generate the call to the interface
     let spOffset = 0
     let numOfLocals = 0
@@ -286,7 +288,7 @@ function generateManifest (interfaceManifest, opts) {
 
         // delete 6th stack element
         spOffset--
-        call += `
+        callStrip = `
       ;; zero out mem
       (i64.store (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 4})) (i64.const 0))
       (i64.store (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 3})) (i64.const 0))
@@ -295,7 +297,7 @@ function generateManifest (interfaceManifest, opts) {
 
         // delete 7th stack element
         spOffset--
-        call += `
+        callStrip += `
       ;; zero out mem
       (i64.store (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 4})) (i64.const 0))
       (i64.store (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 3})) (i64.const 0))
@@ -371,7 +373,10 @@ function generateManifest (interfaceManifest, opts) {
       (i32.add (get_global $sp) (i32.const ${spOffset * 32}))
       (i64.extend_u/i32
         (i32.eqz ${call}) ;; flip CALL result from EEI to EVM convention (0 -> 1, 1,2,.. -> 1)
-      )))`
+      )))
+      ${callStrip}
+      `
+      callStrip = ''
       } else {
         call =
           `(i64.store
