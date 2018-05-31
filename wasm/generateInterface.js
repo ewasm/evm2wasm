@@ -286,22 +286,9 @@ function generateManifest (interfaceManifest, opts) {
 
         // delete 6th stack element
         spOffset--
-        call += `
-      ;; zero out mem
-      (i64.store (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 4})) (i64.const 0))
-      (i64.store (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 3})) (i64.const 0))
-      (i64.store (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 2})) (i64.const 0))
-      (i64.store (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 1})) (i64.const 0))`
 
         // delete 7th stack element
         spOffset--
-        call += `
-      ;; zero out mem
-      (i64.store (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 4})) (i64.const 0))
-      (i64.store (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 3})) (i64.const 0))
-      (i64.store (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 2})) (i64.const 0))
-      (i64.store (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 1})) (i64.const 0))`
-
       } else if (input === 'length' && (opcode !== 'CALL' && opcode !== 'CALLCODE')) {
         locals += `(local $length${numOfLocals} i32)`
         body += `(set_local $length${numOfLocals} 
@@ -372,6 +359,7 @@ function generateManifest (interfaceManifest, opts) {
       (i64.extend_u/i32
         (i32.eqz ${call}) ;; flip CALL result from EEI to EVM convention (0 -> 1, 1,2,.. -> 1)
       )))`
+
       } else {
         call =
           `(i64.store
