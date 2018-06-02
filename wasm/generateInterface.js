@@ -134,8 +134,8 @@ const interfaceManifest = {
   CREATE: {
     name: 'create',
     async: true,
-    input: ['i128', 'readOffset', 'length'],
-    output: ['address']
+    input: ['i128', 'readOffset', 'length', 'opointer'],
+    output: ['i32']
   },
   CALL: {
     name: 'call',
@@ -391,6 +391,15 @@ function generateManifest (interfaceManifest, opts) {
       call += `)
       (drop (call $bswap_m256 (i32.add (i32.const 32) (get_global $sp))))
       `
+    } else if (opcode === 'CREATE') {
+      // Check the return value from the EEI method.
+      // 0 = success, 1 = failure, 2 = revert
+      // iff return === 0, there is nothing to do as the address has already been loaded.
+      // otherwise, we must return 0 instead, overwriting whatever was read from memory.
+      call = `(if (i32.ne ${call}) (i32.const 0))
+        (then (i64.store
+          (i32.add (get_global $sp) (i32.const ${spOffset * 32}))
+          (i64.const 0))))`
     } else if (output === 'i32') {
       if (useAsyncAPI && op.async) {
         call += '(get_local $callback)'
