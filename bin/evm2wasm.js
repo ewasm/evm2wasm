@@ -76,7 +76,9 @@ try {
   convert(bytecode, { wast: wast, trace: trace, chargePerOp: chargePerOp }).then((result) => {
     storeOrPrintResult(result, outputFile)
   }).catch((err) => {
-    throw err
+    // Separately handle async promise errors here so they're not swallowed silently
+    console.error('Error:' + err)
+    process.exit(1)
   })
 } catch (err) {
   console.error('Error: ' + err)
