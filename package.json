@@ -42,7 +42,7 @@
   ],
   "dependencies": {
     "buffer-to-uint8array": "^1.1.0",
-    "eslint": "^4.19.1",
+    "eslint": "^5.0.0",
     "ethereumjs-block": "^1.2.2",
     "ethereumjs-util": "^5.1.5",
     "ewasm-kernel": "git+https://github.com/ewasm/ewasm-kernel.git",
