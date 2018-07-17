@@ -182,7 +182,7 @@ exports.evm2wast = function (evmCode, opts = {
 
     // creates a stack trace
     if (opts.stackTrace) {
-      segment += `(call $stackTrace (i32.const ${pc}) (i32.const ${opint}) (i32.const ${gasCount}) (get_global $sp))\n`
+      segment += `(call $stackTrace (i32.const ${pc}) (i32.const ${opint}) (i32.const ${op.fee}) (get_global $sp))\n`
     }
 
     let bytes
