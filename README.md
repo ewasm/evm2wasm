@@ -1,7 +1,5 @@
 # SYNOPSIS 
-[![NPM Package](https://img.shields.io/npm/v/evm2wasm.svg?style=flat-square)](https://www.npmjs.org/package/evm2wasm)
-[![Build Status](https://img.shields.io/travis/ewasm/evm2wasm.svg?branch=master&style=flat-square)](https://travis-ci.org/ewasm/evm2wasm)
-
+[![CircleCI](https://circleci.com/gh/ewasm/evm2wasm.svg?style=svg)](https://circleci.com/gh/ewasm/evm2wasm)
 [![js-standard-style](https://cdn.rawgit.com/feross/standard/master/badge.svg)](https://github.com/feross/standard)  
 
 EVM (Ethereum VM 1.0) to [eWASM](https://github.com/ewasm/design) transcompiler. Here is a online [frontend](https://ewasm.github.io/evm2wasm-frontend/dist/).
