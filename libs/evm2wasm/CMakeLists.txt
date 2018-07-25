@@ -2,7 +2,7 @@ set(include_dir ${PROJECT_SOURCE_DIR}/include)
 
 find_package(Threads REQUIRED)
 
-add_library(libevm2wasm
+add_library(libevm2wasm STATIC
     evm2wasm.cpp ${include_dir}/evm2wasm.h
 )
 set_target_properties(libevm2wasm PROPERTIES OUTPUT_NAME evm2wasm)
