@@ -4,7 +4,6 @@
 #include <wasm-s-parser.h>
 #include <wasm-validator.h>
 
-#include <vector>
 #include <sstream>
 
 using namespace std;
@@ -89,15 +88,29 @@ string wast2wasm(const string& input, bool debug) {
   return output.str();
 }
 
-string evm2wast(const string& input, bool tracing) {
+string evm2wast(const vector<uint8_t>& input, bool tracing) {
   (void)input;
   (void)tracing;
   // FIXME: do evm magic here
   return "(module (export \"main\" (func $main)) (func $main))";
 }
 
-string evm2wasm(const string& input, bool tracing) {
+string evmhex2wast(const string& input, bool tracing) {
+  vector<uint8_t> tmp = hexstring2vector(input);
+  if ((input.length() / 2) != tmp.size())
+    return string{};
+  return evm2wast(tmp, tracing);
+}
+
+string evm2wasm(const vector<uint8_t>& input, bool tracing) {
   return wast2wasm(evm2wast(input, tracing));
+}
+
+string evmhex2wasm(const string& input, bool tracing) {
+  vector<uint8_t> tmp = hexstring2vector(input);
+  if ((input.length() / 2) != tmp.size())
+    return string{};
+  return evm2wasm(tmp, tracing);
 }
 
 }

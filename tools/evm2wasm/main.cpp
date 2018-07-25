@@ -34,9 +34,9 @@ int main(int argc, char **argv) {
     );
 
     if (wast) {
-        cout << evm2wasm::evm2wast(str) << endl;
+        cout << evm2wasm::evmhex2wast(str) << endl;
     } else {
-        cout << evm2wasm::evm2wasm(str) << endl;
+        cout << evm2wasm::evmhex2wasm(str) << endl;
     }
 
     return 0;
