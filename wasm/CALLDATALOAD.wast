@@ -23,7 +23,7 @@
                                    (get_local $writeOffset2)
                                    (get_local $writeOffset3)))
 
-  (call $callDataCopy256 (get_global $sp) (get_local $writeOffset))
+  (call $callDataCopy (get_global $sp) (get_local $writeOffset) (i32.const 32))
   ;; swap top stack item
   (drop (call $bswap_m256 (get_global $sp)))
 )

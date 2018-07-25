@@ -8,9 +8,9 @@ const interfaceManifest = {
     output: []
   },
   CALLDATALOAD: {
-    name: 'callDataCopy256',
-    input: ['pointer'],
-    output: ['i256'] // TODO: this is wrong
+    name: 'callDataCopy',
+    input: ['writeOffset', 'i32', 'length'],
+    output: []
   },
   GAS: {
     name: 'getGasLeft',
