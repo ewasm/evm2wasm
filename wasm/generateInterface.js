@@ -222,6 +222,23 @@ function checkOverflowStackItem256 (spOffset) {
           (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 3}))))`
 }
 
+// assumes the stack contains 128 bits of value and clears the rest
+function cleanupStackItem128 (spOffset) {
+  return `
+    ;; zero out mem
+    (i64.store (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 3})) (i64.const 0))
+    (i64.store (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 2})) (i64.const 0))`
+}
+
+// assumes the stack contains 64 bits of value and clears the rest
+function cleanupStackItem64 (spOffset) {
+  return `
+    ;; zero out mem
+    (i64.store (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 3})) (i64.const 0))
+    (i64.store (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 2})) (i64.const 0))
+    (i64.store (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8})) (i64.const 0))`
+}
+
 function generateManifest (interfaceManifest, opts) {
   const useAsyncAPI = opts.useAsyncAPI
   const json = {}
@@ -356,10 +373,8 @@ function generateManifest (interfaceManifest, opts) {
         call += '(get_local $callback)'
       }
 
-      call += `)
-    ;; zero out mem
-    (i64.store (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 3})) (i64.const 0))
-    (i64.store (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 2})) (i64.const 0))`
+      call += ')'
+      call += cleanupStackItem128(spOffset)
     } else if (output === 'address') {
       call =
         `${call} (i32.add (get_global $sp) (i32.const ${spOffset * 32}))`
@@ -368,6 +383,7 @@ function generateManifest (interfaceManifest, opts) {
         call += '(get_local $callback)'
       }
 
+      // FIXME: implement support in cleanupStackItem160
       call += `)
     ;; zero out mem
     (i64.store (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 3})) (i64.const 0))
@@ -405,22 +421,15 @@ function generateManifest (interfaceManifest, opts) {
         ${call})))`
       }
 
-      call += `
-    ;; zero out mem
-    (i64.store (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 3})) (i64.const 0))
-    (i64.store (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 2})) (i64.const 0))
-    (i64.store (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8})) (i64.const 0))`
+      call += cleanupStackItem64(spOffset)
     } else if (output === 'i64') {
       if (useAsyncAPI && op.async) {
         call += '(get_local $callback)'
       }
       call =
-        `(i64.store (i32.add (get_global $sp) (i32.const ${spOffset * 32})) ${call}))
+        `(i64.store (i32.add (get_global $sp) (i32.const ${spOffset * 32})) ${call}))`
 
-    ;; zero out mem
-    (i64.store (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 3})) (i64.const 0))
-    (i64.store (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 2})) (i64.const 0))
-    (i64.store (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8})) (i64.const 0))`
+      call += cleanupStackItem64(spOffset)
     } else if (!output) {
       if (useAsyncAPI && op.async) {
         call += '(get_local $callback)'
