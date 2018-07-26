@@ -4,7 +4,47 @@
 #include <wasm-s-parser.h>
 #include <wasm-validator.h>
 
+#include <sstream>
+
 using namespace std;
+
+namespace {
+
+bool nibble2value(char input, unsigned& output) {
+  if (input >= '0' && input <= '9') {
+    output = input - '0';
+    return true;
+  } else if (input >= 'a' && input <= 'f') {
+    output = input - 'a' + 10;
+    return true;
+  } else if (input >= 'A' && input <= 'F') {
+    output = input - 'A' + 10;
+    return true;
+  }
+  return false;
+}
+
+// Hand rolled hex parser, because cross platform error handling is
+// more reliable than with strtol() and any of the built std function.
+//
+// Returns an empty vector if input is invalid (odd number of characters or invalid nibbles).
+// Assumes input is whitespace free, therefore if input is non-zero long an empty output
+// signals an error.
+vector<uint8_t> hexstring2vector(const string& input) {
+  size_t len = input.length();
+  if (len % 2 != 0)
+    return vector<uint8_t>{};
+  vector<uint8_t> ret;
+  for (size_t i = 0; i <= len - 2; i += 2) {
+    unsigned lo, hi;
+    if (!nibble2value(input[i], hi) || !nibble2value(input[i + 1], lo))
+      return vector<uint8_t>{};
+    ret.push_back(static_cast<uint8_t>((hi << 4) | lo));
+  }
+  return ret;
+}
+
+}
 
 namespace evm2wasm {
 
@@ -48,15 +88,29 @@ string wast2wasm(const string& input, bool debug) {
   return output.str();
 }
 
-string evm2wast(const string& input, bool tracing) {
+string evm2wast(const vector<uint8_t>& input, bool tracing) {
   (void)input;
   (void)tracing;
   // FIXME: do evm magic here
   return "(module (export \"main\" (func $main)) (func $main))";
 }
 
-string evm2wasm(const string& input, bool tracing) {
+string evmhex2wast(const string& input, bool tracing) {
+  vector<uint8_t> tmp = hexstring2vector(input);
+  if ((input.length() / 2) != tmp.size())
+    return string{};
+  return evm2wast(tmp, tracing);
+}
+
+string evm2wasm(const vector<uint8_t>& input, bool tracing) {
   return wast2wasm(evm2wast(input, tracing));
+}
+
+string evmhex2wasm(const string& input, bool tracing) {
+  vector<uint8_t> tmp = hexstring2vector(input);
+  if ((input.length() / 2) != tmp.size())
+    return string{};
+  return evm2wasm(tmp, tracing);
 }
 
 }
