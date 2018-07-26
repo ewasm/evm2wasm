@@ -68,7 +68,7 @@ defaults:
         echo 'export PATH=~/evm2wasm/bin:$PATH' >> $BASH_ENV
         source $BASH_ENV
         echo "running testeth command..."
-        testeth -t GeneralStateTests/stExample -- --testpath ~/tests --singlenet "Byzantium" --singletest "add11" --vm ~/libhera.so --evmc evm2wasm.js-trace=true
+        testeth -t GeneralStateTests/stExample -- --testpath ~/tests --singlenet "Byzantium" --singletest "add11" --vm ~/libhera.so --evmc evm2wasm.js=true
         testeth -t GeneralStateTests/stStackTests -- --testpath ~/tests --singlenet "Byzantium" --vm ~/libhera.so --evmc evm2wasm.js=true
         testeth -t GeneralStateTests/stBadOpcode -- --testpath ~/tests --singlenet "Byzantium" --vm ~/libhera.so --evmc evm2wasm.js=true
         testeth -t GeneralStateTests/stCallCodes -- --testpath ~/tests --singlenet "Byzantium" --singletest "callcall_00" --vm ~/libhera.so --evmc evm2wasm.js=true
