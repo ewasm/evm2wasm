@@ -31,10 +31,16 @@ $ bin/evm2wasm.js -e `evm_bytecode_file` -o `wasm_output_file` --wast --charge-p
 ```
 
 # DEVELOP
-* After any changes to `.wast` file, `npm  run build` needs to be run to compile the files into a .json file 
+* After any changes to `.wast` file, `npm run build` needs to be run to compile the files into a .json file 
 * To rebuild the documentation run `npm run build:docs`
 * To lint run `npm run lint`
 * And make sure you test with `npm test` and `npm run vmTests` which runs the offical Ethereum test suite
+
+The above build command will invoke `wasm/generateInterface.js` which generates `wasm/wast.json` containing a
+Webassembly function corresponding to each EVM opcode.
+
+The core logic of the evm2wasm compiler is in `index.js`, which iterates the input EMV bytecode and generates
+a Webassembly output by invoking each of the above generated Webassembly functions and concatenating them into the output.
 
 # API
 [./docs/](./docs/index.md)
