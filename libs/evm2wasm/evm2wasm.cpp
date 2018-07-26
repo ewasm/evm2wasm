@@ -241,7 +241,7 @@ string evm2wast(const vector<uint8_t>& evmCode, bool stackTrace, bool useAsyncAP
             break;
         case opcodeEnum::JUMPDEST:
             endSegment();
-            jumpSegments.push_back({number : pc, type : "jump_dest"});
+            jumpSegments.push_back({.number = pc, .type = "jump_dest"});
             gasCount = 1;
             break;
         case opcodeEnum::GAS:
@@ -375,7 +375,7 @@ string evm2wast(const vector<uint8_t>& evmCode, bool stackTrace, bool useAsyncAP
         {
             segment << "(set_global $cb_dest (i32.const {jumpSegmentsLength})) \
                             (br $done))"_format("jumpSegmentsLength"_a = jumpSegments.size() + 1);
-            jumpSegments.push_back({number : 0, type : "cb_dest"});
+            jumpSegments.push_back({.number = 0, .type = "cb_dest"});
         }
     }
 
