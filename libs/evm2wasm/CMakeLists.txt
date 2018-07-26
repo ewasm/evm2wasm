@@ -7,5 +7,9 @@ add_library(libevm2wasm STATIC
 )
 set_target_properties(libevm2wasm PROPERTIES OUTPUT_NAME evm2wasm)
 
+if(BUILD_SHARED_LIBS)
+  set_target_properties(libevm2wasm PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
+endif()
+
 target_include_directories(libevm2wasm PUBLIC ${include_dir})
 target_link_libraries(libevm2wasm PRIVATE binaryen::binaryen Threads::Threads)
