@@ -32,7 +32,7 @@ defaults:
       command: |
         git clone https://github.com/ewasm/hera
         cd hera
-        git reset 817d85bb4f09d24f11ddfc67bcc548032f708cfc --hard
+        git reset ef3c17f3d4fec8abb6d2901bc363a7461fa1a9d9 --hard
         git submodule update --init --recursive
         cmake -DBUILD_SHARED_LIBS=ON .
         make -j8
@@ -45,7 +45,7 @@ defaults:
       command: |
         git clone https://github.com/ewasm/hera
         cd hera
-        git reset 8e14fb8 --hard
+        git reset ef3c17f3d4fec8abb6d2901bc363a7461fa1a9d9 --hard
         git submodule update --init --recursive
         rm -rf evm2wasm
         ln -s /home/builder/evm2wasm evm2wasm
