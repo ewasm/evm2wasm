@@ -12,6 +12,7 @@ const wasmTypes = {
   length: 'i32',
   ipointer: 'i32',
   opointer: 'i32',
+  gasLimit: 'i64',
   // FIXME: these are handled wrongly currently
   address: 'i32',
   i128: 'i32',
@@ -139,19 +140,19 @@ const interfaceManifest = {
   CALL: {
     name: 'call',
     async: true,
-    input: ['i64', 'address', 'i128', 'readOffset', 'length'],
+    input: ['gasLimit', 'address', 'i128', 'readOffset', 'length'],
     output: ['i32']
   },
   CALLCODE: {
     name: 'callCode',
     async: true,
-    input: ['i64', 'address', 'i128', 'readOffset', 'length'],
+    input: ['gasLimit', 'address', 'i128', 'readOffset', 'length'],
     output: ['i32']
   },
   DELEGATECALL: {
     name: 'callDelegate',
     async: true,
-    input: ['i32', 'address', 'i128', 'readOffset', 'length', 'writeOffset', 'length'],
+    input: ['gasLimit', 'address', 'i128', 'readOffset', 'length', 'writeOffset', 'length'],
     output: ['i32']
   },
   SSTORE: {
@@ -263,7 +264,7 @@ function generateManifest (interfaceManifest, opts) {
         // the wasm memory offset is a new item on the EVM stack
         spOffset++
         call += `(i32.add (get_global $sp) (i32.const ${spOffset * 32}))`
-      } else if (input === 'i64' && opcode === 'CALL') {
+      } else if (input === 'gasLimit') {
         // i64 param for CALL is the gas
         // add 2300 gas subsidy
         // for now this only works if the gas is a 64-bit value
@@ -281,7 +282,7 @@ function generateManifest (interfaceManifest, opts) {
         call += checkOverflowStackItem64(spOffset)
       } else if (input === 'i32') {
         call += checkOverflowStackItem256(spOffset)
-      } else if (input === 'i64' && opcode !== 'CALL') {
+      } else if (input === 'i64') {
         call += checkOverflowStackItem64(spOffset)
       } else if (input === 'writeOffset' || input === 'readOffset') {
         lastOffset = input
