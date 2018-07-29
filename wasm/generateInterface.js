@@ -1,5 +1,22 @@
 const fs = require('fs')
 const path = require('path')
+const assert = require('assert')
+
+const wasmTypes = {
+  // identity
+  i32: 'i32',
+  i64: 'i64',
+  // custom data types
+  readOffset: 'i32',
+  writeOffset: 'i32',
+  length: 'i32',
+  ipointer: 'i32',
+  opointer: 'i32',
+  // FIXME: these are handled wrongly currently
+  address: 'i32',
+  i128: 'i32',
+  i256: 'i32'
+}
 
 const interfaceManifest = {
   LOG: {
@@ -161,13 +178,21 @@ const interfaceManifest = {
   }
 }
 
+function toWasmType (type) {
+  const ret = wasmTypes[type]
+  assert(ret === 'i32' || ret === 'i64')
+  return ret
+}
+
 function generateManifest (interfaceManifest, opts) {
   const useAsyncAPI = opts.useAsyncAPI
   const json = {}
   for (let opcode in interfaceManifest) {
     const op = interfaceManifest[opcode]
-      // generate the import params
-    let inputs = op.input.map(input => input === 'i64' ? 'i64' : 'i32').concat(op.output.filter(type => type !== 'i32' && type !== 'i64').map(() => 'i32'))
+    // Translate input types to native wasm types
+    let inputs = op.input.map(type => toWasmType(type))
+    // Also add output types which are non-basic because they need to be passed as inputs
+    inputs = inputs.concat(op.output.filter(type => type !== 'i32' && type !== 'i64').map(type => toWasmType(type)))
     let params = ''
 
     if (useAsyncAPI && op.async) {
@@ -201,8 +226,7 @@ function generateManifest (interfaceManifest, opts) {
     let lastOffset
     let call = `(call $${op.name}`
     op.input.forEach((input) => {
-      // TODO: remove 'pointer' type, replace with 'ipointer' or 'opointer'
-      if (input === 'i128' || input == 'address' || input == 'pointer') {
+      if (input === 'i128' || input == 'address') {
         if (spOffset) {
           call += `(i32.add (get_global $sp) (i32.const ${spOffset * 32}))`
         } else {
