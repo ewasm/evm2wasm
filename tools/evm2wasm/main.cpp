@@ -38,9 +38,9 @@ int main(int argc, char **argv) {
     str.erase(remove_if(str.begin(), str.end(), [](unsigned char x){return std::isspace(x);}), str.end());
 
     if (wast) {
-        cout << evm2wasm::evmhex2wast(str) << endl;
+        cout << evm2wasm::evmhex2wast(str);
     } else {
-        cout << evm2wasm::evmhex2wasm(str) << endl;
+        cout << evm2wasm::evmhex2wasm(str);
     }
 
     return 0;
