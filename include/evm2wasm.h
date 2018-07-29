@@ -281,7 +281,7 @@ static std::map<opcodeEnum, std::vector<opcodeEnum>> depMap = {
     {opcodeEnum::mod_320, {opcodeEnum::iszero_320, opcodeEnum::gte_320}},
     {opcodeEnum::mod_512, {opcodeEnum::iszero_512, opcodeEnum::gte_512}},
     {opcodeEnum::MOD, {opcodeEnum::iszero_256, opcodeEnum::gte_256}},
-    {opcodeEnum::ADDMOD, {opcodeEnum::MOD, opcodeEnum::ADD, opcodeEnum::mod_320}},
+    {opcodeEnum::ADDMOD, {opcodeEnum::mod_320}},
     {opcodeEnum::MULMOD, {opcodeEnum::mod_512}},
     {opcodeEnum::SDIV, {opcodeEnum::iszero_256, opcodeEnum::gte_256}},
     {opcodeEnum::SMOD, {opcodeEnum::iszero_256, opcodeEnum::gte_256}},
