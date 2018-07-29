@@ -226,8 +226,7 @@ function generateManifest (interfaceManifest, opts) {
     let lastOffset
     let call = `(call $${op.name}`
     op.input.forEach((input) => {
-      // TODO: remove 'pointer' type, replace with 'ipointer' or 'opointer'
-      if (input === 'i128' || input == 'address' || input == 'pointer') {
+      if (input === 'i128' || input == 'address') {
         if (spOffset) {
           call += `(i32.add (get_global $sp) (i32.const ${spOffset * 32}))`
         } else {
