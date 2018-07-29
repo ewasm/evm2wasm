@@ -76,6 +76,7 @@ string wast2wasm(const string& input, bool debug) {
   if (debug) std::cerr << "binarification..." << std::endl;
   wasm::BufferWithRandomAccess buffer(debug);
   wasm::WasmBinaryWriter writer(&module, buffer, debug);
+  writer.setNamesSection(false);
   writer.write();
 
   if (debug) std::cerr << "writing to output..." << std::endl;
