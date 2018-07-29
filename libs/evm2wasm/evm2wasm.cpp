@@ -138,7 +138,7 @@ string evm2wast(const vector<uint8_t>& evmCode, bool stackTrace, bool useAsyncAP
 
         if (segmentStackLow != 0)
         {
-            check << "(if (i32.gt_s (get_global $sp) (i32.const {check}))\n\
+            check << "(if (i32.lt_s (get_global $sp) (i32.const {check}))\n\
                         (then (unreachable)))"_format("check"_a = (-segmentStackLow * 32 - 32));
         }
 
