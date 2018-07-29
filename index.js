@@ -17,7 +17,7 @@ const depMap = new Map([
   ['mod_320', ['iszero_320', 'gte_320']],
   ['mod_512', ['iszero_512', 'gte_512']],
   ['MOD', ['iszero_256', 'gte_256']],
-  ['ADDMOD', ['MOD', 'ADD', 'mod_320']],
+  ['ADDMOD', ['mod_320']],
   ['MULMOD', ['mod_512']],
   ['SDIV', ['iszero_256', 'gte_256']],
   ['SMOD', ['iszero_256', 'gte_256']],
