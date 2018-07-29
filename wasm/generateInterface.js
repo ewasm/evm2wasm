@@ -184,6 +184,22 @@ function toWasmType (type) {
   return ret
 }
 
+function checkOverflowStackItem64 (spOffset) {
+  return `(call $check_overflow_i64
+          (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32})))
+          (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8})))
+          (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 2})))
+          (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 3}))))`
+}
+
+function checkOverflowStackItem256 (spOffset) {
+  return `(call $check_overflow
+          (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32})))
+          (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8})))
+          (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 2})))
+          (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 3}))))`
+}
+
 function generateManifest (interfaceManifest, opts) {
   const useAsyncAPI = opts.useAsyncAPI
   const json = {}
@@ -262,32 +278,15 @@ function generateManifest (interfaceManifest, opts) {
         */
 
         // 2300 gas subsidy is done in Hera
-        call += `(call $check_overflow_i64
-           (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32})))
-           (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8})))
-           (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 2})))
-           (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 3}))))`
+        call += checkOverflowStackItem64(spOffset)
       } else if (input === 'i32') {
-        call += `(call $check_overflow
-           (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32})))
-           (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8})))
-           (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 2})))
-           (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 3}))))`
+        call += checkOverflowStackItem256(spOffset)
       } else if (input === 'i64' && opcode !== 'CALL') {
-        call += `(call $check_overflow_i64
-           (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32})))
-           (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8})))
-           (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 2})))
-           (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 3}))))`
+        call += checkOverflowStackItem64(spOffset)
       } else if (input === 'writeOffset' || input === 'readOffset') {
         lastOffset = input
         locals += `(local $offset${numOfLocals} i32)`
-        body += `(set_local $offset${numOfLocals} 
-    (call $check_overflow
-      (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32})))
-      (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8})))
-      (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 2})))
-      (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 3})))))`
+        body += `(set_local $offset${numOfLocals} ${checkOverflowStackItem256(spOffset)})`
         call += `(get_local $offset${numOfLocals})`
       } else if (input === 'length' && (opcode === 'CALL' || opcode === 'CALLCODE')) {
         // CALLs in EVM have 7 arguments
@@ -295,13 +294,9 @@ function generateManifest (interfaceManifest, opts) {
         // so delete the bottom two stack elements, after processing the 5th argument
 
         locals += `(local $length${numOfLocals} i32)`
-        body += `(set_local $length${numOfLocals} 
-    (call $check_overflow 
-      (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32})))
-      (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8})))
-      (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 2})))
-      (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 3})))))
+        body += `(set_local $length${numOfLocals} ${checkOverflowStackItem256(spOffset)})`
 
+        body += `
     (call $memusegas (get_local $offset${numOfLocals}) (get_local $length${numOfLocals}))
     (set_local $offset${numOfLocals} (i32.add (get_global $memstart) (get_local $offset${numOfLocals})))`
 
@@ -315,13 +310,9 @@ function generateManifest (interfaceManifest, opts) {
         spOffset--
       } else if (input === 'length' && (opcode !== 'CALL' && opcode !== 'CALLCODE')) {
         locals += `(local $length${numOfLocals} i32)`
-        body += `(set_local $length${numOfLocals} 
-    (call $check_overflow 
-      (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32})))
-      (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8})))
-      (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 2})))
-      (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 3})))))
+        body += `(set_local $length${numOfLocals} ${checkOverflowStackItem256(spOffset)})`
 
+        body += `
     (call $memusegas (get_local $offset${numOfLocals}) (get_local $length${numOfLocals}))
     (set_local $offset${numOfLocals} (i32.add (get_global $memstart) (get_local $offset${numOfLocals})))`
 
