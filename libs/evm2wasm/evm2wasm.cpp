@@ -291,7 +291,7 @@ string evm2wast(const vector<uint8_t>& evmCode, bool stackTrace, bool useAsyncAP
 
                 std::reverse(bytes.begin()+q*8, bytes.begin()+q*8+8);
 
-                uint64_t int64 = 0;
+                int64_t int64 = 0;
                 memcpy(&int64, &bytes[q*8], 8);
 
                 push << "(i64.const {int64})"_format("int64"_a = int64);
