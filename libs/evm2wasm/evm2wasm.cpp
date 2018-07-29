@@ -180,7 +180,7 @@ string evm2wast(const vector<uint8_t>& evmCode, bool stackTrace, bool useAsyncAP
         }
 
         if (chargePerOp) {
-            segment << "(call $useGas (i64.const ${fee}))"_format("fee"_a = op.fee);
+            segment << "(call $useGas (i64.const {fee}))"_format("fee"_a = op.fee);
         }
 
         // do not charge gas for interface methods
@@ -346,7 +346,7 @@ string evm2wast(const vector<uint8_t>& evmCode, bool stackTrace, bool useAsyncAP
                     callbackTable.push_back(cbFunc);
                     index = callbackFuncs.size();
                 }
-                segment << "(call $${op.name} (i32.const {index}))\n"_format("index"_a = index);
+                segment << "(call ${opname} (i32.const {index}))\n"_format("opname"_a = opcodeToString(op.name), "index"_a = index);
             }
             else
             {
