@@ -100,7 +100,7 @@ defaults:
         source $BASH_ENV
         echo "running testeth command..."
         testeth -t GeneralStateTests/stExample -- --testpath ~/tests --singlenet "Byzantium" --singletest "add11" --vm ~/libhera.so --evmc evm2wasm.cpp=true
-        testeth -t GeneralStateTests/stStackTests -- --testpath ~/tests --singlenet "Byzantium" --vm ~/libhera.so --evmc evm2wasm.cpp=true
+        #testeth -t GeneralStateTests/stStackTests -- --testpath ~/tests --singlenet "Byzantium" --vm ~/libhera.so --evmc evm2wasm.cpp=true
         testeth -t GeneralStateTests/stBadOpcode -- --testpath ~/tests --singlenet "Byzantium" --vm ~/libhera.so --evmc evm2wasm.cpp=true
         testeth -t GeneralStateTests/stCallCodes -- --testpath ~/tests --singlenet "Byzantium" --singletest "callcall_00" --vm ~/libhera.so --evmc evm2wasm.cpp=true
         testeth -t GeneralStateTests/stCallCodes -- --testpath ~/tests --singlenet "Byzantium" --singletest "callcallcode_01" --vm ~/libhera.so --evmc evm2wasm.cpp=true
