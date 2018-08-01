@@ -31,41 +31,41 @@ const codes = {
   0x20: ['SHA3', 30, 2, 1],
 
   // 0x30 range - closure state
-  0x30: ['ADDRESS', 0, 0, 1],
-  0x31: ['BALANCE', 0, 1, 1],
-  0x32: ['ORIGIN', 0, 0, 1],
-  0x33: ['CALLER', 0, 0, 1],
-  0x34: ['CALLVALUE', 0, 0, 1],
-  0x35: ['CALLDATALOAD', 0, 1, 1],
-  0x36: ['CALLDATASIZE', 0, 0, 1],
-  0x37: ['CALLDATACOPY', 0, 3, 0],
-  0x38: ['CODESIZE', 0, 0, 1],
-  0x39: ['CODECOPY', 0, 3, 0],
-  0x3a: ['GASPRICE', 0, 0, 1],
-  0x3b: ['EXTCODESIZE', 0, 1, 1],
-  0x3c: ['EXTCODECOPY', 0, 4, 0],
+  0x30: ['ADDRESS', 2, 0, 1],
+  0x31: ['BALANCE', 400, 1, 1],
+  0x32: ['ORIGIN', 2, 0, 1],
+  0x33: ['CALLER', 2, 0, 1],
+  0x34: ['CALLVALUE', 2, 0, 1],
+  0x35: ['CALLDATALOAD', 3, 1, 1],
+  0x36: ['CALLDATASIZE', 2, 0, 1],
+  0x37: ['CALLDATACOPY', 3, 3, 0],
+  0x38: ['CODESIZE', 2, 0, 1],
+  0x39: ['CODECOPY', 3, 3, 0],
+  0x3a: ['GASPRICE', 2, 0, 1],
+  0x3b: ['EXTCODESIZE', 700, 1, 1],
+  0x3c: ['EXTCODECOPY', 700, 4, 0],
 
   // '0x40' range - block operations
-  0x40: ['BLOCKHASH', 0, 1, 1],
-  0x41: ['COINBASE', 0, 0, 1],
-  0x42: ['TIMESTAMP', 0, 0, 1],
-  0x43: ['NUMBER', 0, 0, 1],
-  0x44: ['DIFFICULTY', 0, 0, 1],
-  0x45: ['GASLIMIT', 0, 0, 1],
+  0x40: ['BLOCKHASH', 20, 1, 1],
+  0x41: ['COINBASE', 2, 0, 1],
+  0x42: ['TIMESTAMP', 2, 0, 1],
+  0x43: ['NUMBER', 2, 0, 1],
+  0x44: ['DIFFICULTY', 2, 0, 1],
+  0x45: ['GASLIMIT', 2, 0, 1],
 
   // 0x50 range - 'storage' and execution
   0x50: ['POP', 2, 1, 0],
   0x51: ['MLOAD', 3, 1, 1],
   0x52: ['MSTORE', 3, 2, 0],
   0x53: ['MSTORE8', 3, 2, 0],
-  0x54: ['SLOAD', 0, 1, 1],
+  0x54: ['SLOAD', 200, 1, 1],
   0x55: ['SSTORE', 0, 2, 0],
   0x56: ['JUMP', 8, 0, 0],
   0x57: ['JUMPI', 10, 0, 0],
   0x58: ['PC', 2, 0, 1],
   0x59: ['MSIZE', 2, 0, 1],
-  0x5a: ['GAS', 0, 0, 1],
-  0x5b: ['JUMPDEST', 0, 0, 0],
+  0x5a: ['GAS', 2, 0, 1],
+  0x5b: ['JUMPDEST', 1, 0, 0],
 
   // 0x60, range
   0x60: ['PUSH', 3, 0, 1],
@@ -135,21 +135,21 @@ const codes = {
   0x9e: ['SWAP', 3, 0, 0],
   0x9f: ['SWAP', 3, 0, 0],
 
-  0xa0: ['LOG', 0, 2, 0],
-  0xa1: ['LOG', 0, 3, 0],
-  0xa2: ['LOG', 0, 4, 0],
-  0xa3: ['LOG', 0, 5, 0],
-  0xa4: ['LOG', 0, 6, 0],
+  0xa0: ['LOG', 375, 2, 0],
+  0xa1: ['LOG', 375, 3, 0],
+  0xa2: ['LOG', 375, 4, 0],
+  0xa3: ['LOG', 375, 5, 0],
+  0xa4: ['LOG', 375, 6, 0],
 
   // '0xf0' range - closures
-  0xf0: ['CREATE', 0, 3, 1],
-  0xf1: ['CALL', 0, 7, 1],
-  0xf2: ['CALLCODE', 0, 7, 1],
+  0xf0: ['CREATE', 32000, 3, 1],
+  0xf1: ['CALL', 700, 7, 1],
+  0xf2: ['CALLCODE', 700, 7, 1],
   0xf3: ['RETURN', 0, 2, 0],
-  0xf4: ['DELEGATECALL', 0, 6, 1],
+  0xf4: ['DELEGATECALL', 700, 6, 1],
 
   // '0x70', range - other
-  0xff: ['SELFDESTRUCT', 0, 1, 0]
+  0xff: ['SELFDESTRUCT', 5000, 1, 0]
 }
 
 module.exports = function (op) {
