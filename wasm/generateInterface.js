@@ -152,7 +152,13 @@ const interfaceManifest = {
   DELEGATECALL: {
     name: 'callDelegate',
     async: true,
-    input: ['gasLimit', 'address', 'i128', 'readOffset', 'length', 'writeOffset', 'length'],
+    input: ['gasLimit', 'address', 'i128', 'readOffset', 'length'],
+    output: ['i32']
+  },
+  STATICCALL: {
+    name: 'callStatic',
+    async: true,
+    input: ['gasLimit', 'address', 'readOffset', 'length'],
     output: ['i32']
   },
   SSTORE: {
@@ -289,7 +295,7 @@ function generateManifest (interfaceManifest, opts) {
         locals += `(local $offset${numOfLocals} i32)`
         body += `(set_local $offset${numOfLocals} ${checkOverflowStackItem256(spOffset)})`
         call += `(get_local $offset${numOfLocals})`
-      } else if (input === 'length' && (opcode === 'CALL' || opcode === 'CALLCODE')) {
+      } else if (input === 'length' && (opcode === 'CALL' || opcode === 'CALLCODE' || opcode === 'DELEGATECALL' || opcode === 'STATICCALL')) {
         // CALLs in EVM have 7 arguments
         // but in ewasm CALLs only have 5 arguments
         // so delete the bottom two stack elements, after processing the 5th argument
@@ -309,7 +315,7 @@ function generateManifest (interfaceManifest, opts) {
 
         // delete 7th stack element
         spOffset--
-      } else if (input === 'length' && (opcode !== 'CALL' && opcode !== 'CALLCODE')) {
+      } else if (input === 'length' && (opcode !== 'CALL' && opcode !== 'CALLCODE' && opcode !== 'DELEGATECALL' && opcode !== 'STATICCALL')) {
         locals += `(local $length${numOfLocals} i32)`
         body += `(set_local $length${numOfLocals} ${checkOverflowStackItem256(spOffset)})`
 
@@ -368,7 +374,7 @@ function generateManifest (interfaceManifest, opts) {
         call += '(get_local $callback)'
       }
 
-      if (opcode === 'CALL' || opcode === 'CALLCODE' || opcode === 'DELEGATECALL') {
+      if (opcode === 'CALL' || opcode === 'CALLCODE' || opcode === 'DELEGATECALL' || opcode === 'STATICCALL') {
         call =
           `(i64.store
       (i32.add (get_global $sp) (i32.const ${spOffset * 32}))

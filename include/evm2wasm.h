@@ -74,6 +74,7 @@ enum class opcodeEnum
     CALLCODE,
     RETURN,
     DELEGATECALL,
+    STATICCALL,
     SELFDESTRUCT,
     INVALID,
     bswap_i32,
@@ -266,6 +267,7 @@ static std::map<int, std::tuple<opcodeEnum, int, int, int>> codes = {
     {0xf2, Opcode{opcodeEnum::CALLCODE, 0, 7, 1}},
     {0xf3, Opcode{opcodeEnum::RETURN, 0, 2, 0}},
     {0xf4, Opcode{opcodeEnum::DELEGATECALL, 0, 6, 1}},
+    {0xfa, Opcode{opcodeEnum::STATICCALL, 0, 6, 1}},
 
     // "0x70", range - other
     {0xff, Opcode{opcodeEnum::SELFDESTRUCT, 0, 1, 0}}};
@@ -313,11 +315,14 @@ static std::map<opcodeEnum, std::vector<opcodeEnum>> depMap = {
             opcodeEnum::check_overflow, opcodeEnum::memset, opcodeEnum::callback_32}},
     {opcodeEnum::DELEGATECALL, {opcodeEnum::callback, opcodeEnum::memusegas,
                                    opcodeEnum::check_overflow, opcodeEnum::memset,
-                                       opcodeEnum::check_overflow_i64}},
+                                       opcodeEnum::check_overflow_i64, opcodeEnum::callback_32}},
     {opcodeEnum::CALLCODE,
         {opcodeEnum::bswap_m256, opcodeEnum::callback, opcodeEnum::memusegas,
             opcodeEnum::check_overflow, opcodeEnum::memset, opcodeEnum::callback_32,
                            opcodeEnum::check_overflow_i64}},
+    {opcodeEnum::STATICCALL, {opcodeEnum::callback, opcodeEnum::memusegas,
+                                   opcodeEnum::check_overflow, opcodeEnum::memset,
+                                       opcodeEnum::check_overflow_i64, opcodeEnum::callback_32}},
     {opcodeEnum::CREATE, {opcodeEnum::bswap_m256, opcodeEnum::bswap_m160, opcodeEnum::callback_160,
                              opcodeEnum::memusegas, opcodeEnum::check_overflow}},
     {opcodeEnum::RETURN, {opcodeEnum::memusegas, opcodeEnum::check_overflow}},
