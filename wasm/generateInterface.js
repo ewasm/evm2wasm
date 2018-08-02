@@ -344,7 +344,6 @@ function generateManifest (interfaceManifest, opts) {
 
         // delete 6th stack element
         spOffset--
-
         // delete 7th stack element
         spOffset--
       } else if (input === 'length' && (opcode !== 'CALL' && opcode !== 'CALLCODE' && opcode !== 'DELEGATECALL' && opcode !== 'STATICCALL')) {
@@ -413,6 +412,7 @@ function generateManifest (interfaceManifest, opts) {
         (i32.eqz ${call}) ;; flip CALL result from EEI to EVM convention (0 -> 1, 1,2,.. -> 1)
       )))`
 
+      callStrip = ''
       } else {
         call =
           `(i64.store
