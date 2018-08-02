@@ -427,6 +427,47 @@ function generateManifest (interfaceManifest, opts) {
   return json
 }
 
+function generateCPPHeader(interfaceManifest, opts) {
+  function quoteString(str) {
+    // from https://stackoverflow.com/questions/770523/escaping-strings-in-javascript
+    return JSON.stringify(str).slice(1, -1);
+  }
+
+  function escapeNewlines(str) {
+    return str.replace(/\n/gi, '\n')
+  }
+
+  let entries = []
+
+  for (let opcode in interfaceManifest) {
+    const wast = quoteString(escapeNewlines(interfaceManifest[opcode].wast))
+    const imports = quoteString(escapeNewlines(interfaceManifest[opcode].imports || ""))
+
+    entries.push(`{
+  opcodeEnum::${opcode}, {
+    .wast = "${wast}",
+    .imports = "${imports}"
+  }
+}`)
+  }
+
+  const interfaceName = opts.useAsyncAPI ? 'wastAsyncInterface' : 'wastSyncInterface'
+
+  return `#pragma once
+
+#include <map>
+
+#include "evm2wasm.h"
+
+namespace evm2wasm
+{
+  static std::map<opcodeEnum, WastCode> ${interfaceName} =
+  {
+    ${entries.join()}
+  };
+}`
+}
+
 // generateManifest mutates the input, so use a copy
 const interfaceManifestCopy = JSON.parse(JSON.stringify(interfaceManifest))
 
@@ -435,3 +476,7 @@ let asyncInterfaceJson = generateManifest(interfaceManifestCopy, {'useAsyncAPI':
 
 fs.writeFileSync(path.join(__dirname, 'wast.json'), JSON.stringify(syncJson, null, 2))
 fs.writeFileSync(path.join(__dirname, 'wast-async.json'), JSON.stringify(asyncInterfaceJson, null, 2))
+
+// generate C++ header
+fs.writeFileSync(path.join(__dirname, '../include/wast.h'), generateCPPHeader(syncJson, {'useAsyncAPI': false}))
+fs.writeFileSync(path.join(__dirname, '../include/wast-async.h'), generateCPPHeader(asyncInterfaceJson, {'useAsyncAPI': true}))
