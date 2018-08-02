@@ -1,8 +1,8 @@
 const BN = require('bn.js')
 const ethUtil = require('ethereumjs-util')
 const opcodes = require('./opcodes.js')
-const wastSyncInterface = require('./wasm/wast.json')
-const wastAsyncInterface = require('./wasm/wast-async.json')
+const wastSyncInterface = require('./wasm/wast.json').opcodes
+const wastAsyncInterface = require('./wasm/wast-async.json').opcodes
 const wabt = require('wabt')
 
 // map to track dependent WASM functions

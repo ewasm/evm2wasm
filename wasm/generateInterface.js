@@ -2,6 +2,54 @@ const fs = require('fs')
 const path = require('path')
 const assert = require('assert')
 
+const opcodeDependencies = new Map([
+  ['callback_256', ['bswap_m256']],
+  ['callback_160', ['bswap_m160']],
+  ['callback_128', ['bswap_m128']],
+  ['bswap_m256', ['bswap_i64']],
+  ['bswap_m128', ['bswap_i64']],
+  ['bswap_m160', ['bswap_i64', 'bswap_i32']],
+  ['keccak', ['memcpy', 'memset']],
+  ['mod_320', ['iszero_320', 'gte_320']],
+  ['mod_512', ['iszero_512', 'gte_512']],
+  ['MOD', ['iszero_256', 'gte_256']],
+  ['ADDMOD', ['mod_320']],
+  ['MULMOD', ['mod_512']],
+  ['SDIV', ['iszero_256', 'gte_256']],
+  ['SMOD', ['iszero_256', 'gte_256']],
+  ['DIV', ['iszero_256', 'gte_256']],
+  ['EXP', ['iszero_256', 'mul_256']],
+  ['MUL', ['mul_256']],
+  ['ISZERO', ['iszero_256']],
+  ['MSTORE', ['memusegas', 'bswap_m256', 'check_overflow']],
+  ['MLOAD', ['memusegas', 'bswap_m256', 'check_overflow']],
+  ['MSTORE8', ['memusegas', 'check_overflow']],
+  ['CODECOPY', ['callback', 'memusegas', 'check_overflow', 'memset']],
+  ['CALLDATALOAD', ['bswap_m256', 'bswap_i64', 'check_overflow']],
+  ['CALLDATACOPY', ['memusegas', 'check_overflow', 'memset']],
+  ['CALLVALUE', ['bswap_m128']],
+  ['EXTCODECOPY', ['bswap_m256', 'callback', 'memusegas', 'check_overflow', 'memset']],
+  ['EXTCODESIZE', ['callback_32', 'bswap_m256']],
+  ['LOG', ['memusegas', 'check_overflow']],
+  ['BLOCKHASH', ['check_overflow', 'callback_256']],
+  ['SHA3', ['memusegas', 'bswap_m256', 'check_overflow', 'keccak']],
+  ['CALL', ['bswap_m256', 'memusegas', 'check_overflow_i64', 'check_overflow', 'memset', 'callback_32']],
+  ['DELEGATECALL', ['callback', 'memusegas', 'check_overflow_i64', 'check_overflow', 'memset']],
+  ['CALLCODE', ['bswap_m256', 'callback', 'memusegas', 'check_overflow_i64', 'check_overflow', 'check_overflow_i64', 'memset', 'callback_32']],
+  ['CREATE', ['bswap_m256', 'bswap_m160', 'callback_160', 'memusegas', 'check_overflow']],
+  ['RETURN', ['memusegas', 'check_overflow']],
+  ['BALANCE', ['bswap_m256', 'callback_128']],
+  ['SELFDESTRUCT', ['bswap_m256']],
+  ['SSTORE', ['bswap_m256', 'callback']],
+  ['SLOAD', ['callback_256']],
+  ['CODESIZE', ['callback_32']],
+  ['DIFFICULTY', ['bswap_m256']],
+  ['COINBASE', ['bswap_m160']],
+  ['ORIGIN', ['bswap_m160']],
+  ['ADDRESS', ['bswap_m160']],
+  ['CALLER', ['bswap_m160']]
+])
+
 const wasmTypes = {
   // identity
   i32: 'i32',
@@ -458,7 +506,7 @@ function generateManifest (interfaceManifest, opts) {
     json[file].wast = wast
   })
 
-  return json
+  return { opcodes: json }
 }
 
 function generateCPPHeader(interfaceManifest, opts) {
@@ -505,8 +553,8 @@ namespace evm2wasm
 // generateManifest mutates the input, so use a copy
 const interfaceManifestCopy = JSON.parse(JSON.stringify(interfaceManifest))
 
-let syncJson = generateManifest(interfaceManifest, {'useAsyncAPI': false})
-let asyncInterfaceJson = generateManifest(interfaceManifestCopy, {'useAsyncAPI': true})
+let syncJson = generateManifest(interfaceManifest, {'useAsyncAPI': false}).opcodes
+let asyncInterfaceJson = generateManifest(interfaceManifestCopy, {'useAsyncAPI': true}).opcodes
 
 fs.writeFileSync(path.join(__dirname, 'wast.json'), JSON.stringify(syncJson, null, 2))
 fs.writeFileSync(path.join(__dirname, 'wast-async.json'), JSON.stringify(asyncInterfaceJson, null, 2))
