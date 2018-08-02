@@ -34,6 +34,7 @@ const depMap = new Map([
   ['CALLVALUE', ['bswap_m128']],
   ['EXTCODECOPY', ['bswap_m256', 'callback', 'memusegas', 'check_overflow', 'memset']],
   ['EXTCODESIZE', ['callback_32', 'bswap_m256']],
+  ['RETURNDATACOPY', ['memusegas', 'check_overflow', 'memset']],
   ['LOG', ['memusegas', 'check_overflow']],
   ['BLOCKHASH', ['check_overflow', 'callback_256']],
   ['SHA3', ['memusegas', 'bswap_m256', 'check_overflow', 'keccak']],
@@ -43,6 +44,7 @@ const depMap = new Map([
   ['CALLCODE', ['bswap_m256', 'callback', 'memusegas', 'check_overflow_i64', 'check_overflow', 'check_overflow_i64', 'memset', 'callback_32']],
   ['CREATE', ['bswap_m256', 'bswap_m160', 'callback_160', 'memusegas', 'check_overflow']],
   ['RETURN', ['memusegas', 'check_overflow']],
+  ['REVERT', ['memusegas', 'check_overflow']],
   ['BALANCE', ['bswap_m256', 'callback_128']],
   ['SELFDESTRUCT', ['bswap_m256']],
   ['SSTORE', ['bswap_m256', 'callback']],
@@ -299,6 +301,7 @@ exports.evm2wast = function (evmCode, opts = {
         break
       case 'SELFDESTRUCT':
       case 'RETURN':
+      case 'REVERT':
         segment += `(call $${op.name}) (br $done)\n`
         if (jumpFound) {
           pc = findNextJumpDest(evmCode, pc)

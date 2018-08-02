@@ -44,6 +44,8 @@ const codes = {
   0x3a: ['GASPRICE', 0, 0, 1],
   0x3b: ['EXTCODESIZE', 0, 1, 1],
   0x3c: ['EXTCODECOPY', 0, 4, 0],
+  0x3d: ['RETURNDATASIZE', 0, 0, 1],
+  0x3e: ['RETURNDATACOPY', 0, 3, 0],
 
   // '0x40' range - block operations
   0x40: ['BLOCKHASH', 0, 1, 1],
@@ -150,11 +152,14 @@ const codes = {
   0xfa: ['STATICCALL', 0, 6, 1],
 
   // '0x70', range - other
+  0xfd: ['REVERT', 0, 2, 0],
+  0xfe: ['INVALID', 0, 0, 0],
   0xff: ['SELFDESTRUCT', 0, 1, 0]
 }
 
 module.exports = function (op) {
-  const code = codes[op] ? codes[op] : ['INVALID', 0, 0, 0]
+  // Map invalid opcodes to the INVALID opcode
+  const code = codes[op] ? codes[op] : codes[0xfe]
   let opcode = code[0]
   let number
 

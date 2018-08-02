@@ -47,6 +47,8 @@ enum class opcodeEnum
     GASPRICE,
     EXTCODESIZE,
     EXTCODECOPY,
+    RETURNDATASIZE,
+    RETURNDATACOPY,
     BLOCKHASH,
     COINBASE,
     TIMESTAMP,
@@ -75,8 +77,9 @@ enum class opcodeEnum
     RETURN,
     DELEGATECALL,
     STATICCALL,
-    SELFDESTRUCT,
+    REVERT,
     INVALID,
+    SELFDESTRUCT,
     bswap_i32,
     bswap_i64,
     bswap_m128,
@@ -164,6 +167,8 @@ static std::map<int, std::tuple<opcodeEnum, int, int, int>> codes = {
     {0x3a, Opcode{opcodeEnum::GASPRICE, 0, 0, 1}},
     {0x3b, Opcode{opcodeEnum::EXTCODESIZE, 0, 1, 1}},
     {0x3c, Opcode{opcodeEnum::EXTCODECOPY, 0, 4, 0}},
+    {0x3d, Opcode{opcodeEnum::RETURNDATASIZE, 0, 0, 1}},
+    {0x3e, Opcode{opcodeEnum::RETURNDATACOPY, 0, 3, 0}},
 
     // "0x40" range - block operations
     {0x40, Opcode{opcodeEnum::BLOCKHASH, 0, 1, 1}},
@@ -270,6 +275,8 @@ static std::map<int, std::tuple<opcodeEnum, int, int, int>> codes = {
     {0xfa, Opcode{opcodeEnum::STATICCALL, 0, 6, 1}},
 
     // "0x70", range - other
+    {0xfd, Opcode{opcodeEnum::REVERT, 0, 2, 0}},
+    {0xfe, Opcode{opcodeEnum::INVALID, 0, 0, 0}},
     {0xff, Opcode{opcodeEnum::SELFDESTRUCT, 0, 1, 0}}};
 
 static std::map<opcodeEnum, std::vector<opcodeEnum>> depMap = {
@@ -306,6 +313,7 @@ static std::map<opcodeEnum, std::vector<opcodeEnum>> depMap = {
     {opcodeEnum::EXTCODECOPY, {opcodeEnum::bswap_m256, opcodeEnum::callback, opcodeEnum::memusegas,
                                   opcodeEnum::check_overflow, opcodeEnum::memset}},
     {opcodeEnum::EXTCODESIZE, {opcodeEnum::callback_32, opcodeEnum::bswap_m256}},
+    {opcodeEnum::RETURNDATACOPY, {opcodeEnum::memusegas, opcodeEnum::check_overflow, opcodeEnum::memset}},
     {opcodeEnum::LOG, {opcodeEnum::memusegas, opcodeEnum::check_overflow}},
     {opcodeEnum::BLOCKHASH, {opcodeEnum::check_overflow, opcodeEnum::callback_256}},
     {opcodeEnum::SHA3, {opcodeEnum::memusegas, opcodeEnum::bswap_m256, opcodeEnum::check_overflow,
@@ -326,6 +334,7 @@ static std::map<opcodeEnum, std::vector<opcodeEnum>> depMap = {
     {opcodeEnum::CREATE, {opcodeEnum::bswap_m256, opcodeEnum::bswap_m160, opcodeEnum::callback_160,
                              opcodeEnum::memusegas, opcodeEnum::check_overflow}},
     {opcodeEnum::RETURN, {opcodeEnum::memusegas, opcodeEnum::check_overflow}},
+    {opcodeEnum::REVERT, {opcodeEnum::memusegas, opcodeEnum::check_overflow}},
     {opcodeEnum::BALANCE, {opcodeEnum::bswap_m256, opcodeEnum::callback_128}},
     {opcodeEnum::SELFDESTRUCT, {opcodeEnum::bswap_m256}},
     {opcodeEnum::SSTORE, {opcodeEnum::bswap_m256, opcodeEnum::callback}},

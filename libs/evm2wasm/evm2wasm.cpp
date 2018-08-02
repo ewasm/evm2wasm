@@ -318,6 +318,7 @@ string evm2wast(const vector<uint8_t>& evmCode, bool stackTrace, bool useAsyncAP
             break;
         case opcodeEnum::SELFDESTRUCT:
         case opcodeEnum::RETURN:
+        case opcodeEnum::REVERT:
             segment << "(call $" << opcodeToString(op.name) << ") (br $done)\n";
             if (jumpFound)
             {
