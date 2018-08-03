@@ -18,7 +18,7 @@
   "devDependencies": {
     "async": "^2.6.0",
     "bn.js": "^4.11.8",
-    "documentation": "^7.0.0",
+    "documentation": "^8.1.0",
     "ethereumjs-testing": "https://github.com/ethereumjs/ethereumjs-testing",
     "ethereumjs-vm": "^2.3.3",
     "minimist": "^1.2.0",
