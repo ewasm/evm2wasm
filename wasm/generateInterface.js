@@ -286,7 +286,6 @@ function generateManifest (interfaceManifest, opts) {
     // generate the call to the interface
     let spOffset = 0
     let numOfLocals = 0
-    let lastOffset
     let call = `(call $${op.name}`
     op.input.forEach((input) => {
       if (input === 'i128' || input == 'address') {
@@ -331,7 +330,6 @@ function generateManifest (interfaceManifest, opts) {
       } else if (input === 'i64') {
         call += checkOverflowStackItem64(spOffset)
       } else if (input === 'writeOffset' || input === 'readOffset') {
-        lastOffset = input
         locals += `(local $offset${numOfLocals} i32)`
         body += `(set_local $offset${numOfLocals} ${checkOverflowStackItem256(spOffset)})`
         call += `(get_local $offset${numOfLocals})`
