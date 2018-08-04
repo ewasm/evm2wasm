@@ -222,6 +222,14 @@ function checkOverflowStackItem256 (spOffset) {
           (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 3}))))`
 }
 
+// assumes the stack contains 160 bits of value and clears the rest
+function cleanupStackItem160 (spOffset) {
+  return `
+    ;; zero out mem
+    (i64.store (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 3})) (i64.const 0))
+    (i32.store (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 2 + 4})) (i32.const 0))`
+}
+
 // assumes the stack contains 128 bits of value and clears the rest
 function cleanupStackItem128 (spOffset) {
   return `
@@ -383,11 +391,8 @@ function generateManifest (interfaceManifest, opts) {
         call += '(get_local $callback)'
       }
 
-      // FIXME: implement support in cleanupStackItem160
-      call += `)
-    ;; zero out mem
-    (i64.store (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 3})) (i64.const 0))
-    (i32.store (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 2 + 4})) (i32.const 0))`
+      call += ')'
+      call += cleanupStackItem160(spOffset)
     } else if (output === 'i256') {
       call = `${call} 
     (i32.add (get_global $sp) 
