@@ -134,8 +134,8 @@ const interfaceManifest = {
   CREATE: {
     name: 'create',
     async: true,
-    input: ['i128', 'readOffset', 'length'],
-    output: ['address']
+    input: ['i128', 'readOffset', 'length', 'opointer'],
+    output: ['i32']
   },
   CALL: {
     name: 'call',
@@ -286,7 +286,6 @@ function generateManifest (interfaceManifest, opts) {
     // generate the call to the interface
     let spOffset = 0
     let numOfLocals = 0
-    let lastOffset
     let call = `(call $${op.name}`
     op.input.forEach((input) => {
       if (input === 'i128' || input == 'address') {
@@ -331,40 +330,27 @@ function generateManifest (interfaceManifest, opts) {
       } else if (input === 'i64') {
         call += checkOverflowStackItem64(spOffset)
       } else if (input === 'writeOffset' || input === 'readOffset') {
-        lastOffset = input
         locals += `(local $offset${numOfLocals} i32)`
         body += `(set_local $offset${numOfLocals} ${checkOverflowStackItem256(spOffset)})`
         call += `(get_local $offset${numOfLocals})`
-      } else if (input === 'length' && (opcode === 'CALL' || opcode === 'CALLCODE' || opcode === 'DELEGATECALL' || opcode === 'STATICCALL')) {
+      } else if (input === 'length') {
+        locals += `(local $length${numOfLocals} i32)`
+        body += `(set_local $length${numOfLocals} ${checkOverflowStackItem256(spOffset)})`
+
+        body += `
+    (call $memusegas (get_local $offset${numOfLocals}) (get_local $length${numOfLocals}))
+    (set_local $offset${numOfLocals} (i32.add (get_global $memstart) (get_local $offset${numOfLocals})))`
+
+        call += `(get_local $length${numOfLocals})`
+        numOfLocals++
+
         // CALLs in EVM have 7 arguments
         // but in ewasm CALLs only have 5 arguments
         // so delete the bottom two stack elements, after processing the 5th argument
-
-        locals += `(local $length${numOfLocals} i32)`
-        body += `(set_local $length${numOfLocals} ${checkOverflowStackItem256(spOffset)})`
-
-        body += `
-    (call $memusegas (get_local $offset${numOfLocals}) (get_local $length${numOfLocals}))
-    (set_local $offset${numOfLocals} (i32.add (get_global $memstart) (get_local $offset${numOfLocals})))`
-
-        call += `(get_local $length${numOfLocals})`
-        numOfLocals++
-
-        // delete 6th stack element
-        spOffset--
-
-        // delete 7th stack element
-        spOffset--
-      } else if (input === 'length' && (opcode !== 'CALL' && opcode !== 'CALLCODE' && opcode !== 'DELEGATECALL' && opcode !== 'STATICCALL')) {
-        locals += `(local $length${numOfLocals} i32)`
-        body += `(set_local $length${numOfLocals} ${checkOverflowStackItem256(spOffset)})`
-
-        body += `
-    (call $memusegas (get_local $offset${numOfLocals}) (get_local $length${numOfLocals}))
-    (set_local $offset${numOfLocals} (i32.add (get_global $memstart) (get_local $offset${numOfLocals})))`
-
-        call += `(get_local $length${numOfLocals})`
-        numOfLocals++
+        if (opcode === 'CALL' || opcode === 'CALLCODE') {
+          spOffset--
+          spOffset--
+        }
       }
       spOffset--
     })
@@ -405,26 +391,30 @@ function generateManifest (interfaceManifest, opts) {
       call += `)
       (drop (call $bswap_m256 (i32.add (i32.const 32) (get_global $sp))))
       `
+    } else if (opcode === 'CREATE') {
+      // Check the return value from the EEI method.
+      // 0 = success, 1 = failure, 2 = revert
+      // iff return === 0, there is nothing to do as the address has already been loaded.
+      // otherwise, we must return 0 instead, overwriting whatever was read from memory.
+      call = `(if (i32.ne ${call}) (i32.const 0))
+        (then (i64.store
+          (i32.add (get_global $sp) (i32.const ${spOffset * 32}))
+          (i64.const 0))))`
     } else if (output === 'i32') {
       if (useAsyncAPI && op.async) {
         call += '(get_local $callback)'
       }
 
-      if (opcode === 'CALL' || opcode === 'CALLCODE' || opcode === 'DELEGATECALL' || opcode === 'STATICCALL') {
-        call =
-          `(i64.store
-      (i32.add (get_global $sp) (i32.const ${spOffset * 32}))
-      (i64.extend_u/i32
-        (i32.eqz ${call}) ;; flip CALL result from EEI to EVM convention (0 -> 1, 1,2,.. -> 1)
-      )))`
-
+      let wrapper
+      if (opcode === 'CALL' || opcode === 'CALLCODE' || opcode === 'DELEGATECALL') {
+        // flip CALL result from EEI to EVM convention (0 -> 1, 1,2,.. -> 0)
+        wrapper = `(i32.eqz ${call})`
       } else {
-        call =
-          `(i64.store
-      (i32.add (get_global $sp) (i32.const ${spOffset * 32}))
-      (i64.extend_u/i32
-        ${call})))`
+        wrapper = call
       }
+      call = `(i64.store
+    (i32.add (get_global $sp) (i32.const ${spOffset * 32}))
+    (i64.extend_u/i32 ${wrapper})))`
 
       call += cleanupStackItem64(spOffset)
     } else if (output === 'i64') {
