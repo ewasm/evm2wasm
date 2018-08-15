@@ -21,7 +21,7 @@ using namespace fmt::literals;
 
 namespace {
 
-bool nibble2value(char input, unsigned& output) {
+bool nibble2value(unsigned input, unsigned& output) {
   if (input >= '0' && input <= '9') {
     output = input - '0';
     return true;
@@ -48,7 +48,7 @@ vector<uint8_t> hexstring2vector(const string& input) {
   vector<uint8_t> ret;
   for (size_t i = 0; i <= len - 2; i += 2) {
     unsigned lo, hi;
-    if (!nibble2value(input[i], hi) || !nibble2value(input[i + 1], lo))
+    if (!nibble2value(unsigned(input[i]), hi) || !nibble2value(unsigned(input[i + 1]), lo))
       return vector<uint8_t>{};
     ret.push_back(static_cast<uint8_t>((hi << 4) | lo));
   }
@@ -168,7 +168,7 @@ string evm2wast(const vector<uint8_t>& evmCode, bool stackTrace, bool useAsyncAP
 
     for (size_t pc = 0; pc < evmCode.size(); pc++)
     {
-        auto opint = evmCode[pc];
+        uint8_t opint = evmCode[pc];
         auto op = opcodes(opint);
 
         // creates a stack trace
@@ -264,7 +264,8 @@ string evm2wast(const vector<uint8_t>& evmCode, bool stackTrace, bool useAsyncAP
         {
             pc++;
             size_t sliceSize = std::min(op.number, 32ul);
-            std::vector<uint8_t> bytes = std::vector<uint8_t>(evmCode.begin() + pc, evmCode.begin() + pc + sliceSize);
+            auto begin = evmCode.begin() + static_cast<ptrdiff_t>(pc);
+            std::vector<uint8_t> bytes(begin, begin + static_cast<ptrdiff_t>(sliceSize));
 
             pc += op.number;
             if (op.number < 32)
@@ -272,9 +273,10 @@ string evm2wast(const vector<uint8_t>& evmCode, bool stackTrace, bool useAsyncAP
                 bytes.insert(bytes.begin(), 32 - op.number, 0);
             }
 
-            auto bytesRounded = ceil((double)op.number / 8.0);
+            // op.number is an 8bit number, casting to ptrdiff_t should be safe here
+            ptrdiff_t bytesRounded = ptrdiff_t(ceil(double(op.number) / 8.0));
             fmt::MemoryWriter push;
-            int q = 0;
+            ptrdiff_t q = 0;
 
             // pad the remaining of the word with 0
             for (; q < 4 - bytesRounded; q++)
@@ -289,10 +291,10 @@ string evm2wast(const vector<uint8_t>& evmCode, bool stackTrace, bool useAsyncAP
             {
                 //TODO clean this disgusting mess up
 
-                std::reverse(bytes.begin()+q*8, bytes.begin()+q*8+8);
+                std::reverse(bytes.begin() + q * 8, bytes.begin() + q * 8 + 8);
 
                 int64_t int64 = 0;
-                memcpy(&int64, &bytes[q*8], 8);
+                memcpy(&int64, &bytes[static_cast<size_t>(q * 8)], sizeof(int64));
 
                 push << "(i64.const {int64})"_format("int64"_a = int64);
             }
@@ -341,11 +343,15 @@ string evm2wast(const vector<uint8_t>& evmCode, bool stackTrace, bool useAsyncAP
             {
                 std::string cbFunc = (*callbackFuncs.find(op.name)).second;
                 auto result = std::find(std::begin(callbackTable), std::end(callbackTable), cbFunc);
-                size_t index = result - std::begin(callbackTable);
+                size_t index;
                 if (result == std::end(callbackTable))
                 {
                     callbackTable.push_back(cbFunc);
                     index = callbackFuncs.size();
+                }
+                else
+                {
+                    index = static_cast<size_t>(std::distance(callbackTable.begin(), result));
                 }
                 segment << "(call ${opname} (i32.const {index}))\n"_format("opname"_a = opcodeToString(op.name), "index"_a = index);
             }
@@ -598,7 +604,7 @@ std::string opcodeToString(opcodeEnum opcode)
     }
 }
 
-Op opcodes(int op)
+Op opcodes(uint8_t op)
 {
     auto result = codes.find(op);
     std::tuple<opcodeEnum, int, int, int> code;
@@ -611,28 +617,29 @@ Op opcodes(int op)
         code = (*result).second;
     };
     auto opcode = std::get<0>(code);
-    unsigned int number;
+    size_t number;
 
     switch (opcode)
     {
     case opcodeEnum::LOG:
-        number = op - 0xa0;
+        number = static_cast<size_t>(op - 0xa0);
         break;
 
     case opcodeEnum::PUSH:
-        number = op - 0x5f;
+        number = static_cast<size_t>(op - 0x5f);
         break;
 
     case opcodeEnum::DUP:
-        number = op - 0x7f;
+        number = static_cast<size_t>(op - 0x7f);
         break;
 
     case opcodeEnum::SWAP:
-        number = op - 0x8f;
+        number = static_cast<size_t>(op - 0x8f);
         break;
 
     default:
-        number = -1;
+        number = 0;
+        break;
     }
 
     return {opcode, std::get<1>(code), std::get<2>(code), std::get<3>(code), number};
