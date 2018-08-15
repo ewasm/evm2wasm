@@ -377,7 +377,7 @@ std::string assembleSegments(const std::vector<JumpSegment>& segments);
 
 std::string opcodeToString(opcodeEnum opcode);
 
-Op opcodes(int op);
+Op opcodes(uint8_t op);
 
 size_t findNextJumpDest(const std::vector<uint8_t>& evmCode, size_t i);
 
