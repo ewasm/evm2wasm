@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.5)
 
+include(GNUInstallDirs)
+
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 # Require C++11.
@@ -25,3 +27,11 @@ option(EVM2WASM_TOOLS ON)
 if(EVM2WASM_TOOLS)
     add_subdirectory(tools)
 endif()
+
+install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+
+install(
+    EXPORT evm2wasmTargets
+    NAMESPACE evm2wasm::
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/evm2wasm
+)
