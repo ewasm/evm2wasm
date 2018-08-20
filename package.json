@@ -48,7 +48,7 @@
     "ewasm-kernel": "git+https://github.com/ewasm/ewasm-kernel.git",
     "loglevel": "^1.6.0",
     "merkle-trie": "0.0.0",
-    "readable-stream": "^2.3.5",
+    "readable-stream": "^3.0.2",
     "wabt": "^1.0.0"
   },
   "standard": {
