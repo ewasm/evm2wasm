@@ -299,7 +299,11 @@ function generateManifest (interfaceManifest, opts) {
     let call = `(call $${op.name}`
     op.input.forEach((input) => {
       if (input === 'i128' || input === 'address') {
-        call += getStackItem(spOffset)
+        if (input === 'address') {
+          call += `(call $bswap_m160 ${getStackItem(spOffset)})`
+        } else {
+          call += getStackItem(spOffset)
+        }
       } else if (input === 'ipointer') {
         // input pointer
         // points to a wasm memory offset where input data will be read
