@@ -399,6 +399,8 @@ function generateManifest (interfaceManifest, opts) {
       }
 
       call += ')'
+      // change the item from BE to LE
+      call += `(drop (call $bswap_m160 ${getStackItem(spOffset)}))`
       call += cleanupStackItem160(spOffset)
     } else if (output === 'i256') {
       call += getStackItem(spOffset)
