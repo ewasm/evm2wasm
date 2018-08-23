@@ -22,7 +22,7 @@ defaults:
     run:
       name: "Install cpp-ethereum"
       command: |
-        URL=https://github.com/ethereum/cpp-ethereum/releases/download/v1.4.0.dev0/cpp-ethereum-1.4.0.dev0-linux.tar.gz
+        URL=https://github.com/ethereum/cpp-ethereum/releases/download/v1.4.0rc4/aleth-1.4.0rc4-linux-x86_64.tar.gz
         curl -L $URL | sudo tar xz -C /usr/local
 
   build-hera: &build-hera
@@ -32,7 +32,7 @@ defaults:
       command: |
         git clone https://github.com/ewasm/hera
         cd hera
-        git reset ef3c17f3d4fec8abb6d2901bc363a7461fa1a9d9 --hard
+        git reset 30d0354918e7265833ab78de33caafb4adbb27ea --hard
         git submodule update --init --recursive
         cmake -DBUILD_SHARED_LIBS=ON .
         make -j8
@@ -45,7 +45,7 @@ defaults:
       command: |
         git clone https://github.com/ewasm/hera
         cd hera
-        git reset ef3c17f3d4fec8abb6d2901bc363a7461fa1a9d9 --hard
+        git reset 30d0354918e7265833ab78de33caafb4adbb27ea --hard
         git submodule update --init --recursive
         rm -rf evm2wasm
         ln -s /home/builder/evm2wasm evm2wasm
