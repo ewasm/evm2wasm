@@ -304,7 +304,11 @@ function generateManifest (interfaceManifest, opts) {
         // input pointer
         // points to a wasm memory offset where input data will be read
         // the wasm memory offset is an existing item on the EVM stack
-        call += getStackItem(spOffset)
+        if (opcode === 'SLOAD' || opcode === 'SSTORE') {
+          call += `(call $bswap_m256 ${getStackItem(spOffset)})`
+        } else {
+          call += getStackItem(spOffset)
+        }
       } else if (input === 'opointer') {
         // output pointer
         // points to a wasm memory offset where the result should be written

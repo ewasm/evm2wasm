@@ -48,7 +48,7 @@ const depMap = new Map([
   ['BALANCE', ['bswap_m256', 'callback_128']],
   ['SELFDESTRUCT', ['bswap_m256']],
   ['SSTORE', ['bswap_m256', 'callback']],
-  ['SLOAD', ['callback_256']],
+  ['SLOAD', ['bswap_m256', 'callback_256']],
   ['CODESIZE', ['callback_32']],
   ['DIFFICULTY', ['bswap_m256']],
   ['COINBASE', ['bswap_m160']],

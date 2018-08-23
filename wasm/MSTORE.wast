@@ -25,7 +25,7 @@
   ;; subtrace gas useage
   (call $memusegas (get_local $offset) (i32.const 32))
 
-  ;; pop itme from the stack
+  ;; pop item from the stack
   (set_local $sp (i32.sub (get_global $sp) (i32.const 32)))
 
   ;; swap top stack item

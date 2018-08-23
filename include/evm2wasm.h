@@ -338,7 +338,7 @@ static std::map<opcodeEnum, std::vector<opcodeEnum>> depMap = {
     {opcodeEnum::BALANCE, {opcodeEnum::bswap_m256, opcodeEnum::callback_128}},
     {opcodeEnum::SELFDESTRUCT, {opcodeEnum::bswap_m256}},
     {opcodeEnum::SSTORE, {opcodeEnum::bswap_m256, opcodeEnum::callback}},
-    {opcodeEnum::SLOAD, {opcodeEnum::callback_256}},
+    {opcodeEnum::SLOAD, {opcodeEnum::bswap_m256, opcodeEnum::callback_256}},
     {opcodeEnum::CODESIZE, {opcodeEnum::callback_32}},
     {opcodeEnum::DIFFICULTY, {opcodeEnum::bswap_m256}},
     {opcodeEnum::COINBASE, {opcodeEnum::bswap_m160}},
