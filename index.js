@@ -45,7 +45,7 @@ const depMap = new Map([
   ['CREATE', ['bswap_m256', 'bswap_m160', 'callback_160', 'memusegas', 'check_overflow']],
   ['RETURN', ['memusegas', 'check_overflow']],
   ['REVERT', ['memusegas', 'check_overflow']],
-  ['BALANCE', ['bswap_m256', 'callback_128']],
+  ['BALANCE', ['bswap_m160', 'callback_128']],
   ['SELFDESTRUCT', ['bswap_m160']],
   ['SSTORE', ['bswap_m256', 'callback']],
   ['SLOAD', ['bswap_m256', 'callback_256']],
