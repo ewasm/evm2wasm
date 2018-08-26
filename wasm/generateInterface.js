@@ -97,8 +97,8 @@ const interfaceManifest = {
   },
   GASPRICE: {
     name: 'getTxGasPrice',
-    input: ['opointer'],
-    output: []
+    input: [],
+    output: ['i128'] // FIXME: shouldn't do it this way...
   },
   BLOCKHASH: {
     name: 'getBlockHash',
@@ -189,7 +189,7 @@ const interfaceManifest = {
     output: []
   },
   RETURN: {
-    name: 'return',
+    name: 'finish',
     input: ['readOffset', 'length'],
     output: []
   },
@@ -299,12 +299,20 @@ function generateManifest (interfaceManifest, opts) {
     let call = `(call $${op.name}`
     op.input.forEach((input) => {
       if (input === 'i128' || input === 'address') {
-        call += getStackItem(spOffset)
+        if (input === 'address') {
+          call += `(call $bswap_m160 ${getStackItem(spOffset)})`
+        } else {
+          call += getStackItem(spOffset)
+        }
       } else if (input === 'ipointer') {
         // input pointer
         // points to a wasm memory offset where input data will be read
         // the wasm memory offset is an existing item on the EVM stack
-        call += getStackItem(spOffset)
+        if (opcode === 'SLOAD' || opcode === 'SSTORE') {
+          call += `(call $bswap_m256 ${getStackItem(spOffset)})`
+        } else {
+          call += getStackItem(spOffset)
+        }
       } else if (input === 'opointer') {
         // output pointer
         // points to a wasm memory offset where the result should be written
@@ -391,6 +399,8 @@ function generateManifest (interfaceManifest, opts) {
       }
 
       call += ')'
+      // change the item from BE to LE
+      call += `(drop (call $bswap_m160 ${getStackItem(spOffset)}))`
       call += cleanupStackItem160(spOffset)
     } else if (output === 'i256') {
       call += getStackItem(spOffset)
