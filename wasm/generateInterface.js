@@ -207,53 +207,53 @@ function toWasmType (type) {
 }
 
 function getStackItem (spOffset, shiftOffset) {
-  if (spOffset === 0) {
+  shiftOffset = shiftOffset || 0
+  if (spOffset === 0 && shiftOffset === 0) {
     return '(get_global $sp)'
   } else {
-    shiftOffset = shiftOffset || 0
     return `(i32.add (get_global $sp) (i32.const ${spOffset * 32 + shiftOffset}))`
   }
 }
 
 function checkOverflowStackItem64 (spOffset) {
   return `(call $check_overflow_i64
-          (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32})))
-          (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8})))
-          (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 2})))
-          (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 3}))))`
+          (i64.load ${getStackItem(spOffset, 8 * 0)})
+          (i64.load ${getStackItem(spOffset, 8 * 1)})
+          (i64.load ${getStackItem(spOffset, 8 * 2)})
+          (i64.load ${getStackItem(spOffset, 8 * 3)}))`
 }
 
 function checkOverflowStackItem256 (spOffset) {
   return `(call $check_overflow
-          (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32})))
-          (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8})))
-          (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 2})))
-          (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 3}))))`
+          (i64.load ${getStackItem(spOffset, 8 * 0)})
+          (i64.load ${getStackItem(spOffset, 8 * 1)})
+          (i64.load ${getStackItem(spOffset, 8 * 2)})
+          (i64.load ${getStackItem(spOffset, 8 * 3)}))`
 }
 
 // assumes the stack contains 160 bits of value and clears the rest
 function cleanupStackItem160 (spOffset) {
   return `
     ;; zero out mem
-    (i64.store (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 3})) (i64.const 0))
-    (i32.store (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 2 + 4})) (i32.const 0))`
+    (i64.store ${getStackItem(spOffset, 8 * 3)} (i64.const 0))
+    (i32.store ${getStackItem(spOffset, 8 * 2 + 4)} (i32.const 0))`
 }
 
 // assumes the stack contains 128 bits of value and clears the rest
 function cleanupStackItem128 (spOffset) {
   return `
     ;; zero out mem
-    (i64.store (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 3})) (i64.const 0))
-    (i64.store (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 2})) (i64.const 0))`
+    (i64.store ${getStackItem(spOffset, 8 * 3)} (i64.const 0))
+    (i64.store ${getStackItem(spOffset, 8 * 2)} (i64.const 0))`
 }
 
 // assumes the stack contains 64 bits of value and clears the rest
 function cleanupStackItem64 (spOffset) {
   return `
     ;; zero out mem
-    (i64.store (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 3})) (i64.const 0))
-    (i64.store (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8 * 2})) (i64.const 0))
-    (i64.store (i32.add (get_global $sp) (i32.const ${spOffset * 32 + 8})) (i64.const 0))`
+    (i64.store ${getStackItem(spOffset, 8 * 3)} (i64.const 0))
+    (i64.store ${getStackItem(spOffset, 8 * 2)} (i64.const 0))
+    (i64.store ${getStackItem(spOffset, 8 * 1)} (i64.const 0))`
 }
 
 function generateManifest (interfaceManifest, opts) {
