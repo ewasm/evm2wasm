@@ -298,7 +298,7 @@ function generateManifest (interfaceManifest, opts) {
     let lastOffset
     let call = `(call $${op.name}`
     op.input.forEach((input) => {
-      if (input === 'i128' || input == 'address') {
+      if (input === 'i128' || input === 'address') {
         call += getStackItem(spOffset)
       } else if (input === 'ipointer') {
         // input pointer
@@ -408,29 +408,21 @@ function generateManifest (interfaceManifest, opts) {
       }
 
       if (opcode === 'CALL' || opcode === 'CALLCODE' || opcode === 'DELEGATECALL' || opcode === 'STATICCALL') {
-        call =
-          `(i64.store
-      ${getStackItem(spOffset)}
-      (i64.extend_u/i32
-        (i32.eqz ${call}) ;; flip CALL result from EEI to EVM convention (0 -> 1, 1,2,.. -> 1)
-      )))`
-
+        // flip CALL result from EEI to EVM convention (0 -> 1, 1,2,.. -> 1)
+        call = `(i64.store ${getStackItem(spOffset)} (i64.extend_u/i32 (i32.eqz ${call})))`
       } else {
-        call =
-          `(i64.store
-      ${getStackItem(spOffset)}
-      (i64.extend_u/i32
-        ${call})))`
+        call = `(i64.store ${getStackItem(spOffset)} (i64.extend_u/i32 ${call}))`
       }
 
+      call += ')'
       call += cleanupStackItem64(spOffset)
     } else if (output === 'i64') {
       if (useAsyncAPI && op.async) {
         call += '(get_local $callback)'
       }
-      call =
-        `(i64.store ${getStackItem(spOffset)} ${call}))`
+      call = `(i64.store ${getStackItem(spOffset)} ${call})`
 
+      call += ')'
       call += cleanupStackItem64(spOffset)
     } else if (!output) {
       if (useAsyncAPI && op.async) {
