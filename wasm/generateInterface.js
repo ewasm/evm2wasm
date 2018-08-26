@@ -189,7 +189,7 @@ const interfaceManifest = {
     output: []
   },
   RETURN: {
-    name: 'return',
+    name: 'finish',
     input: ['readOffset', 'length'],
     output: []
   },
