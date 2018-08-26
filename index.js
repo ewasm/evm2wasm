@@ -145,7 +145,9 @@ exports.evm2wast = function (evmCode, opts = {
   // add a metering statment at the beginning of a segment
   function addMetering () {
     if (!opts.chargePerOp) {
-      wast += `(call $useGas (i64.const ${gasCount})) `
+      if (gasCount !== 0) {
+        wast += `(call $useGas (i64.const ${gasCount})) `
+      }
     }
 
     wast += segment
@@ -190,7 +192,9 @@ exports.evm2wast = function (evmCode, opts = {
 
     let bytes
     if (opts.chargePerOp) {
-      segment += `(call $useGas (i64.const ${op.fee})) `
+      if (op.fee !== 0) {
+        segment += `(call $useGas (i64.const ${op.fee})) `
+      }
     }
     // do not charge gas for interface methods
     // TODO: implement proper gas charging and enable this here

@@ -152,7 +152,8 @@ string evm2wast(const vector<uint8_t>& evmCode, bool stackTrace, bool useAsyncAP
     // add a metering statment at the beginning of a segment
     auto addMetering = [&segment, &wast, &gasCount, &chargePerOp]() {
         if (!chargePerOp) {
-            wast << "(call $useGas (i64.const {gasCount}))"_format("gasCount"_a = gasCount);
+            if (gasCount != 0)
+                wast << "(call $useGas (i64.const {gasCount}))"_format("gasCount"_a = gasCount);
         }
         wast << segment.str();
         segment.clear();
@@ -180,7 +181,8 @@ string evm2wast(const vector<uint8_t>& evmCode, bool stackTrace, bool useAsyncAP
         }
 
         if (chargePerOp) {
-            segment << "(call $useGas (i64.const {fee}))"_format("fee"_a = op.fee);
+            if (op.fee != 0)
+                segment << "(call $useGas (i64.const {fee}))"_format("fee"_a = op.fee);
         }
 
         // do not charge gas for interface methods
