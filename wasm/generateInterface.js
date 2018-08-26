@@ -206,6 +206,15 @@ function toWasmType (type) {
   return ret
 }
 
+function getStackItem (spOffset, shiftOffset) {
+  if (spOffset === 0) {
+    return '(get_global $sp)'
+  } else {
+    shiftOffset = shiftOffset || 0
+    return `(i32.add (get_global $sp) (i32.const ${spOffset * 32 + shiftOffset}))`
+  }
+}
+
 function checkOverflowStackItem64 (spOffset) {
   return `(call $check_overflow_i64
           (i64.load (i32.add (get_global $sp) (i32.const ${spOffset * 32})))
@@ -290,26 +299,18 @@ function generateManifest (interfaceManifest, opts) {
     let call = `(call $${op.name}`
     op.input.forEach((input) => {
       if (input === 'i128' || input == 'address') {
-        if (spOffset) {
-          call += `(i32.add (get_global $sp) (i32.const ${spOffset * 32}))`
-        } else {
-          call += '(get_global $sp)'
-        }
+        call += getStackItem(spOffset)
       } else if (input === 'ipointer') {
         // input pointer
         // points to a wasm memory offset where input data will be read
         // the wasm memory offset is an existing item on the EVM stack
-        if (spOffset) {
-          call += `(i32.add (get_global $sp) (i32.const ${spOffset * 32}))`
-        } else {
-          call += '(get_global $sp)'
-        }
+        call += getStackItem(spOffset)
       } else if (input === 'opointer') {
         // output pointer
         // points to a wasm memory offset where the result should be written
         // the wasm memory offset is a new item on the EVM stack
         spOffset++
-        call += `(i32.add (get_global $sp) (i32.const ${spOffset * 32}))`
+        call += getStackItem(spOffset)
       } else if (input === 'gasLimit') {
         // i64 param for CALL is the gas
         // add 2300 gas subsidy
@@ -374,8 +375,7 @@ function generateManifest (interfaceManifest, opts) {
     // generate output handling
     const output = op.output.shift()
     if (output === 'i128') {
-      call =
-        `${call} (i32.add (get_global $sp) (i32.const ${spOffset * 32}))`
+      call += getStackItem(spOffset)
 
       if (useAsyncAPI && op.async) {
         call += '(get_local $callback)'
@@ -384,8 +384,7 @@ function generateManifest (interfaceManifest, opts) {
       call += ')'
       call += cleanupStackItem128(spOffset)
     } else if (output === 'address') {
-      call =
-        `${call} (i32.add (get_global $sp) (i32.const ${spOffset * 32}))`
+      call += getStackItem(spOffset)
 
       if (useAsyncAPI && op.async) {
         call += '(get_local $callback)'
@@ -394,17 +393,15 @@ function generateManifest (interfaceManifest, opts) {
       call += ')'
       call += cleanupStackItem160(spOffset)
     } else if (output === 'i256') {
-      call = `${call} 
-    (i32.add (get_global $sp) 
-    (i32.const ${spOffset * 32}))`
+      call += getStackItem(spOffset)
 
       if (useAsyncAPI && op.async) {
         call += '(get_local $callback)'
       }
 
-      call += `)
-      (drop (call $bswap_m256 (i32.add (i32.const 32) (get_global $sp))))
-      `
+      call += ')'
+      // change endianess from BE to LE
+      call += `(drop (call $bswap_m256 ${getStackItem(spOffset)}))`
     } else if (output === 'i32') {
       if (useAsyncAPI && op.async) {
         call += '(get_local $callback)'
@@ -413,7 +410,7 @@ function generateManifest (interfaceManifest, opts) {
       if (opcode === 'CALL' || opcode === 'CALLCODE' || opcode === 'DELEGATECALL' || opcode === 'STATICCALL') {
         call =
           `(i64.store
-      (i32.add (get_global $sp) (i32.const ${spOffset * 32}))
+      ${getStackItem(spOffset)}
       (i64.extend_u/i32
         (i32.eqz ${call}) ;; flip CALL result from EEI to EVM convention (0 -> 1, 1,2,.. -> 1)
       )))`
@@ -421,7 +418,7 @@ function generateManifest (interfaceManifest, opts) {
       } else {
         call =
           `(i64.store
-      (i32.add (get_global $sp) (i32.const ${spOffset * 32}))
+      ${getStackItem(spOffset)}
       (i64.extend_u/i32
         ${call})))`
       }
@@ -432,7 +429,7 @@ function generateManifest (interfaceManifest, opts) {
         call += '(get_local $callback)'
       }
       call =
-        `(i64.store (i32.add (get_global $sp) (i32.const ${spOffset * 32})) ${call}))`
+        `(i64.store ${getStackItem(spOffset)} ${call}))`
 
       call += cleanupStackItem64(spOffset)
     } else if (!output) {
