@@ -97,8 +97,8 @@ const interfaceManifest = {
   },
   GASPRICE: {
     name: 'getTxGasPrice',
-    input: ['opointer'],
-    output: []
+    input: [],
+    output: ['i128'] // FIXME: shouldn't do it this way...
   },
   BLOCKHASH: {
     name: 'getBlockHash',
