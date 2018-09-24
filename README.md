@@ -1,3 +1,5 @@
+Note: this project is not actively maintained. See [RuneVM](https://github.com/axic/runevm) for a replacement candidate.
+
 # SYNOPSIS 
 [![CircleCI](https://circleci.com/gh/ewasm/evm2wasm.svg?style=svg)](https://circleci.com/gh/ewasm/evm2wasm)
 [![js-standard-style](https://cdn.rawgit.com/feross/standard/master/badge.svg)](https://github.com/feross/standard)  
