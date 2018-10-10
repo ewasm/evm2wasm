@@ -49,7 +49,7 @@
     "loglevel": "^1.6.0",
     "merkle-trie": "0.0.0",
     "readable-stream": "^2.3.5",
-    "wabt": "^1.0.0"
+    "wabt": "^1.0.6"
   },
   "standard": {
     "ignore": [
