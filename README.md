@@ -1,4 +1,4 @@
-Note: this project is not actively maintained. See [RuneVM](https://github.com/axic/runevm) for a replacement candidate.
+## Note: this project is not actively maintained. See [RuneVM](https://github.com/axic/runevm) and [yevm](https://github.com/axic/yevm) for replacement candidates.
 
 # SYNOPSIS 
 [![CircleCI](https://circleci.com/gh/ewasm/evm2wasm.svg?style=svg)](https://circleci.com/gh/ewasm/evm2wasm)
