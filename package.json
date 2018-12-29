@@ -23,7 +23,7 @@
     "ethereumjs-vm": "^2.3.3",
     "minimist": "^1.2.0",
     "standard": "^11.0.1",
-    "tape": "^4.9.0"
+    "tape": "^4.9.2"
   },
   "repository": {
     "type": "git",
