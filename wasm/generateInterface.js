@@ -13,6 +13,8 @@ const wasmTypes = {
   ipointer: 'i32',
   opointer: 'i32',
   gasLimit: 'i64',
+  callReturnMemoryOffset: 'i32',
+  callReturnMemorySize: 'i32',
   // FIXME: these are handled wrongly currently
   address: 'i32',
   i128: 'i32',
@@ -140,25 +142,25 @@ const interfaceManifest = {
   CALL: {
     name: 'call',
     async: true,
-    input: ['gasLimit', 'address', 'i128', 'readOffset', 'length'],
+    input: ['gasLimit', 'address', 'i128', 'readOffset', 'length', 'callReturnMemoryOffset', 'callReturnMemorySize'],
     output: ['i32']
   },
   CALLCODE: {
     name: 'callCode',
     async: true,
-    input: ['gasLimit', 'address', 'i128', 'readOffset', 'length'],
+    input: ['gasLimit', 'address', 'i128', 'readOffset', 'length', 'callReturnMemoryOffset', 'callReturnMemorySize'],
     output: ['i32']
   },
   DELEGATECALL: {
     name: 'callDelegate',
     async: true,
-    input: ['gasLimit', 'address', 'i128', 'readOffset', 'length'],
+    input: ['gasLimit', 'address', 'i128', 'readOffset', 'length', 'callReturnMemoryOffset', 'callReturnMemorySize'],
     output: ['i32']
   },
   STATICCALL: {
     name: 'callStatic',
     async: true,
-    input: ['gasLimit', 'address', 'readOffset', 'length'],
+    input: ['gasLimit', 'address', 'readOffset', 'length', 'callReturnMemoryOffset', 'callReturnMemorySize'],
     output: ['i32']
   },
   RETURNDATACOPY: {
@@ -262,7 +264,8 @@ function generateManifest (interfaceManifest, opts) {
   for (let opcode in interfaceManifest) {
     const op = interfaceManifest[opcode]
     // Translate input types to native wasm types
-    let inputs = op.input.map(type => toWasmType(type))
+    // callReturnMemoryOffset and callReturnMemorySize are actually output and must be ignored here
+    let inputs = op.input.filter(type => type !== 'callReturnMemoryOffset' && type !== 'callReturnMemorySize').map(type => toWasmType(type))
     // Also add output types which are non-basic because they need to be passed as inputs
     inputs = inputs.concat(op.output.filter(type => type !== 'i32' && type !== 'i64').map(type => toWasmType(type)))
     let params = ''
@@ -344,7 +347,13 @@ function generateManifest (interfaceManifest, opts) {
         locals += `(local $offset${numOfLocals} i32)`
         body += `(set_local $offset${numOfLocals} ${checkOverflowStackItem256(spOffset)})`
         call += `(get_local $offset${numOfLocals})`
-      } else if (input === 'length' && (opcode === 'CALL' || opcode === 'CALLCODE' || opcode === 'DELEGATECALL' || opcode === 'STATICCALL')) {
+      } else if (input === 'callReturnMemoryOffset' || input === 'callReturnMemorySize') {
+        // FIXME: this should actually insert a wrapper for invoking returndatacopy
+        //        with these arguments in the postprocessing step
+
+        // Remove (ignore) this stack item here
+        spOffset--
+      } else if (input === 'length' && (opcode === 'CALL' || opcode === 'CALLCODE')) {
         // CALLs in EVM have 7 arguments
         // but in ewasm CALLs only have 5 arguments
         // so delete the bottom two stack elements, after processing the 5th argument
@@ -358,12 +367,6 @@ function generateManifest (interfaceManifest, opts) {
 
         call += `(get_local $length${numOfLocals})`
         numOfLocals++
-
-        // delete 6th stack element
-        spOffset--
-
-        // delete 7th stack element
-        spOffset--
       } else if (input === 'length' && (opcode !== 'CALL' && opcode !== 'CALLCODE' && opcode !== 'DELEGATECALL' && opcode !== 'STATICCALL')) {
         locals += `(local $length${numOfLocals} i32)`
         body += `(set_local $length${numOfLocals} ${checkOverflowStackItem256(spOffset)})`
@@ -420,6 +423,9 @@ function generateManifest (interfaceManifest, opts) {
       if (opcode === 'CALL' || opcode === 'CALLCODE' || opcode === 'DELEGATECALL' || opcode === 'STATICCALL') {
         // flip CALL result from EEI to EVM convention (0 -> 1, 1,2,.. -> 1)
         call = `(i64.store ${getStackItem(spOffset)} (i64.extend_u/i32 (i32.eqz ${call})))`
+
+      // FIXME: add callReturnMemory* handling here
+
       } else {
         call = `(i64.store ${getStackItem(spOffset)} (i64.extend_u/i32 ${call}))`
       }
